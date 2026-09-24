@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gerader Mittelteil des Rand-Griffs (dehnt sich ueber die eingestellte
+     Grifflaenge). Schmaler dunkler Schattensaum links (Bildschirmmitte),
+     weiss bis zur Bildschirmkante rechts - wie bei den Spitzen oben/unten. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#5F000000"/>
+        </shape>
+    </item>
+    <item android:left="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF"/>
+        </shape>
+    </item>
+</layer-list>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dunkles Theme fuer die Vollbild-Seiten von MainActivity (Erststart-
+         Instruktionen, Widget-/Icon-Auswahl) - passend zur dunklen Leiste
+         selbst, statt des grellen weissen Material-Light-Standards. -->
+    <style name="EdgeTabTheme" parent="android:Theme.Material">
+        <item name="android:windowBackground">#1C1C1E</item>
+        <item name="android:colorPrimary">@color/accent</item>
+        <item name="android:colorAccent">@color/accent</item>
+        <item name="android:colorControlActivated">@color/accent</item>
+        <item name="android:colorControlNormal">@color/accent</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#B0B0B0</item>
+    </style>
+</resources>

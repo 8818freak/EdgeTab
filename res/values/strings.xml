@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EdgeTab</string>
+    <string name="tagline">Die Produktivitätsleiste am Rand</string>
+    <string name="svc_channel">EdgeTab-Dienst</string>
+    <string name="svc_running">EdgeTab läuft – Leiste am Rand aufziehbar</string>
+</resources>

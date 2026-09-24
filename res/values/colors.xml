@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="edge_bg">#EE1C1C1E</color>
+    <color name="edge_handle">#66FFFFFF</color>
+    <color name="tile_bg">#2C2C2E</color>
+    <color name="tile_fg">#FFFFFF</color>
+    <color name="accent">#2E9BE6</color>
+</resources>

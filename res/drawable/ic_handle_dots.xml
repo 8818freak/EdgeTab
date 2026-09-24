@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Drei kleine Punkte in der Mitte des Rand-Griffs (Vorbild: BB Registerkarte
+     Produktivitaet) - deuten an, dass sich hier etwas ziehen laesst. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="4dp" android:height="16dp"
+    android:viewportWidth="4" android:viewportHeight="16">
+    <path android:fillColor="#9E9E9E"
+        android:pathData="M2,2 m-1.5,0 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0
+                           M2,8 m-1.5,0 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0
+                           M2,14 m-1.5,0 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0"/>
+</vector>

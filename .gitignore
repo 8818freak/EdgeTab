@@ -1,0 +1,16 @@
+# Baumaterial - wird lokal neu erzeugt, gehoert nicht ins Repo
+build/
+
+# Persoenlicher Signierschluessel - NIEMALS committen
+*.keystore
+*.p12
+*.jks
+keystore.*
+
+# macOS
+.DS_Store
+
+# Editoren/IDEs
+.idea/
+*.iml
+.vscode/
