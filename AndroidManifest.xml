@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="de.herbers.edgetab"
+    android:versionCode="46"
+    android:versionName="0.46">
+
+    <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="34" />
+
+    <!-- Overlay ueber allen Apps: der aufziehbare Streifen -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Dienst laeuft im Vordergrund weiter, damit der Griff immer da ist -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Kalender fuer die erste Kachel. Termin-Hinzufuegen startet die
+         installierte Kalender-App selbst (ACTION_INSERT) - braucht darum
+         keine eigene WRITE_CALENDAR-Berechtigung. -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <!-- Kontakte-Karte (optional, erst bei Bedarf abgefragt) -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- Aufgaben-Karte: liest JTX Boards eigenen, offenen Content-Provider
+         (von JTX Board selbst deklariert, keine Signatur-Sperre) - optional,
+         erst bei Bedarf abgefragt. -->
+    <uses-permission android:name="at.techbee.jtx.permission.READ" />
+    <!-- Aufgaben-Karte: Aufgaben direkt in JTX Board abhaken koennen. -->
+    <uses-permission android:name="at.techbee.jtx.permission.WRITE" />
+    <!-- Nach dem Neustart wieder starten -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Ab Android 11 sonst unsichtbar (Package-Visibility): macht alle
+         App-Widget-Anbieter (z. B. den BlackBerry Hub) UND alle startbaren
+         Apps (fuer die Verknuepfungs-Registerkarte) sichtbar. -->
+    <queries>
+        <intent>
+            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <!-- Um zu erkennen, ob JTX Board ueberhaupt installiert ist
+             (Aufgaben-Karte) - sonst waere das Paket seit Android 11 unsichtbar. -->
+        <package android:name="at.techbee.jtx" />
+    </queries>
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_launcher"
+        android:theme="@style/EdgeTabTheme"
+        android:allowBackup="true">
+
+        <!-- Startbildschirm: Berechtigungen erteilen, Dienst starten -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Der Dienst, der den Rand-Griff und das Overlay haelt -->
+        <service
+            android:name=".EdgeService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Aufziehbare Produktivitaetsleiste am Bildschirmrand" />
+        </service>
+
+        <!-- Faengt eintreffende Benachrichtigungen ab (Posteingang-Kachel) -->
+        <service
+            android:name=".NotificationCollector"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- Startet den Dienst nach dem Booten neu -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
