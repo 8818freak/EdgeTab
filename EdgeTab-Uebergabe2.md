@@ -403,7 +403,28 @@ unten dokumentiert, ist aber **nicht mehr der Standardweg**.
 - Bytecheck der Signatur: `apksigner verify --min-sdk-version 21 -v` zeigt v1+v2+v3
   (ohne `--min-sdk-version` meldet es fälschlich v1/v2=false).
 
-### Signaturschlüssel (entscheidend für Updates ohne Deinstallation)
+### Signaturschlüssel gewechselt (2026-09-24) - WICHTIG
+Der bisherige Schlüssel (`keystore.p12`, Alias `bbresign`) stammte aus dem
+frühen `bbresign`-Versuch (Umsignieren der Original-BB-Suite) und trug als
+Zertifikats-Eigentümer **`CN=BlackBerry Ltd`** - unbrauchbar, sobald APKs
+geteilt oder Quellcode veröffentlicht werden (der Name steht sichtbar im
+Signaturzertifikat jeder gebauten APK, unabhängig von GitHub). Mathias
+wollte EdgeTab in BB-Communitys (BBMe/Signal/Telegram) zeigen und plant eine
+GitHub-Veröffentlichung - da durfte der Name so nicht bleiben.
+
+**Neuer Schlüssel**: `edgetab-keystore.p12` im Projektordner (NICHT im
+Quellcode-Repo, wie der alte auch schon per `.gitignore` ausgeschlossen),
+Alias `edgetab`, Passwort `edgetab2026`, Eigentümer `CN=Mathias Herbers,
+OU=EdgeTab, O=Mathias Herbers`. Mathias entschied sich fuer die konsequente
+Variante (nicht Altschlüssel behalten + Zweitschlüssel nur fürs Teilen):
+**0.46 wurde deinstalliert und mit dem neuen Schlüssel neu installiert** -
+einmaliger Verlust aller lokalen Einstellungen (Kartenauswahl/-reihenfolge,
+JTX-Konto, Kontaktauswahl, Posteingang-Verlauf), von Mathias bewusst in
+Kauf genommen. **Alle Builds ab jetzt (0.47+) verwenden
+`edgetab-keystore.p12`, NICHT mehr `keystore.p12`** - Baubefehle unten
+entsprechend anpassen, falls noch nicht geschehen.
+
+### Signaturschlüssel (Hintergrund, jetzt mit neuem Schlüssel gültig)
 Mathias' Keystore **`/mnt/user-data/uploads/keystore.p12`** (er lädt ihn hoch),
 Store-/Key-Passwort **`bbresign`**, Alias **`bbresign`**, CN=BlackBerry Ltd
 (kosmetisch). **Immer damit signieren**, sonst muss er deinstallieren.
@@ -1036,6 +1057,26 @@ Kontakten - runde, farbige, schwebende Knoepfe statt Text-Buttons).
   noch nicht angegangen** - bewusst auf diesen konkreten, klar umrissenen
   Wunsch beschraenkt; falls Mathias das weiterverfolgen will, gesondert
   angehen (Farbpalette ist ein groesserer, app-weiter Eingriff).
+
+### GitHub-Vorbereitung (2026-09-24, noch NICHT hochgeladen)
+Mathias möchte EdgeTab perspektivisch veröffentlichen (er will es vorher in
+2-3 BB-Communitys zeigen) - auf seinen expliziten Wunsch "vorbereiten, aber
+noch nicht hochladen":
+- Lokales Git-Repo in `EdgeTab-quellcode_aktuell/` angelegt (`git init`,
+  ein Commit, Branch `main`), **kein Remote gesetzt, nichts gepusht**.
+- `.gitignore` (schließt `build/`, jede `*.p12`/`*.keystore`/`*.jks`,
+  `.DS_Store`, IDE-Ordner aus).
+- `README.md` (Englisch, mit kurzer deutscher Zusammenfassung) - Feature-
+  Überblick, Bauanleitung (eigener Schlüssel selbst erzeugen), Verweis auf
+  dieses Übergabedokument für die volle Entstehungsgeschichte.
+- `LICENSE` (MIT, Copyright Mathias Herbers 2026).
+- `EdgeTab-Uebergabe2.md` zusätzlich in den Quellordner kopiert (fürs Repo).
+- Mehrsprachigkeit (Englisch zusätzlich zu Deutsch) auf Mathias' Wunsch
+  jetzt konkret vorgemerkt, aber bewusst NICHT in dieser Sitzung begonnen -
+  großer mechanischer Aufwand (589 Textstellen über 25 Dateien laut grobem
+  `grep`-Auszählen), separat anzugehen.
+- **Naechster Schritt, sobald Mathias gruenes Licht gibt**: GitHub-Repo
+  anlegen, Remote setzen, pushen.
 
 ### Weitere schwebende Stift-Knoepfe + farbiger Balken im Posteingang (NEU in 0.44)
 Fortsetzung von 0.43, nach Mathias' zwei BB-Screenshots (Posteingang mit
