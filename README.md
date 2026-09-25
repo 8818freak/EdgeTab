@@ -37,6 +37,21 @@ Android-Schnittstellen.*
   fixed-position quick-control card (top/middle/bottom, configurable) for
   reachability with the thumb of the hand holding the phone.
 
+## Screenshots
+
+<table>
+<tr>
+<td><img src="screenshots/kalender.png" width="220" alt="Kalender-Karte"><br>Kalender</td>
+<td><img src="screenshots/verknuepfungen.png" width="220" alt="Verknüpfungen-Karte"><br>Verknüpfungen (Shortcuts)</td>
+<td><img src="screenshots/kontakte.png" width="220" alt="Kontakte-Karte mit Sortieroptionen"><br>Kontakte (Sortierung/Anzeige)</td>
+</tr>
+<tr>
+<td><img src="screenshots/notizen.png" width="220" alt="Notizen-Karte"><br>Notizen</td>
+<td><img src="screenshots/einstellungen-posteingang.png" width="220" alt="Einstellungen: Posteingang-Kategorien"><br>Einstellungen: Posteingang</td>
+<td><img src="screenshots/ueber-edgetab.png" width="220" alt="Über EdgeTab: Version, Lizenz, Änderungsprotokoll"><br>Über EdgeTab</td>
+</tr>
+</table>
+
 ## Building
 
 No Gradle — this project is built directly with the raw Android SDK
@@ -84,4 +99,4 @@ investigations into what is and isn't possible on modern Android.
 
 ## License
 
-MIT — see `LICENSE`.
+GNU General Public License v3.0 (or later) — see `LICENSE`.
