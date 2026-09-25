@@ -4,6 +4,10 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.72a
+- Nur Änderungsprotokoll-Text bereinigt (keine Personenerwähnung mehr bei
+  gemeldeten Fehlern/Wünschen), keine funktionale Änderung.
+
 ## 0.72
 - Neue Seite „Über EdgeTab" in den Einstellungen: Versionsnummer, Lizenztext
   und ein aufklappbares Änderungsprotokoll (dieses Dokument, direkt in der
