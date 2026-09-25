@@ -43,7 +43,7 @@ public class ContactsTab extends BaseTab {
     private static final Set<String> PICKING = new HashSet<>();
     private static final Map<String, Integer> SAVED_SCROLL = new HashMap<>();
 
-    ContactsTab(TabInstance inst) { super(inst, "Kontakte", R.drawable.ic_contacts); }
+    ContactsTab(TabInstance inst) { super(inst, R.string.tab_contacts, R.drawable.ic_contacts); }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {
         int d = Math.round(ctx.getResources().getDisplayMetrics().density);
@@ -73,7 +73,7 @@ public class ContactsTab extends BaseTab {
 
         if (picking) {
             Button done = new Button(ctx);
-            done.setText("Fertig");
+            done.setText(R.string.done_button);
             done.setOnClickListener(v -> { PICKING.remove(inst.id); refresh.run(); });
             tools.addView(done);
         } else {
@@ -89,12 +89,38 @@ public class ContactsTab extends BaseTab {
             tools.addView(gear);
 
             if (menuOpen) {
-                tools.addView(modeButton(ctx, "Alle", "all", refresh));
-                tools.addView(modeButton(ctx, "Ausgewählt", "selected", refresh));
-                tools.addView(modeButton(ctx, "Favoriten", "favorites", refresh));
+                tools.addView(modeButton(ctx, ctx.getString(R.string.filter_all), "all", refresh));
+                tools.addView(modeButton(ctx, ctx.getString(R.string.contacts_mode_selected), "selected", refresh));
+                tools.addView(modeButton(ctx, ctx.getString(R.string.contacts_mode_favorites), "favorites", refresh));
             }
         }
         root.addView(tools);
+
+        if (menuOpen && !picking) {
+            LinearLayout nameTools = new LinearLayout(ctx);
+            nameTools.setOrientation(LinearLayout.HORIZONTAL);
+            nameTools.setGravity(Gravity.CENTER_VERTICAL);
+
+            boolean altDisplay = "alternative".equals(Settings.contactDisplay(ctx));
+            Button dispBtn = new Button(ctx);
+            dispBtn.setText(altDisplay ? R.string.contacts_display_lastname_first : R.string.contacts_display_firstname_first);
+            dispBtn.setOnClickListener(v -> {
+                Settings.setContactDisplay(ctx, altDisplay ? "primary" : "alternative");
+                refresh.run();
+            });
+            nameTools.addView(dispBtn);
+
+            boolean altSort = "alternative".equals(Settings.contactSort(ctx));
+            Button sortBtn = new Button(ctx);
+            sortBtn.setText(altSort ? R.string.contacts_sort_by_lastname : R.string.contacts_sort_by_firstname);
+            sortBtn.setOnClickListener(v -> {
+                Settings.setContactSort(ctx, altSort ? "primary" : "alternative");
+                refresh.run();
+            });
+            nameTools.addView(sortBtn);
+
+            root.addView(nameTools);
+        }
 
         // Absichtlich NICHT an menuOpen gekoppelt: das Waehlen von "Ausgewaehlt"
         // im Menue schliesst das Menue sofort (siehe modeButton) - waere dieser
@@ -103,7 +129,7 @@ public class ContactsTab extends BaseTab {
         // "selected" ist, unabhaengig vom Menuestatus.
         if ("selected".equals(inst.contactsMode) && !picking) {
             Button pick = new Button(ctx);
-            pick.setText("Kontakte auswählen…");
+            pick.setText(R.string.contacts_pick_button);
             pick.setOnClickListener(v -> {
                 PICKING.add(inst.id);
                 MENU_OPEN.remove(inst.id);
@@ -119,10 +145,10 @@ public class ContactsTab extends BaseTab {
             if (rows.isEmpty()) {
                 TextView hint = new TextView(ctx);
                 hint.setText("selected".equals(inst.contactsMode)
-                        ? "Noch keine Kontakte ausgewählt. Über das Zahnrad oben \"Kontakte auswählen…\"."
+                        ? ctx.getString(R.string.contacts_none_selected_hint)
                         : "favorites".equals(inst.contactsMode)
-                        ? "Keine Favoriten. In der Kontakte-App einen Kontakt als Favorit markieren."
-                        : "Keine Kontakte gefunden.");
+                        ? ctx.getString(R.string.contacts_no_favorites_hint)
+                        : ctx.getString(R.string.contacts_none_found));
                 hint.setTextColor(Color.parseColor("#9E9E9E"));
                 hint.setTextSize(14);
                 hint.setPadding(0, 12 * d, 0, 0);
@@ -156,15 +182,14 @@ public class ContactsTab extends BaseTab {
         box.setPadding(0, 12 * d, 0, 0);
 
         TextView t = new TextView(ctx);
-        t.setText("Für die Kontakte-Karte fehlt die Berechtigung, auf deine "
-                + "Kontakte zuzugreifen.");
+        t.setText(R.string.contacts_permission_missing);
         t.setTextColor(Color.parseColor("#CCCCCC"));
         t.setTextSize(14);
         t.setPadding(0, 0, 0, 12 * d);
         box.addView(t);
 
         Button allow = new Button(ctx);
-        allow.setText("Zugriff erlauben");
+        allow.setText(R.string.grant_access_button);
         allow.setOnClickListener(v -> {
             Intent i = new Intent(ctx, MainActivity.class);
             i.putExtra("request_permission", android.Manifest.permission.READ_CONTACTS);
@@ -196,13 +221,23 @@ public class ContactsTab extends BaseTab {
     private List<ContactRow> queryContacts(Context ctx, String mode, List<String> selectedKeys) {
         List<ContactRow> out = new ArrayList<>();
         String selection = "favorites".equals(mode) ? ContactsContract.Contacts.STARRED + "=1" : null;
+        // Anzeige (Vorname/Nachname zuerst) und Sortierung (nach Vorname/
+        // Nachname) unabhaengig einstellbar - Android liefert beides fertig
+        // ueber DISPLAY_NAME_PRIMARY/-ALTERNATIVE und SORT_KEY_PRIMARY/
+        // -ALTERNATIVE, kein eigenes Namens-Parsing noetig.
+        String displayCol = "alternative".equals(Settings.contactDisplay(ctx))
+                ? ContactsContract.Contacts.DISPLAY_NAME_ALTERNATIVE
+                : ContactsContract.Contacts.DISPLAY_NAME_PRIMARY;
+        String sortCol = "alternative".equals(Settings.contactSort(ctx))
+                ? ContactsContract.Contacts.SORT_KEY_ALTERNATIVE
+                : ContactsContract.Contacts.SORT_KEY_PRIMARY;
         Cursor c = null;
         try {
             c = ctx.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,
                     new String[]{ContactsContract.Contacts.LOOKUP_KEY,
-                            ContactsContract.Contacts.DISPLAY_NAME_PRIMARY,
+                            displayCol,
                             ContactsContract.Contacts.PHOTO_THUMBNAIL_URI},
-                    selection, null, ContactsContract.Contacts.SORT_KEY_PRIMARY + " ASC");
+                    selection, null, sortCol + " ASC");
             if (c != null) {
                 Set<String> want = "selected".equals(mode) ? new HashSet<>(selectedKeys) : null;
                 while (c.moveToNext()) {
@@ -339,7 +374,7 @@ public class ContactsTab extends BaseTab {
         }
         if (all.isEmpty()) {
             TextView none = new TextView(ctx);
-            none.setText("Keine Kontakte gefunden.");
+            none.setText(R.string.contacts_none_found);
             none.setTextColor(Color.parseColor("#9E9E9E"));
             box.addView(none);
         }

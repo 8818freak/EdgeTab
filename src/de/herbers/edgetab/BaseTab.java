@@ -17,19 +17,23 @@ import android.widget.ImageView;
 abstract class BaseTab implements Tab {
 
     final TabInstance inst;
-    private final String defaultTitle;
+    private final int defaultTitleRes;
     private final int defaultIcon;
 
-    BaseTab(TabInstance inst, String defaultTitle, int defaultIcon) {
+    /** defaultTitleRes: String-Resource statt fertigem Text, damit der
+     *  Standardname je nach Geraetesprache uebersetzt erscheint - aufgeloest
+     *  erst in title(Context), da der Konstruktor selbst keinen Context hat
+     *  (siehe die super(inst, R.string.tab_xxx, ...)-Aufrufe der Unterklassen). */
+    BaseTab(TabInstance inst, int defaultTitleRes, int defaultIcon) {
         this.inst = inst;
-        this.defaultTitle = defaultTitle;
+        this.defaultTitleRes = defaultTitleRes;
         this.defaultIcon = defaultIcon;
     }
 
     public String id() { return inst.id; }
 
     public String title(Context ctx) {
-        return (inst.name != null && !inst.name.trim().isEmpty()) ? inst.name : defaultTitle;
+        return (inst.name != null && !inst.name.trim().isEmpty()) ? inst.name : ctx.getString(defaultTitleRes);
     }
 
     public int iconRes() {

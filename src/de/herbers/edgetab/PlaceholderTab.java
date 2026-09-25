@@ -15,10 +15,21 @@ import android.widget.TextView;
 public class PlaceholderTab extends BaseTab {
 
     private final String hint;
+    private final String rawDefaultTitle;
 
-    public PlaceholderTab(TabInstance inst, String defaultTitle, int defaultIcon, String hint) {
-        super(inst, defaultTitle, defaultIcon);
+    /** rawDefaultTitle ist hier ein interner, nicht uebersetzbarer Typ-
+     *  Schluessel (z.B. ein unbekannter TabInstance.type-Wert) statt eines
+     *  String-Resource - darum ueberschreibt diese Klasse title(Context)
+     *  statt BaseTabs Resource-basierten Standardnamen zu nutzen. */
+    public PlaceholderTab(TabInstance inst, String rawDefaultTitle, int defaultIcon, String hint) {
+        super(inst, R.string.tab_unknown, defaultIcon);
+        this.rawDefaultTitle = rawDefaultTitle;
         this.hint = hint;
+    }
+
+    @Override
+    public String title(Context ctx) {
+        return (inst.name != null && !inst.name.trim().isEmpty()) ? inst.name : rawDefaultTitle;
     }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {

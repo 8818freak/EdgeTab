@@ -35,23 +35,29 @@ public class NotesTab extends BaseTab {
     private static final Uri JTX_VIEW_URI =
             Uri.parse("content://at.techbee.jtx/icalobject");
 
-    NotesTab(TabInstance inst) { super(inst, "Notizen", R.drawable.ic_notes); }
+    // ImapNotes3 zeigt hier keine Notizen an (kein offener Lese-Provider wie
+    // bei JTX Board - eigenen IMAP-Client zu bauen waere Aufwand+Risiko fuer
+    // Mathias' echte Server-Daten, siehe Uebergabe-MD). Statt dessen wie bei
+    // Kalender/Kontakte an die App selbst weiterreichen: ihre eigene
+    // Listen-Ansicht nimmt ACTION_SEND text/plain fuer eine neue Notiz an.
+    private static final String IMAPNOTES_PACKAGE = "de.niendo.ImapNotes3";
+
+    NotesTab(TabInstance inst) { super(inst, R.string.tab_notes, R.drawable.ic_notes); }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {
         int d = Math.round(ctx.getResources().getDisplayMetrics().density);
         Runnable close = effectiveClose(closePanel);
 
         if (!isInstalled(ctx)) {
-            return hint(ctx, "JTX Board ist nicht installiert.\nDiese Karte "
-                    + "liest Notizen aus JTX Board (über DAVx5 synchronisiert).", d);
+            return withNoteFab(ctx, close, hint(ctx, ctx.getString(R.string.notes_jtx_not_installed), d));
         }
         if (ctx.checkSelfPermission(JTX_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
-            return permissionHint(ctx, closePanel, d);
+            return withNoteFab(ctx, close, permissionHint(ctx, closePanel, d));
         }
         String accountName = Settings.jtxAccountName(ctx);
         String accountType = Settings.jtxAccountType(ctx);
         if (accountName == null) {
-            return accountHint(ctx, closePanel, d);
+            return withNoteFab(ctx, close, accountHint(ctx, closePanel, d));
         }
 
         ScrollView scroll = new ScrollView(ctx);
@@ -85,22 +91,52 @@ public class NotesTab extends BaseTab {
             }
         } catch (Exception e) {
             android.util.Log.w("EdgeTabNotes", "Abfrage fehlgeschlagen", e);
-            return hint(ctx, "Notizen konnten nicht gelesen werden.\n"
-                    + "Ist JTX Board aktuell genug?", d);
+            return withNoteFab(ctx, close, hint(ctx, ctx.getString(R.string.notes_read_failed), d));
         } finally {
             if (c != null) c.close();
         }
 
         if (shown == 0) {
             TextView t = new TextView(ctx);
-            t.setText("Keine Notizen gefunden.\nHinweis: JTX Board muss dafür eine "
-                    + "Sammlung mit Notizen/Journal synchronisieren - das ist eine "
-                    + "Einstellung in DAVx5, keine in EdgeTab.");
+            t.setText(R.string.notes_none_found);
             t.setTextColor(Color.parseColor("#9E9E9E"));
             t.setTextSize(14);
             root.addView(t);
         }
-        return scroll;
+        return withFab(ctx, scroll, fab(ctx, R.drawable.ic_fab_edit, "#3DA764", v -> {
+            newNote(ctx);
+            close.run();
+        }));
+    }
+
+    /** Neue Notiz anlegen: direkt an ImapNotes3 weiterreichen (dessen eigene
+     *  Listen-Ansicht nimmt ACTION_SEND text/plain fuer eine neue Notiz an -
+     *  wie Kalender/Kontakte-"+", nur eben an eine Drittanbieter-App statt an
+     *  ein System-ACTION_INSERT). Faellt auf eine offene Auswahl zurueck,
+     *  falls ImapNotes3 (noch) nicht installiert ist oder anders heisst. */
+    private void newNote(Context ctx) {
+        Intent send = new Intent(Intent.ACTION_SEND).setType("text/plain")
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            Intent direct = new Intent(send).setPackage(IMAPNOTES_PACKAGE);
+            if (direct.resolveActivity(ctx.getPackageManager()) != null) {
+                ctx.startActivity(direct);
+                return;
+            }
+        } catch (Exception ignored) {}
+        try {
+            ctx.startActivity(Intent.createChooser(send, ctx.getString(R.string.notes_create_chooser_title))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (Exception ignored) {}
+    }
+
+    private View withNoteFab(Context ctx, Runnable close, View content) {
+        ScrollView scroll = new ScrollView(ctx);
+        scroll.addView(content);
+        return withFab(ctx, scroll, fab(ctx, R.drawable.ic_fab_edit, "#3DA764", v -> {
+            newNote(ctx);
+            close.run();
+        }));
     }
 
     private boolean isInstalled(Context ctx) {
@@ -114,15 +150,14 @@ public class NotesTab extends BaseTab {
         box.setPadding(0, 12 * d, 0, 0);
 
         TextView t = new TextView(ctx);
-        t.setText("Für die Notizen-Karte fehlt die Berechtigung, JTX Boards "
-                + "Notizen zu lesen.");
+        t.setText(R.string.notes_permission_missing);
         t.setTextColor(Color.parseColor("#CCCCCC"));
         t.setTextSize(14);
         t.setPadding(0, 0, 0, 12 * d);
         box.addView(t);
 
         Button allow = new Button(ctx);
-        allow.setText("Zugriff erlauben");
+        allow.setText(R.string.grant_access_button);
         allow.setOnClickListener(v -> {
             Intent i = new Intent(ctx, MainActivity.class);
             i.putExtra("request_permission", JTX_PERMISSION);
@@ -140,15 +175,14 @@ public class NotesTab extends BaseTab {
         box.setPadding(0, 12 * d, 0, 0);
 
         TextView t = new TextView(ctx);
-        t.setText("Für die Notizen-Karte fehlt noch die Auswahl deines "
-                + "DAVx5-Kontos (dasselbe wie bei den Aufgaben).");
+        t.setText(R.string.notes_account_missing);
         t.setTextColor(Color.parseColor("#CCCCCC"));
         t.setTextSize(14);
         t.setPadding(0, 0, 0, 12 * d);
         box.addView(t);
 
         Button pick = new Button(ctx);
-        pick.setText("Konto auswählen");
+        pick.setText(R.string.jtx_pick_account_button);
         pick.setOnClickListener(v -> {
             Intent i = new Intent(ctx, MainActivity.class);
             i.putExtra("pick_jtx_account", true);
@@ -187,7 +221,7 @@ public class NotesTab extends BaseTab {
         row.setLayoutParams(lp);
 
         TextView title = new TextView(ctx);
-        title.setText(summary == null || summary.isEmpty() ? "(ohne Titel)" : summary);
+        title.setText(summary == null || summary.isEmpty() ? ctx.getString(R.string.no_title) : summary);
         title.setTextColor(Color.WHITE);
         title.setTextSize(15);
         row.addView(title);

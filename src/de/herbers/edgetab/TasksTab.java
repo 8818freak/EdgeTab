@@ -41,15 +41,14 @@ public class TasksTab extends BaseTab {
     private static final Uri JTX_VIEW_URI =
             Uri.parse("content://at.techbee.jtx/icalobject");
 
-    TasksTab(TabInstance inst) { super(inst, "Aufgaben", R.drawable.ic_tasks); }
+    TasksTab(TabInstance inst) { super(inst, R.string.tab_tasks, R.drawable.ic_tasks); }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {
         int d = Math.round(ctx.getResources().getDisplayMetrics().density);
         Runnable close = effectiveClose(closePanel);
 
         if (!isInstalled(ctx)) {
-            return hint(ctx, "JTX Board ist nicht installiert.\nDiese Karte "
-                    + "liest Aufgaben aus JTX Board (über DAVx5 synchronisiert).", null, d);
+            return hint(ctx, ctx.getString(R.string.tasks_jtx_not_installed), null, d);
         }
         if (ctx.checkSelfPermission(JTX_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
             return permissionHint(ctx, closePanel, d);
@@ -101,15 +100,14 @@ public class TasksTab extends BaseTab {
             }
         } catch (Exception e) {
             android.util.Log.w("EdgeTabTasks", "Abfrage fehlgeschlagen", e);
-            return hint(ctx, "Aufgaben konnten nicht gelesen werden.\n"
-                    + "Ist JTX Board aktuell genug?", null, d);
+            return hint(ctx, ctx.getString(R.string.tasks_read_failed), null, d);
         } finally {
             if (c != null) c.close();
         }
 
         if (shown == 0) {
             TextView t = new TextView(ctx);
-            t.setText("Keine offenen Aufgaben.");
+            t.setText(R.string.tasks_none_open);
             t.setTextColor(Color.parseColor("#9E9E9E"));
             t.setTextSize(14);
             root.addView(t);
@@ -141,15 +139,14 @@ public class TasksTab extends BaseTab {
         box.setPadding(0, 12 * d, 0, 0);
 
         TextView t = new TextView(ctx);
-        t.setText("Für die Aufgaben-Karte fehlt die Berechtigung, JTX Boards "
-                + "Aufgaben zu lesen.");
+        t.setText(R.string.tasks_permission_missing);
         t.setTextColor(Color.parseColor("#CCCCCC"));
         t.setTextSize(14);
         t.setPadding(0, 0, 0, 12 * d);
         box.addView(t);
 
         Button allow = new Button(ctx);
-        allow.setText("Zugriff erlauben");
+        allow.setText(R.string.grant_access_button);
         allow.setOnClickListener(v -> {
             Intent i = new Intent(ctx, MainActivity.class);
             i.putExtra("request_permission", JTX_PERMISSION);
@@ -167,15 +164,14 @@ public class TasksTab extends BaseTab {
         box.setPadding(0, 12 * d, 0, 0);
 
         TextView t = new TextView(ctx);
-        t.setText("Für die Aufgaben-Karte fehlt noch die Auswahl deines "
-                + "DAVx5-Kontos (JTX Board liest Aufgaben kontobezogen).");
+        t.setText(R.string.tasks_account_missing);
         t.setTextColor(Color.parseColor("#CCCCCC"));
         t.setTextSize(14);
         t.setPadding(0, 0, 0, 12 * d);
         box.addView(t);
 
         Button pick = new Button(ctx);
-        pick.setText("Konto auswählen");
+        pick.setText(R.string.jtx_pick_account_button);
         pick.setOnClickListener(v -> {
             Intent i = new Intent(ctx, MainActivity.class);
             i.putExtra("pick_jtx_account", true);
@@ -239,7 +235,7 @@ public class TasksTab extends BaseTab {
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
         TextView title = new TextView(ctx);
-        title.setText(summary == null || summary.isEmpty() ? "(ohne Titel)" : summary);
+        title.setText(summary == null || summary.isEmpty() ? ctx.getString(R.string.no_title) : summary);
         title.setTextColor(Color.WHITE);
         title.setTextSize(15);
         col.addView(title);
@@ -265,7 +261,7 @@ public class TasksTab extends BaseTab {
             }
             if (percent != null && percent > 0) {
                 TextView pct = new TextView(ctx);
-                pct.setText(percent + " %");
+                pct.setText(ctx.getString(R.string.percent_value, percent));
                 pct.setTextColor(Color.parseColor("#9E9E9E"));
                 pct.setTextSize(12);
                 meta.addView(pct);

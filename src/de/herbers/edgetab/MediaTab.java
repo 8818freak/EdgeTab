@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class MediaTab extends BaseTab {
 
-    MediaTab(TabInstance inst) { super(inst, "Medien", R.drawable.ic_media); }
+    MediaTab(TabInstance inst) { super(inst, R.string.tab_media, R.drawable.ic_media); }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {
         int d = Math.round(ctx.getResources().getDisplayMetrics().density);
@@ -51,8 +51,7 @@ public class MediaTab extends BaseTab {
         List<MediaController> sessions = activeSessions(ctx);
         if (sessions == null) {
             TextView hint = new TextView(ctx);
-            hint.setText("Kein Zugriff auf Medien-Sitzungen. Benachrichtigungszugriff "
-                    + "in den Android-Einstellungen prüfen.");
+            hint.setText(R.string.media_no_access);
             hint.setTextColor(Color.parseColor("#FFB0B0"));
             hint.setTextSize(14);
             root.addView(hint);
@@ -60,7 +59,7 @@ public class MediaTab extends BaseTab {
         }
         if (sessions.isEmpty()) {
             TextView hint = new TextView(ctx);
-            hint.setText("Gerade wird nichts abgespielt.");
+            hint.setText(R.string.media_nothing_playing);
             hint.setTextColor(Color.parseColor("#9E9E9E"));
             hint.setTextSize(14);
             root.addView(hint);
@@ -211,7 +210,7 @@ public class MediaTab extends BaseTab {
         textCol.addView(appLabel);
 
         TextView t = new TextView(ctx);
-        t.setText(title == null || title.isEmpty() ? "(ohne Titel)" : title);
+        t.setText(title == null || title.isEmpty() ? ctx.getString(R.string.no_title) : title);
         t.setTextColor(Color.WHITE);
         t.setTextSize(19);
         t.setMaxLines(2);

@@ -39,7 +39,11 @@ public class InboxTab extends BaseTab {
     // einen Panel-Neuaufbau (wie MENU_OPEN/ADDING in anderen Karten).
     private static final Set<String> REPLYING = new HashSet<>();
 
-    public InboxTab(TabInstance inst) { super(inst, "Posteingang", R.drawable.ic_inbox); }
+    // Gewaehlter Kategorie-Schnellfilter (null = alle) - bewusst nicht in
+    // Settings gespeichert, nur fuer die laufende Sitzung.
+    private static String activeCategory = null;
+
+    public InboxTab(TabInstance inst) { super(inst, R.string.tab_inbox, R.drawable.ic_inbox); }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {
         float fs = Settings.fontScale(ctx);
@@ -55,7 +59,7 @@ public class InboxTab extends BaseTab {
                 ctx.getContentResolver(), "enabled_notification_listeners");
         if (flat == null || !flat.contains(ctx.getPackageName())) {
             list.addView(CalendarTab.note(ctx,
-                    "Benachrichtigungszugriff fehlt.\nIn den Android-Einstellungen erteilen.",
+                    ctx.getString(R.string.notif_access_missing),
                     "#FFB0B0", fs));
             return scroll;
         }
@@ -63,9 +67,7 @@ public class InboxTab extends BaseTab {
         Set<String> sources = Settings.sources(ctx);
         if (sources.isEmpty()) {
             list.addView(CalendarTab.note(ctx,
-                    "Noch keine Quellen gewählt.\nWähle im Zahnrad oben unter "
-                    + "\"Posteingang-Quellen\" die Apps aus, deren Nachrichten hier "
-                    + "erscheinen sollen.", "#9E9E9E", fs));
+                    ctx.getString(R.string.inbox_no_sources), "#9E9E9E", fs));
             return scroll;
         }
 
@@ -77,11 +79,24 @@ public class InboxTab extends BaseTab {
         store.collapseDuplicates();
         List<NotificationStore.Item> all = store.recent(80, null);
 
+        // Kategorie-Schnellfilter: nur Kategorien anbieten, die unter den
+        // gerade aktiven Quellen ueberhaupt vorkommen (wie BlackBerry Hub+'s
+        // Kategorie-Zuordnung je App, hier als Chip-Leiste statt Filter-Menue).
+        java.util.LinkedHashSet<String> presentCats = new java.util.LinkedHashSet<>();
+        for (String pkg : sources) {
+            String cat = Settings.category(ctx, pkg);
+            if (cat != null) presentCats.add(cat);
+        }
+        if (activeCategory != null && !presentCats.contains(activeCategory)) activeCategory = null;
+        if (presentCats.size() > 1) {
+            list.addView(categoryChips(ctx, presentCats, fs, d, refreshContent));
+        }
+
         int unseen = 0;
         for (NotificationStore.Item it : all) if (sources.contains(it.pkg) && !it.seen) unseen++;
         if (unseen > 0) {
             TextView markAll = new TextView(ctx);
-            markAll.setText("Alle als gelesen (" + unseen + ")");
+            markAll.setText(ctx.getString(R.string.mark_all_read, unseen));
             markAll.setTextColor(Color.parseColor("#2E9BE6"));
             markAll.setTextSize(13 * fs);
             markAll.setPadding(2 * d, 0, 0, 10 * d);
@@ -95,6 +110,8 @@ public class InboxTab extends BaseTab {
         long lastDay = -1;
         for (NotificationStore.Item it : all) {
             if (!sources.contains(it.pkg)) continue;
+            if (!Settings.isChannelEnabled(ctx, it.pkg, it.channel)) continue;
+            if (activeCategory != null && !activeCategory.equals(Settings.category(ctx, it.pkg))) continue;
             long day = dayIndex(it.posted);
             if (day != lastDay) {
                 list.addView(dayHeader(ctx, it.posted, fs, d));
@@ -107,7 +124,7 @@ public class InboxTab extends BaseTab {
         }
         if (shown == 0) {
             list.addView(CalendarTab.note(ctx,
-                    "Noch nichts eingegangen von den gewählten Apps.", "#9E9E9E", fs));
+                    ctx.getString(R.string.inbox_nothing_yet), "#9E9E9E", fs));
         }
         // Schwebendes Stift-Symbol wie bei Kalender/Kontakte - startet die
         // "mailto:"-Absicht, die Android an die als E-Mail-App eingerichtete
@@ -139,17 +156,57 @@ public class InboxTab extends BaseTab {
     private View dayHeader(Context ctx, long posted, float fs, int d) {
         TextView h = new TextView(ctx);
         String label;
-        if (DateUtils.isToday(posted)) label = "HEUTE";
-        else if (DateUtils.isToday(posted + DateUtils.DAY_IN_MILLIS)) label = "GESTERN";
-        else if (DateUtils.isToday(posted + 2 * DateUtils.DAY_IN_MILLIS)) label = "VORGESTERN";
+        if (DateUtils.isToday(posted)) label = ctx.getString(R.string.day_today).toUpperCase(java.util.Locale.getDefault());
+        else if (DateUtils.isToday(posted + DateUtils.DAY_IN_MILLIS)) label = ctx.getString(R.string.day_yesterday).toUpperCase(java.util.Locale.getDefault());
+        else if (DateUtils.isToday(posted + 2 * DateUtils.DAY_IN_MILLIS)) label = ctx.getString(R.string.day_before_yesterday).toUpperCase(java.util.Locale.getDefault());
         else label = DateUtils.formatDateTime(ctx, posted,
                 DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE
-                | DateUtils.FORMAT_ABBREV_MONTH).toUpperCase();
+                | DateUtils.FORMAT_ABBREV_MONTH).toUpperCase(java.util.Locale.getDefault());
         h.setText(label);
         h.setTextColor(Color.parseColor("#7FB0B0B0"));
         h.setTextSize(12 * fs);
         h.setPadding(2 * d, 14 * d, 0, 6 * d);
         return h;
+    }
+
+    /** Chip-Leiste "Alle / Kommunikation / Einkaufen / ..." ueber der Liste -
+     *  tippen filtert, nochmal tippen hebt den Filter wieder auf. */
+    private View categoryChips(Context ctx, java.util.Set<String> cats, float fs, int d, Runnable refreshContent) {
+        android.widget.HorizontalScrollView hsv = new android.widget.HorizontalScrollView(ctx);
+        hsv.setHorizontalScrollBarEnabled(false);
+        LinearLayout row = new LinearLayout(ctx);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setPadding(0, 0, 0, 10 * d);
+        row.addView(chip(ctx, ctx.getString(R.string.filter_all), 0, activeCategory == null, fs, d, () -> {
+            activeCategory = null;
+            if (refreshContent != null) refreshContent.run();
+        }));
+        for (String cat : cats) {
+            row.addView(chip(ctx, Settings.categoryLabel(ctx, cat), Settings.categoryColor(cat), cat.equals(activeCategory), fs, d, () -> {
+                activeCategory = cat.equals(activeCategory) ? null : cat;
+                if (refreshContent != null) refreshContent.run();
+            }));
+        }
+        hsv.addView(row);
+        return hsv;
+    }
+
+    private View chip(Context ctx, String label, int color, boolean active, float fs, int d, Runnable onTap) {
+        TextView tv = new TextView(ctx);
+        tv.setText(label);
+        tv.setTextColor(active ? Color.WHITE : Color.parseColor("#B0B0B5"));
+        tv.setTextSize(12 * fs);
+        tv.setPadding(12 * d, 6 * d, 12 * d, 6 * d);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(14 * d);
+        bg.setColor(active ? (color != 0 ? color : Color.parseColor("#2E9BE6")) : Color.parseColor("#2C2C2E"));
+        tv.setBackground(bg);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.rightMargin = 8 * d;
+        tv.setLayoutParams(lp);
+        tv.setOnClickListener(v -> onTap.run());
+        return tv;
     }
 
     private View row(Context ctx, NotificationStore.Item it, String app, boolean live,
@@ -176,7 +233,8 @@ public class InboxTab extends BaseTab {
         barLp.rightMargin = 10 * d;
         bar.setLayoutParams(barLp);
         GradientDrawable barBg = new GradientDrawable();
-        barBg.setColor(colorFor(it.pkg));
+        int catColor = Settings.categoryColor(Settings.category(ctx, it.pkg));
+        barBg.setColor(catColor != 0 ? catColor : colorFor(it.pkg));
         barBg.setCornerRadii(new float[]{10*d,10*d,0,0,0,0,10*d,10*d});
         bar.setBackground(barBg);
         outer.addView(bar);
@@ -196,7 +254,7 @@ public class InboxTab extends BaseTab {
         TextView appTv = new TextView(ctx);
         // Nicht mehr in der Statusleiste: Tippen oeffnet nur noch die App,
         // X entfernt nur aus EdgeTab (kein Loeschen in der App moeglich).
-        appTv.setText(live ? app : app + " · nur App");
+        appTv.setText(live ? app : ctx.getString(R.string.inbox_app_only, app));
         appTv.setTextColor(Color.parseColor("#8899AA"));
         appTv.setTextSize(11 * fs);
         appTv.setLayoutParams(new LinearLayout.LayoutParams(0,
@@ -254,7 +312,7 @@ public class InboxTab extends BaseTab {
         row.addView(head);
 
         TextView title = new TextView(ctx);
-        title.setText(it.title == null || it.title.isEmpty() ? "(ohne Titel)" : it.title);
+        title.setText(it.title == null || it.title.isEmpty() ? ctx.getString(R.string.no_title) : it.title);
         title.setTextColor(Color.WHITE);
         title.setTextSize(14 * fs);
         if (!it.seen) title.setTypeface(null, Typeface.BOLD);
@@ -276,7 +334,7 @@ public class InboxTab extends BaseTab {
             replyRow.setPadding(0, 8 * d, 0, 0);
 
             EditText input = new EditText(ctx);
-            input.setHint("Antwort…");
+            input.setHint(R.string.reply_hint);
             input.setTextColor(Color.WHITE);
             input.setTextSize(13 * fs);
             input.setLayoutParams(new LinearLayout.LayoutParams(
@@ -284,12 +342,12 @@ public class InboxTab extends BaseTab {
             replyRow.addView(input);
 
             Button send = new Button(ctx);
-            send.setText("Senden");
+            send.setText(R.string.send_action);
             send.setOnClickListener(v -> {
                 String txt = input.getText().toString().trim();
                 if (txt.isEmpty()) return;
                 boolean ok = NotificationCollector.sendReply(ctx, it, txt);
-                Toast.makeText(ctx, ok ? "Antwort gesendet" : "Antwort fehlgeschlagen",
+                Toast.makeText(ctx, ok ? R.string.reply_sent : R.string.reply_failed,
                         Toast.LENGTH_SHORT).show();
                 REPLYING.remove(replyKey);
                 if (refreshContent != null) refreshContent.run();

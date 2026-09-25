@@ -55,7 +55,7 @@ final class UndoBar {
         row.addView(t);
 
         TextView undo = new TextView(ctx);
-        undo.setText("WIEDERHERSTELLEN");
+        undo.setText(ctx.getString(R.string.undo_action));
         undo.setTextColor(Color.parseColor("#2E9BE6"));
         undo.setTypeface(null, Typeface.BOLD);
         undo.setTextSize(13 * fs);
@@ -80,8 +80,10 @@ final class UndoBar {
         row.setVisibility(View.GONE);
         H.postDelayed(p, TIMEOUT_MS);
         if (bar != null) {
-            String title = it.title == null || it.title.isEmpty() ? "Eintrag" : "„" + it.title + "“";
-            label.setText(title + " gelöscht");
+            String text = (it.title == null || it.title.isEmpty())
+                    ? ctx.getString(R.string.undo_deleted_generic)
+                    : ctx.getString(R.string.undo_deleted_named, it.title);
+            label.setText(text);
             bar.animate().cancel();
             bar.setAlpha(0f);
             bar.setVisibility(View.VISIBLE);

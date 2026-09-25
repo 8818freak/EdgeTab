@@ -45,13 +45,13 @@ public class HeaderView {
 
         Date now = new Date();
         TextView time = new TextView(ctx);
-        time.setText(new SimpleDateFormat("HH:mm", Locale.GERMANY).format(now));
+        time.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(now));
         time.setTextColor(Color.parseColor("#2E9BE6"));
         time.setTextSize(30 * fs);
         clock.addView(time);
 
         TextView date = new TextView(ctx);
-        date.setText(new SimpleDateFormat("EEEE, d. MMMM", Locale.GERMANY).format(now));
+        date.setText(new SimpleDateFormat("EEEE, d. MMMM", Locale.getDefault()).format(now));
         date.setTextColor(Color.WHITE);
         date.setTextSize(13 * fs);
         clock.addView(date);
@@ -112,8 +112,8 @@ public class HeaderView {
                 if (ms > 0) {
                     long min = ms / 60000;
                     String s = min >= 60
-                            ? "voll in " + (min / 60) + " Std " + (min % 60) + " Min"
-                            : "voll in " + min + " Min";
+                            ? ctx.getString(R.string.battery_full_in_hm, min / 60, min % 60)
+                            : ctx.getString(R.string.battery_full_in_m, min);
                     TextView eta = new TextView(ctx);
                     eta.setText(s);
                     eta.setTextColor(Color.parseColor("#9E9E9E"));

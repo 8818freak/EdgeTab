@@ -13,29 +13,31 @@ final class IconSet {
     static final class Entry {
         final String key;
         final int res;
-        final String label;
-        Entry(String key, int res, String label) { this.key = key; this.res = res; this.label = label; }
+        final int labelRes;
+        Entry(String key, int res, int labelRes) { this.key = key; this.res = res; this.labelRes = labelRes; }
     }
 
     // Bewusst auf Begriffe beschraenkt, die zu einer Nachrichten-/
     // Produktivitaetsleiste passen (nach Mathias' Rueckmeldung: Koffer,
     // Fahne, Globus etc. waren beliebige Symbole ohne Bezug zum Programm).
+    // Label als String-Resource statt fertigem Text - siehe BaseTab fuer
+    // dasselbe Muster bei den Standard-Kartennamen.
     static final Entry[] ALL = {
-        new Entry("mail",      R.drawable.ic_pick_mail,      "Brief"),
-        new Entry("chat",      R.drawable.ic_pick_chat,      "Sprechblase"),
-        new Entry("bell",      R.drawable.ic_pick_bell,      "Glocke"),
-        new Entry("phone",     R.drawable.ic_pick_phone,     "Telefon"),
-        new Entry("inbox",     R.drawable.ic_inbox,          "Posteingang"),
-        new Entry("tasks",     R.drawable.ic_tasks,          "Checkliste"),
-        new Entry("notes",     R.drawable.ic_notes,          "Notizblock"),
-        new Entry("person",    R.drawable.ic_contacts,       "Person"),
-        new Entry("people",    R.drawable.ic_pick_people,    "Gruppe"),
-        new Entry("shield",    R.drawable.ic_pick_shield,    "Schild"),
-        new Entry("clock",     R.drawable.ic_pick_clock,     "Uhr"),
-        new Entry("cloud",     R.drawable.ic_pick_cloud,     "Wolke"),
-        new Entry("cart",      R.drawable.ic_pick_cart,      "Einkaufswagen"),
-        new Entry("star",      R.drawable.ic_pick_star,      "Stern"),
-        new Entry("heart",     R.drawable.ic_pick_heart,     "Herz"),
+        new Entry("mail",      R.drawable.ic_pick_mail,      R.string.icon_mail),
+        new Entry("chat",      R.drawable.ic_pick_chat,      R.string.icon_chat),
+        new Entry("bell",      R.drawable.ic_pick_bell,      R.string.icon_bell),
+        new Entry("phone",     R.drawable.ic_pick_phone,     R.string.icon_phone),
+        new Entry("inbox",     R.drawable.ic_inbox,          R.string.icon_inbox),
+        new Entry("tasks",     R.drawable.ic_tasks,          R.string.icon_tasks),
+        new Entry("notes",     R.drawable.ic_notes,          R.string.icon_notes),
+        new Entry("person",    R.drawable.ic_contacts,       R.string.icon_person),
+        new Entry("people",    R.drawable.ic_pick_people,    R.string.icon_people),
+        new Entry("shield",    R.drawable.ic_pick_shield,    R.string.icon_shield),
+        new Entry("clock",     R.drawable.ic_pick_clock,     R.string.icon_clock),
+        new Entry("cloud",     R.drawable.ic_pick_cloud,     R.string.icon_cloud),
+        new Entry("cart",      R.drawable.ic_pick_cart,      R.string.icon_cart),
+        new Entry("star",      R.drawable.ic_pick_star,      R.string.icon_star),
+        new Entry("heart",     R.drawable.ic_pick_heart,     R.string.icon_heart),
     };
 
     /** Liefert das Icon zu einem Schluessel, oder 0 wenn keins passt/gesetzt ist. */
