@@ -169,7 +169,7 @@ Karten als Platzhalter).
   jederzeit wiederholbar über Einstellungen.
 - **0.32**: zweiter Bug gefunden (`caller_is_syncadapter=true` fehlte als
   Pflichtparameter, reine Parameter-Anwesenheit ohne echte Prüfung) -
-  behoben, von Mathias bestätigt: Aufgaben funktionieren.
+  behoben, Aufgaben funktionieren seitdem zuverlässig.
 
 ## 0.28 — Mediensteuerung-Karte
 Neu: `MediaTab`, zeigt laufende Wiedergaben (Titel/Interpret/Cover) mit
@@ -209,7 +209,7 @@ Jahrelang offenes Problem. Ursache per `adb logcat`-Vergleich (Löschen
 Löschen-PendingIntent erst in den Vordergrund - das brachte Hub dazu, die
 Benachrichtigung binnen Millisekunden mehrfach neu zu posten, wodurch der
 vorher gemerkte PendingIntent ungültig wurde. Fix: PendingIntent wird
-sofort gesendet, kein Vorab-Foregrounding mehr. Von Mathias bestätigt.
+sofort gesendet, kein Vorab-Foregrounding mehr.
 
 ## 0.21 — Verknüpfungen-Karte
 Neuer Kartentyp `ShortcutsTab`: reine App-Icon-Verknüpfungen, gruppierbar
