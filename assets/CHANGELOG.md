@@ -4,6 +4,12 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.72
+- Neue Seite „Über EdgeTab" in den Einstellungen: Versionsnummer, Lizenztext
+  (MIT) und ein aufklappbares Änderungsprotokoll (dieses Dokument, direkt in
+  der App).
+- Quelloffene Veröffentlichung auf GitHub vorbereitet.
+
 ## 0.71
 - Icon-Spalte ist jetzt eine eigene Scroll-Zone (Zahnrad bleibt oben fix,
   alle Karten darunter erreichbar, auch bei wenig Höhe/Querformat).
