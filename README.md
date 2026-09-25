@@ -50,6 +50,9 @@ Android-Schnittstellen.*
 <td><img src="screenshots/einstellungen-posteingang.png" width="220" alt="Einstellungen: Posteingang-Kategorien"><br>Einstellungen: Posteingang</td>
 <td><img src="screenshots/ueber-edgetab.png" width="220" alt="Über EdgeTab: Version, Lizenz, Änderungsprotokoll"><br>Über EdgeTab</td>
 </tr>
+<tr>
+<td><img src="screenshots/posteingang-kategorien.png" width="220" alt="Posteingang mit Kategorie-Filterleiste"><br>Posteingang: Kategorie-Filter</td>
+</tr>
 </table>
 
 ## Building
