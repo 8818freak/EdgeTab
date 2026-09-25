@@ -149,7 +149,7 @@
     <string name="version_line">EdgeTab %1$s</string>
     <string name="about_description">A from-scratch recreation of BlackBerry\'s "Productivity Edge" – a pull-out edge panel with freely configurable cards. No BlackBerry code, only open Android interfaces.</string>
     <string name="about_license_title">License</string>
-    <string name="about_license_text">MIT License. Copyright (c) 2026 Mathias Herbers.\n\nContains no BlackBerry graphics or code, and no third-party libraries – only open Android system interfaces.</string>
+    <string name="about_license_text">GNU General Public License v3 (or later). Copyright (c) 2026 Mathias Herbers.\n\nContains no BlackBerry graphics or code, and no third-party libraries – only open Android system interfaces. Full license text: LICENSE in the source repository.</string>
     <string name="about_changelog_title">Changelog</string>
     <string name="about_changelog_show">Show changelog</string>
     <string name="about_changelog_hide">Hide changelog</string>

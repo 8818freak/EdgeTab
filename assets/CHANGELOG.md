@@ -6,9 +6,10 @@ Karten als Platzhalter).
 
 ## 0.72
 - Neue Seite „Über EdgeTab" in den Einstellungen: Versionsnummer, Lizenztext
-  (MIT) und ein aufklappbares Änderungsprotokoll (dieses Dokument, direkt in
-  der App).
-- Quelloffene Veröffentlichung auf GitHub vorbereitet.
+  und ein aufklappbares Änderungsprotokoll (dieses Dokument, direkt in der
+  App).
+- Quelloffene Veröffentlichung auf GitHub vorbereitet, Lizenz: GNU General
+  Public License v3.
 
 ## 0.71
 - Icon-Spalte ist jetzt eine eigene Scroll-Zone (Zahnrad bleibt oben fix,

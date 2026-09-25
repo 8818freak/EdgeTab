@@ -149,7 +149,7 @@
     <string name="version_line">EdgeTab %1$s</string>
     <string name="about_description">Eine von Grund auf neu geschriebene Nachbildung von BlackBerrys „Productivity Edge" – eine aufziehbare Randleiste mit frei konfigurierbaren Karten. Kein BlackBerry-Code, nur offene Android-Schnittstellen.</string>
     <string name="about_license_title">Lizenz</string>
-    <string name="about_license_text">MIT-Lizenz. Copyright (c) 2026 Mathias Herbers.\n\nEnthält keine BlackBerry-Grafiken oder -Code und keine Bibliotheken von Drittanbietern – ausschließlich offene Android-Systemschnittstellen.</string>
+    <string name="about_license_text">GNU General Public License v3 (oder später). Copyright (c) 2026 Mathias Herbers.\n\nEnthält keine BlackBerry-Grafiken oder -Code und keine Bibliotheken von Drittanbietern – ausschließlich offene Android-Systemschnittstellen. Vollständiger Lizenztext: LICENSE im Quellcode-Repository.</string>
     <string name="about_changelog_title">Änderungsprotokoll</string>
     <string name="about_changelog_show">Änderungsprotokoll anzeigen</string>
     <string name="about_changelog_hide">Änderungsprotokoll ausblenden</string>
