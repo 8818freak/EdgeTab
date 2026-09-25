@@ -120,17 +120,12 @@ public class MainActivity extends Activity {
         root.setPadding(pad, pad, pad, pad);
 
         TextView title = new TextView(this);
-        title.setText("EdgeTab");
+        title.setText(R.string.app_name);
         title.setTextSize(26);
         root.addView(title);
 
         TextView sub = new TextView(this);
-        sub.setText("Die Produktivitätsleiste am Rand.\n\n"
-                + "Einmalig eingerichtet, lebt danach alles in der Leiste selbst: "
-                + "Am Rand erscheint ein Griff – antippen oder zur Mitte wischen "
-                + "zieht sie auf, Zurückwischen schließt sie wieder. Die "
-                + "Einstellungen sitzen oben als eigene Karte.\n\n"
-                + "Für den Anfang sind drei Berechtigungen nötig:");
+        sub.setText(R.string.onboarding_intro);
         sub.setTextSize(14);
         sub.setPadding(0, dp(4), 0, dp(20));
         root.addView(sub);
@@ -140,19 +135,18 @@ public class MainActivity extends Activity {
         boolean calendar = checkSelfPermission(android.Manifest.permission.READ_CALENDAR)
                 == android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-        root.addView(step("1. Über anderen Apps anzeigen", overlay, "Erlauben",
+        root.addView(step(getString(R.string.onboarding_step1), overlay, getString(R.string.allow_button),
                 v -> startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:" + getPackageName())))));
-        root.addView(step("2. Benachrichtigungszugriff (für den Posteingang)", listener,
-                "Erlauben", v -> startActivity(
+        root.addView(step(getString(R.string.onboarding_step2), listener,
+                getString(R.string.allow_button), v -> startActivity(
                         new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))));
-        root.addView(step("3. Kalender", calendar, "Erlauben",
+        root.addView(step(getString(R.string.onboarding_step3), calendar, getString(R.string.allow_button),
                 v -> requestPermissions(
                         new String[]{android.Manifest.permission.READ_CALENDAR}, REQ_CAL)));
 
         TextView hint = new TextView(this);
-        hint.setText("\nSobald alle drei erteilt sind, öffnet sich die Leiste "
-                + "automatisch – und dieser Bildschirm erscheint nicht mehr.");
+        hint.setText(R.string.onboarding_footer);
         hint.setTextColor(Color.GRAY);
         root.addView(hint);
 
@@ -208,13 +202,12 @@ public class MainActivity extends Activity {
         scroll.addView(root);
 
         TextView title = new TextView(this);
-        title.setText("Widget auswählen");
+        title.setText(R.string.widget_picker_title);
         title.setTextSize(22);
         root.addView(title);
 
         TextView sub = new TextView(this);
-        sub.setText("Ein installiertes App-Widget für die Leiste. Für den Hub-Posteingang "
-                + "das Widget des BlackBerry Hub wählen.\n");
+        sub.setText(R.string.widget_picker_hint);
         sub.setTextSize(13);
         sub.setPadding(0, dp(4), 0, dp(12));
         root.addView(sub);
@@ -268,7 +261,7 @@ public class MainActivity extends Activity {
         }
         if (sorted.isEmpty()) {
             TextView none = new TextView(this);
-            none.setText("Keine App-Widgets gefunden.");
+            none.setText(R.string.no_widgets_found);
             root.addView(none);
         }
         setContentView(scroll);
@@ -347,21 +340,20 @@ public class MainActivity extends Activity {
         scroll.addView(root);
 
         TextView title = new TextView(this);
-        title.setText("JTX-Board-Konto einrichten");
+        title.setText(R.string.jtx_setup_title);
         title.setTextSize(22);
         root.addView(title);
 
         String current = de.herbers.edgetab.Settings.jtxAccountName(this);
         TextView sub = new TextView(this);
-        sub.setText((current != null ? "Aktuell eingetragen: " + current + "\n\n" : "")
-                + "Am zuverlässigsten: Öffne DAVx5, dort steht der Kontoname oben auf "
-                + "der Karte des Kontos - genau so hier eintragen.");
+        sub.setText((current != null ? getString(R.string.jtx_currently_set, current) : "")
+                + getString(R.string.jtx_setup_hint));
         sub.setTextSize(13);
         sub.setPadding(0, dp(6), 0, dp(16));
         root.addView(sub);
 
         TextView nameLabel = new TextView(this);
-        nameLabel.setText("Kontoname (aus DAVx5)");
+        nameLabel.setText(R.string.jtx_name_label);
         nameLabel.setTextSize(12);
         root.addView(nameLabel);
         EditText nameField = new EditText(this);
@@ -370,7 +362,7 @@ public class MainActivity extends Activity {
         root.addView(nameField);
 
         TextView typeLabel = new TextView(this);
-        typeLabel.setText("Kontotyp (nur bei anderer Sync-App als DAVx5 ändern)");
+        typeLabel.setText(R.string.jtx_type_label);
         typeLabel.setTextSize(12);
         typeLabel.setPadding(0, dp(12), 0, 0);
         root.addView(typeLabel);
@@ -381,12 +373,12 @@ public class MainActivity extends Activity {
         root.addView(typeField);
 
         Button save = new Button(this);
-        save.setText("Übernehmen");
+        save.setText(R.string.apply_button);
         save.setOnClickListener(v -> {
             String name = nameField.getText().toString().trim();
             String type = typeField.getText().toString().trim();
             if (name.isEmpty()) {
-                Toast.makeText(this, "Bitte Kontoname eingeben", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.jtx_name_required_toast, Toast.LENGTH_SHORT).show();
                 return;
             }
             de.herbers.edgetab.Settings.setJtxAccount(this, name,
@@ -397,13 +389,13 @@ public class MainActivity extends Activity {
         root.addView(save);
 
         TextView orLabel = new TextView(this);
-        orLabel.setText("\noder, falls dein Gerät es zulässt:");
+        orLabel.setText(R.string.jtx_or_label);
         orLabel.setTextSize(12);
         orLabel.setPadding(0, dp(16), 0, dp(4));
         root.addView(orLabel);
 
         Button chooser = new Button(this);
-        chooser.setText("Aus Konten-Liste wählen (funktioniert nicht auf jedem Gerät)");
+        chooser.setText(R.string.jtx_chooser_button);
         chooser.setAllCaps(false);
         chooser.setOnClickListener(v -> {
             try {
@@ -411,7 +403,7 @@ public class MainActivity extends Activity {
                         null, null, new String[]{DAVX5_ACCOUNT_TYPE}, null, null, null, null);
                 startActivityForResult(i, REQ_ACCOUNT);
             } catch (Exception e) {
-                Toast.makeText(this, "Keine Kontoauswahl verfügbar", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.no_account_chooser_toast, Toast.LENGTH_SHORT).show();
             }
         });
         root.addView(chooser);
@@ -438,17 +430,17 @@ public class MainActivity extends Activity {
         scroll.addView(root);
 
         TextView title = new TextView(this);
-        title.setText("Icon wählen");
+        title.setText(R.string.icon_picker_title);
         title.setTextSize(22);
         root.addView(title);
 
         Button gallery = new Button(this);
-        gallery.setText("Eigenes Bild aus der Galerie…");
+        gallery.setText(R.string.icon_from_gallery_button);
         gallery.setOnClickListener(v -> pickIconFromGallery());
         root.addView(gallery);
 
         Button reset = new Button(this);
-        reset.setText("Standard-Icon der Karte verwenden");
+        reset.setText(R.string.icon_use_default_button);
         reset.setOnClickListener(v -> {
             Tabs.update(this, pendingIconTabId, t -> { t.iconKey = null; t.iconPath = null; });
             finishIconPick();
@@ -456,7 +448,7 @@ public class MainActivity extends Activity {
         root.addView(reset);
 
         TextView sub = new TextView(this);
-        sub.setText("\nOder ein mitgeliefertes Symbol:");
+        sub.setText(R.string.icon_builtin_label);
         sub.setTextSize(13);
         sub.setPadding(0, dp(8), 0, dp(4));
         root.addView(sub);
@@ -486,7 +478,7 @@ public class MainActivity extends Activity {
             cell.addView(iv);
 
             TextView label = new TextView(this);
-            label.setText(entry.label);
+            label.setText(entry.labelRes);
             label.setTextSize(10.5f);
             label.setGravity(Gravity.CENTER);
             label.setMaxLines(2);
@@ -509,7 +501,7 @@ public class MainActivity extends Activity {
         try {
             startActivityForResult(i, REQ_ICON);
         } catch (Exception e) {
-            Toast.makeText(this, "Keine Bildauswahl verfügbar", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.no_image_picker_toast, Toast.LENGTH_SHORT).show();
             finishIconPick();
         }
     }
@@ -553,7 +545,7 @@ public class MainActivity extends Activity {
         super.onActivityResult(req, res, data);
         if (req == REQ_BIND) {
             if (res == RESULT_OK) afterBound();
-            else { cancelPending(); Toast.makeText(this, "Binden abgebrochen", Toast.LENGTH_SHORT).show(); showWidgetPicker(); }
+            else { cancelPending(); Toast.makeText(this, R.string.widget_bind_cancelled_toast, Toast.LENGTH_SHORT).show(); showWidgetPicker(); }
         } else if (req == REQ_CONFIGURE) {
             if (res == RESULT_OK) finishPick();
             else { cancelPending(); showWidgetPicker(); }
@@ -563,7 +555,7 @@ public class MainActivity extends Activity {
                 if (path != null) {
                     Tabs.update(this, pendingIconTabId, t -> { t.iconPath = path; t.iconKey = null; });
                 } else {
-                    Toast.makeText(this, "Bild konnte nicht gelesen werden", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.image_read_failed_toast, Toast.LENGTH_SHORT).show();
                 }
             }
             finishIconPick();

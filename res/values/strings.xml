@@ -4,4 +4,246 @@
     <string name="tagline">Die Produktivitätsleiste am Rand</string>
     <string name="svc_channel">EdgeTab-Dienst</string>
     <string name="svc_running">EdgeTab läuft – Leiste am Rand aufziehbar</string>
+
+    <!-- Registerkarten: Standardnamen -->
+    <string name="tab_calendar">Kalender</string>
+    <string name="tab_contacts">Kontakte</string>
+    <string name="tab_inbox">Posteingang</string>
+    <string name="tab_notes">Notizen</string>
+    <string name="tab_media">Medien</string>
+    <string name="tab_shortcuts">Verknüpfungen</string>
+    <string name="tab_widget">Widget</string>
+    <string name="tab_tasks">Aufgaben</string>
+    <string name="tab_unknown">Unbekannt</string>
+    <string name="unknown_card_hint">Unbekannter Kartentyp.</string>
+
+    <!-- Mitgelieferter Icon-Satz -->
+    <string name="icon_mail">Brief</string>
+    <string name="icon_chat">Sprechblase</string>
+    <string name="icon_bell">Glocke</string>
+    <string name="icon_phone">Telefon</string>
+    <string name="icon_inbox">Posteingang</string>
+    <string name="icon_tasks">Checkliste</string>
+    <string name="icon_notes">Notizblock</string>
+    <string name="icon_person">Person</string>
+    <string name="icon_people">Gruppe</string>
+    <string name="icon_shield">Schild</string>
+    <string name="icon_clock">Uhr</string>
+    <string name="icon_cloud">Wolke</string>
+    <string name="icon_cart">Einkaufswagen</string>
+    <string name="icon_star">Stern</string>
+    <string name="icon_heart">Herz</string>
+
+    <!-- Kopfzeile / Akku -->
+    <string name="battery_full_in_hm">voll in %1$d Std %2$d Min</string>
+    <string name="battery_full_in_m">voll in %1$d Min</string>
+
+    <!-- Rückgängig-Leiste -->
+    <string name="undo_action">WIEDERHERSTELLEN</string>
+    <string name="undo_deleted_generic">Eintrag gelöscht</string>
+    <string name="undo_deleted_named">„%1$s“ gelöscht</string>
+
+    <!-- Panel-Grundgerüst -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="no_active_cards_title">Keine Karten aktiv</string>
+    <string name="no_active_cards_hint">Aktiviere Karten oben im Zahnrad.</string>
+
+    <!-- Gemeinsam genutzt -->
+    <string name="no_title">(ohne Titel)</string>
+    <string name="all_day">ganztägig</string>
+    <string name="day_today">Heute</string>
+    <string name="day_tomorrow">Morgen</string>
+    <string name="day_yesterday">Gestern</string>
+    <string name="day_before_yesterday">Vorgestern</string>
+
+    <!-- Kalender-Karte -->
+    <string name="calendar_permission_missing">Kalender-Berechtigung fehlt</string>
+    <string name="calendar_unreadable">Kalender nicht lesbar</string>
+    <string name="calendar_no_events_7d">Keine Termine in den nächsten 7 Tagen</string>
+
+    <!-- Posteingang-Kategorien -->
+    <string name="category_communication">Kommunikation</string>
+    <string name="category_news">Nachrichten</string>
+    <string name="category_shopping">Einkaufen</string>
+    <string name="category_finance">Finanzen</string>
+    <string name="category_productivity">Produktivität</string>
+    <string name="category_entertainment">Unterhaltung</string>
+    <string name="category_other">Sonstiges</string>
+
+    <!-- Aufbewahrungsdauer -->
+    <string name="retention_unlimited">unbegrenzt</string>
+    <string name="retention_one_day">1 Tag</string>
+    <string name="retention_days">%1$d Tage</string>
+
+    <!-- Posteingang-Karte -->
+    <string name="notif_access_missing">Benachrichtigungszugriff fehlt.\nIn den Android-Einstellungen erteilen.</string>
+    <string name="inbox_no_sources">Noch keine Quellen gewählt.\nWähle im Zahnrad oben unter „Posteingang-Quellen" die Apps aus, deren Nachrichten hier erscheinen sollen.</string>
+    <string name="mark_all_read">Alle als gelesen (%1$d)</string>
+    <string name="inbox_nothing_yet">Noch nichts eingegangen von den gewählten Apps.</string>
+    <string name="filter_all">Alle</string>
+    <string name="inbox_app_only">%1$s · nur App</string>
+    <string name="reply_hint">Antwort…</string>
+    <string name="send_action">Senden</string>
+    <string name="reply_sent">Antwort gesendet</string>
+    <string name="reply_failed">Antwort fehlgeschlagen</string>
+
+    <!-- Einstellungen: Posteingang aufräumen -->
+    <string name="inbox_cleanup_section">Posteingang aufräumen</string>
+    <string name="inbox_cleanup_hint">Ältere Einträge automatisch entfernen nach:</string>
+    <string name="retention_button">Aufbewahren: %1$s</string>
+
+    <!-- Einstellungen: Kategorien-Menü -->
+    <string name="settings_cat_position_title">Position &amp; Aussehen</string>
+    <string name="settings_cat_position_subtitle">Seite, Griff, Breite, Transparenz, Schrift</string>
+    <string name="settings_cat_header_title">Kopfzeile</string>
+    <string name="settings_cat_header_subtitle">Uhr, Datum, Akku</string>
+    <string name="settings_cat_inbox_subtitle">Quellen, Aufbewahrung</string>
+    <string name="settings_cat_tabs_title">Registerkarten</string>
+    <string name="settings_cat_tabs_subtitle">Ein-/ausschalten, umbenennen, Icon, Reihenfolge</string>
+    <string name="settings_cat_service_title">Dienst</string>
+    <string name="settings_cat_service_subtitle">Leiste beenden, Version</string>
+    <string name="settings_cat_about_title">Über EdgeTab</string>
+    <string name="settings_cat_about_subtitle">Version, Lizenz, Änderungsprotokoll</string>
+    <string name="back_button">‹ Zurück</string>
+
+    <!-- Einstellungen: Position & Aussehen -->
+    <string name="side_left">◀ Links</string>
+    <string name="side_right">Rechts ▶</string>
+    <string name="slider_handle_pos">Position (Höhe des Griffs)</string>
+    <string name="slider_handle_length">Grifflänge</string>
+    <string name="slider_panel_width">Breite der Leiste</string>
+    <string name="slider_transparency">Transparenz</string>
+    <string name="slider_font_scale">Schriftgröße (%)</string>
+    <string name="slider_icon_size">Größe der Registerkarten-Icons</string>
+    <string name="media_controls_section">Mediensteuerung</string>
+    <string name="media_controls_hint">Feste Position der Zurück/Play/Vor-Knöpfe in der Mediensteuerung-Karte – bleibt beim Scrollen an derselben Stelle, für einhändige Bedienung.</string>
+    <string name="pos_top">Oben</string>
+    <string name="pos_middle">Mitte</string>
+    <string name="pos_bottom">Unten</string>
+
+    <!-- Einstellungen: Kopfzeile -->
+    <string name="show_clock_checkbox">Uhr, Datum und Wochentag anzeigen</string>
+    <string name="show_battery_checkbox">Akkustand anzeigen</string>
+
+    <!-- Einstellungen: Posteingang-Quellen -->
+    <string name="inbox_sources_section">Posteingang-Quellen</string>
+    <string name="inbox_sources_hint">Welche Apps im Posteingang erscheinen sollen. Kategorie färbt die Karte ein und erlaubt dort einen Schnellfilter; bei Apps mit mehreren Benachrichtigungsarten (z. B. eBay: Nachrichten/neue Artikel) lassen sich einzelne Arten erst abwählen, sobald einmal eine Benachrichtigung davon ankam.</string>
+    <string name="category_pick_placeholder">Kategorie…</string>
+    <string name="category_none">Keine</string>
+
+    <!-- Einstellungen: Registerkarten -->
+    <string name="tabs_section_hint">Ein-/ausschalten, umbenennen, eigenes Bild wählen, Reihenfolge ändern (▲▼) und einstellen, ob die Leiste nach Tippen darin schließt. Von „Widget" und „Verknüpfungen" lassen sich beliebig viele Registerkarten anlegen.</string>
+    <string name="add_widget_tab">+ Neue Widget-Registerkarte</string>
+    <string name="add_shortcuts_tab">+ Neue Verknüpfungen-Registerkarte</string>
+    <string name="add_media_tab">+ Neue Mediensteuerung-Registerkarte</string>
+    <string name="tasks_notes_section">Aufgaben &amp; Notizen</string>
+    <string name="jtx_account_used">Verwendetes DAVx5-Konto: %1$s</string>
+    <string name="jtx_account_none">Noch kein DAVx5-Konto eingerichtet.</string>
+    <string name="jtx_account_change">JTX-Board-Konto ändern</string>
+    <string name="jtx_account_setup">JTX-Board-Konto einrichten</string>
+    <string name="close_on_tap_checkbox">Nach Tippen schließen</string>
+    <string name="tab_delete_action">Löschen</string>
+
+    <!-- Einstellungen: Dienst -->
+    <string name="stop_service_button">Leiste beenden</string>
+    <string name="version_line">EdgeTab %1$s</string>
+    <string name="about_description">Eine von Grund auf neu geschriebene Nachbildung von BlackBerrys „Productivity Edge" – eine aufziehbare Randleiste mit frei konfigurierbaren Karten. Kein BlackBerry-Code, nur offene Android-Schnittstellen.</string>
+    <string name="about_license_title">Lizenz</string>
+    <string name="about_license_text">MIT-Lizenz. Copyright (c) 2026 Mathias Herbers.\n\nEnthält keine BlackBerry-Grafiken oder -Code und keine Bibliotheken von Drittanbietern – ausschließlich offene Android-Systemschnittstellen.</string>
+    <string name="about_changelog_title">Änderungsprotokoll</string>
+    <string name="about_changelog_show">Änderungsprotokoll anzeigen</string>
+    <string name="about_changelog_hide">Änderungsprotokoll ausblenden</string>
+    <string name="about_changelog_unavailable">Änderungsprotokoll konnte nicht geladen werden.</string>
+
+    <!-- Gemeinsam genutzte Bedienelemente -->
+    <string name="done_button">Fertig</string>
+    <string name="grant_access_button">Zugriff erlauben</string>
+
+    <!-- Kontakte-Karte -->
+    <string name="contacts_mode_selected">Ausgewählt</string>
+    <string name="contacts_mode_favorites">Favoriten</string>
+    <string name="contacts_display_lastname_first">Anzeige: Nachname zuerst</string>
+    <string name="contacts_display_firstname_first">Anzeige: Vorname zuerst</string>
+    <string name="contacts_sort_by_lastname">Sortiert: nach Nachname</string>
+    <string name="contacts_sort_by_firstname">Sortiert: nach Vorname</string>
+    <string name="contacts_pick_button">Kontakte auswählen…</string>
+    <string name="contacts_none_selected_hint">Noch keine Kontakte ausgewählt. Über das Zahnrad oben „Kontakte auswählen…".</string>
+    <string name="contacts_no_favorites_hint">Keine Favoriten. In der Kontakte-App einen Kontakt als Favorit markieren.</string>
+    <string name="contacts_none_found">Keine Kontakte gefunden.</string>
+    <string name="contacts_permission_missing">Für die Kontakte-Karte fehlt die Berechtigung, auf deine Kontakte zuzugreifen.</string>
+
+    <!-- Verknüpfungen-Karte -->
+    <string name="cancel_button">Abbrechen</string>
+    <string name="add_button">Hinzufügen</string>
+    <string name="add_button_count">Hinzufügen (%1$d)</string>
+    <string name="add_app_button">+ App hinzufügen</string>
+    <string name="edit_button">Bearbeiten</string>
+    <string name="shortcuts_empty_hint">Noch keine Verknüpfungen. Über das Zahnrad oben „+ App hinzufügen" wählen; danach über „Bearbeiten" umbenennen und in Gruppen einsortieren.</string>
+    <string name="no_group_label">Ohne Gruppe</string>
+    <string name="view_grid">Raster</string>
+    <string name="view_list">Liste</string>
+    <string name="no_apps_found">Keine Apps gefunden.</string>
+    <string name="group_hint">Gruppe (leer = ohne Gruppe)</string>
+
+    <!-- Notizen-Karte -->
+    <string name="notes_jtx_not_installed">JTX Board ist nicht installiert.\nDiese Karte liest Notizen aus JTX Board (über DAVx5 synchronisiert). Neue Notizen kannst du trotzdem über den Stift unten anlegen.</string>
+    <string name="notes_read_failed">Notizen konnten nicht gelesen werden.\nIst JTX Board aktuell genug?</string>
+    <string name="notes_none_found">Keine Notizen gefunden.\nHinweis: JTX Board muss dafür eine Sammlung mit Notizen/Journal synchronisieren – das ist eine Einstellung in DAVx5, keine in EdgeTab.</string>
+    <string name="notes_create_chooser_title">Notiz anlegen mit …</string>
+    <string name="notes_permission_missing">Für die Notizen-Karte fehlt die Berechtigung, JTX Boards Notizen zu lesen.</string>
+    <string name="notes_account_missing">Für die Notizen-Karte fehlt noch die Auswahl deines DAVx5-Kontos (dasselbe wie bei den Aufgaben).</string>
+    <string name="jtx_pick_account_button">Konto auswählen</string>
+
+    <!-- Aufgaben-Karte -->
+    <string name="tasks_jtx_not_installed">JTX Board ist nicht installiert.\nDiese Karte liest Aufgaben aus JTX Board (über DAVx5 synchronisiert).</string>
+    <string name="tasks_read_failed">Aufgaben konnten nicht gelesen werden.\nIst JTX Board aktuell genug?</string>
+    <string name="tasks_none_open">Keine offenen Aufgaben.</string>
+    <string name="tasks_permission_missing">Für die Aufgaben-Karte fehlt die Berechtigung, JTX Boards Aufgaben zu lesen.</string>
+    <string name="tasks_account_missing">Für die Aufgaben-Karte fehlt noch die Auswahl deines DAVx5-Kontos (JTX Board liest Aufgaben kontobezogen).</string>
+    <string name="percent_value">%1$d %%</string>
+
+    <!-- Medien-Karte -->
+    <string name="media_no_access">Kein Zugriff auf Medien-Sitzungen. Benachrichtigungszugriff in den Android-Einstellungen prüfen.</string>
+    <string name="media_nothing_playing">Gerade wird nichts abgespielt.</string>
+
+    <!-- Widget-Karte -->
+    <string name="widget_empty_hint">Hier lässt sich ein App-Widget einbetten – zum Beispiel der Posteingang des BlackBerry Hub. Es zeigt dann echte Inhalte, unabhängig von Benachrichtigungen. Mehrere Widgets lassen sich untereinander stapeln.\n\nExperimentell: nicht jedes Widget rendert in der Leiste.</string>
+    <string name="widget_change_button">Anderes Widget wählen</string>
+    <string name="widget_remove_button">Entfernen ✕</string>
+    <string name="widget_unavailable">Widget nicht mehr verfügbar.</string>
+    <string name="widget_render_failed">Widget konnte nicht dargestellt werden.\n%1$s</string>
+
+    <!-- Startbildschirm / Einrichtung -->
+    <string name="onboarding_intro">Die Produktivitätsleiste am Rand.\n\nEinmalig eingerichtet, lebt danach alles in der Leiste selbst: Am Rand erscheint ein Griff – antippen oder zur Mitte wischen zieht sie auf, Zurückwischen schließt sie wieder. Die Einstellungen sitzen oben als eigene Karte.\n\nFür den Anfang sind drei Berechtigungen nötig:</string>
+    <string name="onboarding_step1">1. Über anderen Apps anzeigen</string>
+    <string name="onboarding_step2">2. Benachrichtigungszugriff (für den Posteingang)</string>
+    <string name="onboarding_step3">3. Kalender</string>
+    <string name="allow_button">Erlauben</string>
+    <string name="onboarding_footer">\nSobald alle drei erteilt sind, öffnet sich die Leiste automatisch – und dieser Bildschirm erscheint nicht mehr.</string>
+
+    <!-- Widget-Auswahl -->
+    <string name="widget_picker_title">Widget auswählen</string>
+    <string name="widget_picker_hint">Ein installiertes App-Widget für die Leiste. Für den Hub-Posteingang das Widget des BlackBerry Hub wählen.\n</string>
+    <string name="no_widgets_found">Keine App-Widgets gefunden.</string>
+    <string name="widget_bind_cancelled_toast">Binden abgebrochen</string>
+
+    <!-- JTX-Konto-Einrichtung -->
+    <string name="jtx_setup_title">JTX-Board-Konto einrichten</string>
+    <string name="jtx_currently_set">Aktuell eingetragen: %1$s\n\n</string>
+    <string name="jtx_setup_hint">Am zuverlässigsten: Öffne DAVx5, dort steht der Kontoname oben auf der Karte des Kontos – genau so hier eintragen.</string>
+    <string name="jtx_name_label">Kontoname (aus DAVx5)</string>
+    <string name="jtx_type_label">Kontotyp (nur bei anderer Sync-App als DAVx5 ändern)</string>
+    <string name="apply_button">Übernehmen</string>
+    <string name="jtx_name_required_toast">Bitte Kontoname eingeben</string>
+    <string name="jtx_or_label">\noder, falls dein Gerät es zulässt:</string>
+    <string name="jtx_chooser_button">Aus Konten-Liste wählen (funktioniert nicht auf jedem Gerät)</string>
+    <string name="no_account_chooser_toast">Keine Kontoauswahl verfügbar</string>
+
+    <!-- Icon-Auswahl -->
+    <string name="icon_picker_title">Icon wählen</string>
+    <string name="icon_from_gallery_button">Eigenes Bild aus der Galerie…</string>
+    <string name="icon_use_default_button">Standard-Icon der Karte verwenden</string>
+    <string name="icon_builtin_label">\nOder ein mitgeliefertes Symbol:</string>
+    <string name="no_image_picker_toast">Keine Bildauswahl verfügbar</string>
+    <string name="image_read_failed_toast">Bild konnte nicht gelesen werden</string>
 </resources>

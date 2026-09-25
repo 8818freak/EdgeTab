@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.herbers.edgetab"
-    android:versionCode="46"
-    android:versionName="0.46">
+    android:versionCode="72"
+    android:versionName="0.72">
 
     <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="34" />
 
@@ -41,6 +41,10 @@
         <!-- Um zu erkennen, ob JTX Board ueberhaupt installiert ist
              (Aufgaben-Karte) - sonst waere das Paket seit Android 11 unsichtbar. -->
         <package android:name="at.techbee.jtx" />
+        <!-- Fuer die "+ Notiz"-Schaltflaeche: direkt an ImapNotes3 weiterreichen
+             (dessen eigene Listen-Ansicht nimmt ACTION_SEND text/plain fuer eine
+             neue Notiz entgegen) statt selbst eine IMAP-Anbindung zu bauen. -->
+        <package android:name="de.niendo.ImapNotes3" />
     </queries>
 
     <application
@@ -81,12 +85,13 @@
             </intent-filter>
         </service>
 
-        <!-- Startet den Dienst nach dem Booten neu -->
+        <!-- Startet den Dienst nach dem Booten und nach einem App-Update neu -->
         <receiver
             android:name=".BootReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
     </application>

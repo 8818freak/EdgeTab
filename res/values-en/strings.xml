@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EdgeTab</string>
+    <string name="tagline">The productivity bar at your screen edge</string>
+    <string name="svc_channel">EdgeTab service</string>
+    <string name="svc_running">EdgeTab is running – pull out the edge bar anytime</string>
+
+    <!-- Tabs: default names -->
+    <string name="tab_calendar">Calendar</string>
+    <string name="tab_contacts">Contacts</string>
+    <string name="tab_inbox">Inbox</string>
+    <string name="tab_notes">Notes</string>
+    <string name="tab_media">Media</string>
+    <string name="tab_shortcuts">Shortcuts</string>
+    <string name="tab_widget">Widget</string>
+    <string name="tab_tasks">Tasks</string>
+    <string name="tab_unknown">Unknown</string>
+    <string name="unknown_card_hint">Unknown card type.</string>
+
+    <!-- Built-in icon set -->
+    <string name="icon_mail">Letter</string>
+    <string name="icon_chat">Speech bubble</string>
+    <string name="icon_bell">Bell</string>
+    <string name="icon_phone">Phone</string>
+    <string name="icon_inbox">Inbox</string>
+    <string name="icon_tasks">Checklist</string>
+    <string name="icon_notes">Notepad</string>
+    <string name="icon_person">Person</string>
+    <string name="icon_people">Group</string>
+    <string name="icon_shield">Shield</string>
+    <string name="icon_clock">Clock</string>
+    <string name="icon_cloud">Cloud</string>
+    <string name="icon_cart">Shopping cart</string>
+    <string name="icon_star">Star</string>
+    <string name="icon_heart">Heart</string>
+
+    <!-- Header / battery -->
+    <string name="battery_full_in_hm">full in %1$dh %2$dm</string>
+    <string name="battery_full_in_m">full in %1$d min</string>
+
+    <!-- Undo bar -->
+    <string name="undo_action">UNDO</string>
+    <string name="undo_deleted_generic">Entry deleted</string>
+    <string name="undo_deleted_named">"%1$s" deleted</string>
+
+    <!-- Panel shell -->
+    <string name="settings_title">Settings</string>
+    <string name="no_active_cards_title">No active cards</string>
+    <string name="no_active_cards_hint">Enable cards using the gear icon above.</string>
+
+    <!-- Shared -->
+    <string name="no_title">(untitled)</string>
+    <string name="all_day">all day</string>
+    <string name="day_today">Today</string>
+    <string name="day_tomorrow">Tomorrow</string>
+    <string name="day_yesterday">Yesterday</string>
+    <string name="day_before_yesterday">The day before yesterday</string>
+
+    <!-- Calendar card -->
+    <string name="calendar_permission_missing">Calendar permission missing</string>
+    <string name="calendar_unreadable">Calendar not readable</string>
+    <string name="calendar_no_events_7d">No events in the next 7 days</string>
+
+    <!-- Inbox categories -->
+    <string name="category_communication">Communication</string>
+    <string name="category_news">News</string>
+    <string name="category_shopping">Shopping</string>
+    <string name="category_finance">Finance</string>
+    <string name="category_productivity">Productivity</string>
+    <string name="category_entertainment">Entertainment</string>
+    <string name="category_other">Other</string>
+
+    <!-- Retention -->
+    <string name="retention_unlimited">unlimited</string>
+    <string name="retention_one_day">1 day</string>
+    <string name="retention_days">%1$d days</string>
+
+    <!-- Inbox card -->
+    <string name="notif_access_missing">Notification access missing.\nGrant it in Android settings.</string>
+    <string name="inbox_no_sources">No sources selected yet.\nUse the gear icon above under "Inbox sources" to choose which apps\' messages appear here.</string>
+    <string name="mark_all_read">Mark all read (%1$d)</string>
+    <string name="inbox_nothing_yet">Nothing received yet from the selected apps.</string>
+    <string name="filter_all">All</string>
+    <string name="inbox_app_only">%1$s · app only</string>
+    <string name="reply_hint">Reply…</string>
+    <string name="send_action">Send</string>
+    <string name="reply_sent">Reply sent</string>
+    <string name="reply_failed">Reply failed</string>
+
+    <!-- Settings: inbox cleanup -->
+    <string name="inbox_cleanup_section">Clean up inbox</string>
+    <string name="inbox_cleanup_hint">Automatically remove older entries after:</string>
+    <string name="retention_button">Keep: %1$s</string>
+
+    <!-- Settings: category menu -->
+    <string name="settings_cat_position_title">Position &amp; appearance</string>
+    <string name="settings_cat_position_subtitle">Side, handle, width, transparency, font</string>
+    <string name="settings_cat_header_title">Header</string>
+    <string name="settings_cat_header_subtitle">Clock, date, battery</string>
+    <string name="settings_cat_inbox_subtitle">Sources, retention</string>
+    <string name="settings_cat_tabs_title">Cards</string>
+    <string name="settings_cat_tabs_subtitle">Enable/disable, rename, icon, order</string>
+    <string name="settings_cat_service_title">Service</string>
+    <string name="settings_cat_service_subtitle">Stop the bar, version</string>
+    <string name="settings_cat_about_title">About EdgeTab</string>
+    <string name="settings_cat_about_subtitle">Version, license, changelog</string>
+    <string name="back_button">‹ Back</string>
+
+    <!-- Settings: position & appearance -->
+    <string name="side_left">◀ Left</string>
+    <string name="side_right">Right ▶</string>
+    <string name="slider_handle_pos">Position (handle height)</string>
+    <string name="slider_handle_length">Handle length</string>
+    <string name="slider_panel_width">Bar width</string>
+    <string name="slider_transparency">Transparency</string>
+    <string name="slider_font_scale">Font size (%)</string>
+    <string name="slider_icon_size">Card icon size</string>
+    <string name="media_controls_section">Media controls</string>
+    <string name="media_controls_hint">Fixed position for the back/play/next buttons on the media control card — stays in place while scrolling, for one-handed use.</string>
+    <string name="pos_top">Top</string>
+    <string name="pos_middle">Middle</string>
+    <string name="pos_bottom">Bottom</string>
+
+    <!-- Settings: header -->
+    <string name="show_clock_checkbox">Show clock, date and weekday</string>
+    <string name="show_battery_checkbox">Show battery level</string>
+
+    <!-- Settings: inbox sources -->
+    <string name="inbox_sources_section">Inbox sources</string>
+    <string name="inbox_sources_hint">Which apps appear in the inbox. Category colors the card and enables a quick filter there; for apps with several notification types (e.g. eBay: messages/new listings), individual types can only be excluded once a notification of that type has arrived.</string>
+    <string name="category_pick_placeholder">Category…</string>
+    <string name="category_none">None</string>
+
+    <!-- Settings: cards -->
+    <string name="tabs_section_hint">Enable/disable, rename, choose a custom image, change the order (▲▼), and set whether the bar closes after tapping in it. Any number of "Widget" and "Shortcuts" cards can be created.</string>
+    <string name="add_widget_tab">+ New widget card</string>
+    <string name="add_shortcuts_tab">+ New shortcuts card</string>
+    <string name="add_media_tab">+ New media control card</string>
+    <string name="tasks_notes_section">Tasks &amp; notes</string>
+    <string name="jtx_account_used">DAVx5 account in use: %1$s</string>
+    <string name="jtx_account_none">No DAVx5 account set up yet.</string>
+    <string name="jtx_account_change">Change JTX Board account</string>
+    <string name="jtx_account_setup">Set up JTX Board account</string>
+    <string name="close_on_tap_checkbox">Close after tapping</string>
+    <string name="tab_delete_action">Delete</string>
+
+    <!-- Settings: service -->
+    <string name="stop_service_button">Stop the bar</string>
+    <string name="version_line">EdgeTab %1$s</string>
+    <string name="about_description">A from-scratch recreation of BlackBerry\'s "Productivity Edge" – a pull-out edge panel with freely configurable cards. No BlackBerry code, only open Android interfaces.</string>
+    <string name="about_license_title">License</string>
+    <string name="about_license_text">MIT License. Copyright (c) 2026 Mathias Herbers.\n\nContains no BlackBerry graphics or code, and no third-party libraries – only open Android system interfaces.</string>
+    <string name="about_changelog_title">Changelog</string>
+    <string name="about_changelog_show">Show changelog</string>
+    <string name="about_changelog_hide">Hide changelog</string>
+    <string name="about_changelog_unavailable">Changelog could not be loaded.</string>
+
+    <!-- Shared controls -->
+    <string name="done_button">Done</string>
+    <string name="grant_access_button">Grant access</string>
+
+    <!-- Contacts card -->
+    <string name="contacts_mode_selected">Selected</string>
+    <string name="contacts_mode_favorites">Favorites</string>
+    <string name="contacts_display_lastname_first">Display: last name first</string>
+    <string name="contacts_display_firstname_first">Display: first name first</string>
+    <string name="contacts_sort_by_lastname">Sorted: by last name</string>
+    <string name="contacts_sort_by_firstname">Sorted: by first name</string>
+    <string name="contacts_pick_button">Choose contacts…</string>
+    <string name="contacts_none_selected_hint">No contacts selected yet. Use the gear icon above, "Choose contacts…".</string>
+    <string name="contacts_no_favorites_hint">No favorites. Mark a contact as a favorite in the Contacts app.</string>
+    <string name="contacts_none_found">No contacts found.</string>
+    <string name="contacts_permission_missing">The contacts card is missing permission to access your contacts.</string>
+
+    <!-- Shortcuts card -->
+    <string name="cancel_button">Cancel</string>
+    <string name="add_button">Add</string>
+    <string name="add_button_count">Add (%1$d)</string>
+    <string name="add_app_button">+ Add app</string>
+    <string name="edit_button">Edit</string>
+    <string name="shortcuts_empty_hint">No shortcuts yet. Use the gear icon above, "+ Add app"; then "Edit" to rename and sort into groups.</string>
+    <string name="no_group_label">No group</string>
+    <string name="view_grid">Grid</string>
+    <string name="view_list">List</string>
+    <string name="no_apps_found">No apps found.</string>
+    <string name="group_hint">Group (empty = no group)</string>
+
+    <!-- Notes card -->
+    <string name="notes_jtx_not_installed">JTX Board is not installed.\nThis card reads notes from JTX Board (synced via DAVx5). You can still create new notes using the pencil below.</string>
+    <string name="notes_read_failed">Notes could not be read.\nIs JTX Board up to date?</string>
+    <string name="notes_none_found">No notes found.\nNote: JTX Board needs a collection syncing notes/journal for this — that\'s a DAVx5 setting, not an EdgeTab one.</string>
+    <string name="notes_create_chooser_title">Create note with …</string>
+    <string name="notes_permission_missing">The notes card is missing permission to read JTX Board\'s notes.</string>
+    <string name="notes_account_missing">The notes card still needs your DAVx5 account selected (same one as for tasks).</string>
+    <string name="jtx_pick_account_button">Choose account</string>
+
+    <!-- Tasks card -->
+    <string name="tasks_jtx_not_installed">JTX Board is not installed.\nThis card reads tasks from JTX Board (synced via DAVx5).</string>
+    <string name="tasks_read_failed">Tasks could not be read.\nIs JTX Board up to date?</string>
+    <string name="tasks_none_open">No open tasks.</string>
+    <string name="tasks_permission_missing">The tasks card is missing permission to read JTX Board\'s tasks.</string>
+    <string name="tasks_account_missing">The tasks card still needs your DAVx5 account selected (JTX Board reads tasks per account).</string>
+    <string name="percent_value">%1$d%%</string>
+
+    <!-- Media card -->
+    <string name="media_no_access">No access to media sessions. Check notification access in Android settings.</string>
+    <string name="media_nothing_playing">Nothing is playing right now.</string>
+
+    <!-- Widget card -->
+    <string name="widget_empty_hint">You can embed an app widget here — for example BlackBerry Hub\'s inbox. It then shows real content, independent of notifications. Multiple widgets can be stacked on top of each other.\n\nExperimental: not every widget renders correctly in the bar.</string>
+    <string name="widget_change_button">Choose a different widget</string>
+    <string name="widget_remove_button">Remove ✕</string>
+    <string name="widget_unavailable">Widget no longer available.</string>
+    <string name="widget_render_failed">Widget could not be displayed.\n%1$s</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_intro">The productivity bar at your screen edge.\n\nSet up once, everything then lives in the bar itself: a handle appears at the edge – tap it or swipe toward the middle to pull it out, swipe back to close it. Settings sit at the top as their own card.\n\nThree permissions are needed to get started:</string>
+    <string name="onboarding_step1">1. Display over other apps</string>
+    <string name="onboarding_step2">2. Notification access (for the inbox)</string>
+    <string name="onboarding_step3">3. Calendar</string>
+    <string name="allow_button">Allow</string>
+    <string name="onboarding_footer">\nOnce all three are granted, the bar opens automatically – and this screen won\'t appear again.</string>
+
+    <!-- Widget picker -->
+    <string name="widget_picker_title">Choose widget</string>
+    <string name="widget_picker_hint">An installed app widget for the bar. For the Hub inbox, choose BlackBerry Hub\'s own widget.\n</string>
+    <string name="no_widgets_found">No app widgets found.</string>
+    <string name="widget_bind_cancelled_toast">Binding cancelled</string>
+
+    <!-- JTX account setup -->
+    <string name="jtx_setup_title">Set up JTX Board account</string>
+    <string name="jtx_currently_set">Currently set: %1$s\n\n</string>
+    <string name="jtx_setup_hint">Most reliable: open DAVx5, the account name is shown at the top of the account\'s card there – enter it here exactly like that.</string>
+    <string name="jtx_name_label">Account name (from DAVx5)</string>
+    <string name="jtx_type_label">Account type (only change if using a sync app other than DAVx5)</string>
+    <string name="apply_button">Apply</string>
+    <string name="jtx_name_required_toast">Please enter an account name</string>
+    <string name="jtx_or_label">\nor, if your device allows it:</string>
+    <string name="jtx_chooser_button">Choose from account list (doesn\'t work on every device)</string>
+    <string name="no_account_chooser_toast">No account picker available</string>
+
+    <!-- Icon picker -->
+    <string name="icon_picker_title">Choose icon</string>
+    <string name="icon_from_gallery_button">Custom image from gallery…</string>
+    <string name="icon_use_default_button">Use the card\'s default icon</string>
+    <string name="icon_builtin_label">\nOr a built-in icon:</string>
+    <string name="no_image_picker_toast">No image picker available</string>
+    <string name="image_read_failed_toast">Image could not be read</string>
+</resources>

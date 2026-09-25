@@ -2,6 +2,7 @@ package de.herbers.edgetab;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +40,9 @@ public final class Settings {
     private static final String K_JTX_ACCOUNT_NAME = "jtx_account_name"; // DAVx5-Konto fuer die Aufgaben-Karte
     private static final String K_JTX_ACCOUNT_TYPE = "jtx_account_type";
     private static final String K_MEDIA_CTRL_POS = "media_controls_pos"; // "top"/"middle"/"bottom"
+    private static final String K_DISABLED_CHANNELS = "disabled_channels"; // "pkgchannelId"
+    private static final String K_CONTACT_DISPLAY = "contact_display"; // "primary"/"alternative"
+    private static final String K_CONTACT_SORT    = "contact_sort";    // "primary"/"alternative"
 
     private Settings() {}
 
@@ -129,16 +133,96 @@ public final class Settings {
         p(c).edit().putStringSet(K_SOURCES, s).apply();
     }
 
+    // ---- Einzelne Benachrichtigungs-Kanaele je Quell-App ausblenden -----
+    // (z.B. bei eBay "Neue Artikel" abwaehlen, "Nachrichten" behalten) - eine
+    // App bleibt in Settings.sources() an, nur bestimmte ihrer Kanaele werden
+    // im Posteingang unterdrueckt. Fehlt der Kanal (Item.channel leer, z.B.
+    // Alt-Eintraege vor 0.47), gilt er immer als eingeschaltet. ----
+    public static Set<String> disabledChannels(Context c) {
+        return new HashSet<>(p(c).getStringSet(K_DISABLED_CHANNELS, Collections.<String>emptySet()));
+    }
+    public static boolean isChannelEnabled(Context c, String pkg, String channel) {
+        if (channel == null || channel.isEmpty()) return true;
+        return !disabledChannels(c).contains(pkg + "" + channel);
+    }
+    public static void setChannelEnabled(Context c, String pkg, String channel, boolean on) {
+        if (channel == null || channel.isEmpty()) return;
+        Set<String> s = disabledChannels(c);
+        String key = pkg + "" + channel;
+        if (on) s.remove(key); else s.add(key);
+        p(c).edit().putStringSet(K_DISABLED_CHANNELS, s).apply();
+    }
+
+    // ---- Kategorie je Quell-App (wie BlackBerry Hub+ Services' "Kategorie
+    // fuer App auswaehlen"-Dialog) - rein organisatorisch: faerbt den Balken
+    // im Posteingang und erlaubt dort einen Schnellfilter.
+    // Gespeichert wird ein stabiler, SPRACHUNABHAENGIGER Schluessel (nicht das
+    // Anzeigewort) - sonst wuerde eine in Deutsch gewaehlte Kategorie nach
+    // einem Sprachwechsel des Geraets nicht mehr wiedererkannt (der Vergleich
+    // laeuft ueberall per String-Gleichheit). Anzeige-Text kommt separat aus
+    // categoryLabel(). ----
+    public static final String[] CATEGORIES = {
+        "communication", "news", "shopping", "finance",
+        "productivity", "entertainment", "other"
+    };
+    public static String category(Context c, String pkg) {
+        return migrateCategoryKey(p(c).getString("cat_" + pkg, null));
+    }
+    public static void setCategory(Context c, String pkg, String cat) {
+        if (cat == null) p(c).edit().remove("cat_" + pkg).apply();
+        else p(c).edit().putString("cat_" + pkg, cat).apply();
+    }
+    /** Alte, vor der Mehrsprachigkeit als deutsches Anzeigewort gespeicherte
+     *  Kategorien auf die neuen stabilen Schluessel abbilden, damit bereits
+     *  zugewiesene Kategorien nicht verloren gehen. */
+    private static String migrateCategoryKey(String raw) {
+        if (raw == null) return null;
+        switch (raw) {
+            case "Kommunikation": return "communication";
+            case "Nachrichten":   return "news";
+            case "Einkaufen":     return "shopping";
+            case "Finanzen":      return "finance";
+            case "Produktivität": return "productivity";
+            case "Unterhaltung":  return "entertainment";
+            case "Sonstiges":     return "other";
+            default: return raw; // schon ein neuer Schluessel
+        }
+    }
+    public static String categoryLabel(Context c, String key) {
+        if (key == null) return null;
+        switch (key) {
+            case "communication": return c.getString(R.string.category_communication);
+            case "news":          return c.getString(R.string.category_news);
+            case "shopping":      return c.getString(R.string.category_shopping);
+            case "finance":       return c.getString(R.string.category_finance);
+            case "productivity":  return c.getString(R.string.category_productivity);
+            case "entertainment": return c.getString(R.string.category_entertainment);
+            default:              return c.getString(R.string.category_other);
+        }
+    }
+    public static int categoryColor(String cat) {
+        if (cat == null) return 0;
+        switch (cat) {
+            case "communication": return Color.parseColor("#2E9BE6");
+            case "news":          return Color.parseColor("#F5A623");
+            case "shopping":      return Color.parseColor("#3DA764");
+            case "finance":       return Color.parseColor("#D0A72E");
+            case "productivity":  return Color.parseColor("#8E6FD6");
+            case "entertainment": return Color.parseColor("#E0559B");
+            default:              return Color.parseColor("#8A8A8E");
+        }
+    }
+
     // ---- Aufbewahrungsdauer des Posteingangs (Tage, 0 = unbegrenzt) ----
     public static final int[] RETENTION_CHOICES = { 3, 7, 14, 30, 90, 0 };
     public static int retentionDays(Context c) { return p(c).getInt(K_RETENTION_DAYS, 30); }
     public static void setRetentionDays(Context c, int days) {
         p(c).edit().putInt(K_RETENTION_DAYS, days).apply();
     }
-    public static String retentionLabel(int days) {
-        if (days <= 0) return "unbegrenzt";
-        if (days == 1) return "1 Tag";
-        return days + " Tage";
+    public static String retentionLabel(Context c, int days) {
+        if (days <= 0) return c.getString(R.string.retention_unlimited);
+        if (days == 1) return c.getString(R.string.retention_one_day);
+        return c.getString(R.string.retention_days, days);
     }
 
     // ---- Eingebettetes App-Widget (Widget-Karte) ----
@@ -171,6 +255,16 @@ public final class Settings {
     public static void setMediaControlsPos(Context c, String pos) {
         p(c).edit().putString(K_MEDIA_CTRL_POS, pos).apply();
     }
+
+    // ---- Namensdarstellung/-sortierung in der Kontakte-Karte - unabhaengig
+    // voneinander waehlbar (wie Androids eigene Kontakte-App): "primary" =
+    // Vorname zuerst / nach Vorname, "alternative" = Nachname zuerst
+    // ("Nachname, Vorname") / nach Nachname. Nutzt ContactsContract-Spalten,
+    // die genau das schon fertig mitbringen - kein eigenes Namens-Parsing. ----
+    public static String contactDisplay(Context c) { return p(c).getString(K_CONTACT_DISPLAY, "primary"); }
+    public static void setContactDisplay(Context c, String v) { p(c).edit().putString(K_CONTACT_DISPLAY, v).apply(); }
+    public static String contactSort(Context c) { return p(c).getString(K_CONTACT_SORT, "primary"); }
+    public static void setContactSort(Context c, String v) { p(c).edit().putString(K_CONTACT_SORT, v).apply(); }
 
     private static int clamp(int v, int lo, int hi) { return Math.max(lo, Math.min(hi, v)); }
 }

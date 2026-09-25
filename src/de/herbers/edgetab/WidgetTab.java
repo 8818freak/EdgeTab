@@ -37,7 +37,7 @@ import android.widget.TextView;
  */
 public class WidgetTab extends BaseTab {
 
-    WidgetTab(TabInstance inst) { super(inst, "Widget", R.drawable.ic_widget); }
+    WidgetTab(TabInstance inst) { super(inst, R.string.tab_widget, R.drawable.ic_widget); }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {
         int d = Math.round(ctx.getResources().getDisplayMetrics().density);
@@ -50,11 +50,7 @@ public class WidgetTab extends BaseTab {
 
         if (inst.widgets.isEmpty()) {
             TextView t = new TextView(ctx);
-            t.setText("Hier lässt sich ein App-Widget einbetten – zum Beispiel der "
-                    + "Posteingang des BlackBerry Hub. Es zeigt dann echte Inhalte, "
-                    + "unabhängig von Benachrichtigungen. Mehrere Widgets lassen sich "
-                    + "untereinander stapeln.\n\nExperimentell: nicht jedes Widget "
-                    + "rendert in der Leiste.");
+            t.setText(R.string.widget_empty_hint);
             t.setTextColor(Color.parseColor("#CCCCCC"));
             t.setTextSize(14);
             t.setPadding(0, 0, 0, 16 * d);
@@ -91,14 +87,14 @@ public class WidgetTab extends BaseTab {
         LinearLayout head = new LinearLayout(ctx);
         head.setOrientation(LinearLayout.HORIZONTAL);
         TextView change = new TextView(ctx);
-        change.setText("Anderes Widget wählen");
+        change.setText(R.string.widget_change_button);
         change.setTextColor(Color.parseColor("#2E9BE6"));
         change.setTextSize(12);
         change.setOnClickListener(new PickClick(ctx, closePanel, inst.id, slot));
         head.addView(change, new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         TextView remove = new TextView(ctx);
-        remove.setText("Entfernen ✕");
+        remove.setText(R.string.widget_remove_button);
         remove.setTextColor(Color.parseColor("#8899AA"));
         remove.setTextSize(12);
         remove.setPadding(10 * d, 8 * d, 4 * d, 8 * d);
@@ -112,7 +108,7 @@ public class WidgetTab extends BaseTab {
                 LinearLayout.LayoutParams.MATCH_PARENT, hDp * d));
         if (info == null) {
             TextView err = new TextView(ctx);
-            err.setText("Widget nicht mehr verfügbar.");
+            err.setText(R.string.widget_unavailable);
             err.setTextColor(Color.parseColor("#FFB0B0"));
             frame.addView(err);
         } else {
@@ -131,7 +127,7 @@ public class WidgetTab extends BaseTab {
             } catch (Throwable t) {
                 Log.w(WidgetHostHolder.TAG, "createView", t);
                 TextView err = new TextView(ctx);
-                err.setText("Widget konnte nicht dargestellt werden.\n" + t);
+                err.setText(ctx.getString(R.string.widget_render_failed, t.toString()));
                 err.setTextColor(Color.parseColor("#FFB0B0"));
                 frame.addView(err);
             }

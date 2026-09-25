@@ -52,6 +52,12 @@ final class Tabs {
         } catch (JSONException e) {
             return migrate(ctx);
         }
+        // Die Suche-Karte ist wieder raus (2026-09-24, zur eigenstaendigen
+        // App "Sucher" herausgeloest) - bei bestehenden Installationen, die
+        // 0.60 schon hatten, den alten Eintrag entfernen statt ihn als
+        // "Unbekannter Kartentyp"-Platzhalter anzuzeigen.
+        boolean changed = out.removeIf(t -> "search".equals(t.type));
+        if (changed) save(ctx, out);
         return out;
     }
 
@@ -99,11 +105,11 @@ final class Tabs {
     /** Nur die aktiven Karten, in Anzeige-Reihenfolge. */
     static List<Tab> buildActive(Context ctx) {
         List<Tab> out = new ArrayList<>();
-        for (TabInstance t : load(ctx)) if (t.enabled) out.add(build(t));
+        for (TabInstance t : load(ctx)) if (t.enabled) out.add(build(ctx, t));
         return out;
     }
 
-    static Tab build(TabInstance t) {
+    static Tab build(Context ctx, TabInstance t) {
         switch (t.type) {
             case TabInstance.TYPE_CALENDAR: return new CalendarTab(t);
             case TabInstance.TYPE_INBOX:    return new InboxTab(t);
@@ -113,7 +119,7 @@ final class Tabs {
             case TabInstance.TYPE_CONTACTS: return new ContactsTab(t);
             case TabInstance.TYPE_SHORTCUTS: return new ShortcutsTab(t);
             case TabInstance.TYPE_MEDIA:     return new MediaTab(t);
-            default: return new PlaceholderTab(t, t.type, R.drawable.ic_widget, "Unbekannter Kartentyp.");
+            default: return new PlaceholderTab(t, t.type, R.drawable.ic_widget, ctx.getString(R.string.unknown_card_hint));
         }
     }
 

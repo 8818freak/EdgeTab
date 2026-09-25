@@ -26,7 +26,7 @@ import java.util.Calendar;
  */
 public class CalendarTab extends BaseTab {
 
-    public CalendarTab(TabInstance inst) { super(inst, "Kalender", R.drawable.ic_calendar); }
+    public CalendarTab(TabInstance inst) { super(inst, R.string.tab_calendar, R.drawable.ic_calendar); }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {
         float fs = Settings.fontScale(ctx);
@@ -38,7 +38,7 @@ public class CalendarTab extends BaseTab {
 
         if (ctx.checkSelfPermission(android.Manifest.permission.READ_CALENDAR)
                 != PackageManager.PERMISSION_GRANTED) {
-            list.addView(note(ctx, "Kalender-Berechtigung fehlt", "#FFB0B0", fs));
+            list.addView(note(ctx, ctx.getString(R.string.calendar_permission_missing), "#FFB0B0", fs));
             return scroll;
         }
 
@@ -76,18 +76,18 @@ public class CalendarTab extends BaseTab {
                         list.addView(dayHeader(ctx, begin, fs));
                         lastDay = day;
                     }
-                    list.addView(entry(ctx, title == null ? "(ohne Titel)" : title,
+                    list.addView(entry(ctx, title == null ? ctx.getString(R.string.no_title) : title,
                             begin, end, allDay, loc, color, id, fs, close));
                     shown++;
                 }
                 c.close();
             }
         } catch (Exception e) {
-            list.addView(note(ctx, "Kalender nicht lesbar", "#FFB0B0", fs));
+            list.addView(note(ctx, ctx.getString(R.string.calendar_unreadable), "#FFB0B0", fs));
             return scroll;
         }
         if (shown == 0) {
-            list.addView(note(ctx, "Keine Termine in den naechsten 7 Tagen", "#9E9E9E", fs));
+            list.addView(note(ctx, ctx.getString(R.string.calendar_no_events_7d), "#9E9E9E", fs));
         }
         return withFab(ctx, scroll, addEventFab(ctx, closePanel));
     }
@@ -123,11 +123,11 @@ public class CalendarTab extends BaseTab {
         int d = Math.round(ctx.getResources().getDisplayMetrics().density);
         TextView h = new TextView(ctx);
         String label;
-        if (DateUtils.isToday(begin)) label = "HEUTE";
-        else if (DateUtils.isToday(begin - 86400000L)) label = "MORGEN";
+        if (DateUtils.isToday(begin)) label = ctx.getString(R.string.day_today).toUpperCase(java.util.Locale.getDefault());
+        else if (DateUtils.isToday(begin - 86400000L)) label = ctx.getString(R.string.day_tomorrow).toUpperCase(java.util.Locale.getDefault());
         else label = DateUtils.formatDateTime(ctx, begin,
                 DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE
-                | DateUtils.FORMAT_ABBREV_MONTH).toUpperCase();
+                | DateUtils.FORMAT_ABBREV_MONTH).toUpperCase(java.util.Locale.getDefault());
         h.setText(label);
         h.setTextColor(Color.parseColor("#7FB0B0B0"));
         h.setTextSize(12 * fs);
@@ -172,7 +172,7 @@ public class CalendarTab extends BaseTab {
         t.setTextSize(15 * fs);
         textCol.addView(t);
 
-        String when = allDay ? "ganztägig"
+        String when = allDay ? ctx.getString(R.string.all_day)
                 : DateUtils.formatDateTime(ctx, begin, DateUtils.FORMAT_SHOW_TIME)
                   + " – " + DateUtils.formatDateTime(ctx, end, DateUtils.FORMAT_SHOW_TIME);
         TextView w = new TextView(ctx);

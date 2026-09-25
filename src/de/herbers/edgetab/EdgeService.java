@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.GradientDrawable;
@@ -19,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -59,6 +61,27 @@ public class EdgeService extends Service {
         if (intent != null && intent.getBooleanExtra("refresh", false)) rebuildHandle();
         if (intent != null && intent.getBooleanExtra("open", false)) openPanel();
         return START_STICKY;
+    }
+
+    /**
+     * Drehung fehlte bisher komplett - ein Dienst wird (anders als eine
+     * Activity) bei einer Konfigurationsaenderung nie neu erzeugt, bekommt
+     * aber auch nie automatisch ein neues Layout: das Overlay-Fenster selbst
+     * dreht sich mit (MATCH_PARENT/MATCH_PARENT), sein INHALT blieb aber auf
+     * die alten Masse eingefroren - sichtbar u.a. an eingebetteten Widgets,
+     * die nach dem Drehen mit falscher Groesse/Zeilenzahl weiterlebten
+     * (Mathias' Screenshots: dieselbe BB-Hub-Karte mit unterschiedlicher
+     * Zeilenzahl vor/nach Drehung). Komplett neu aufbauen behebt das, weil
+     * jede Karte (v.a. WidgetTab) ihre Groesse dabei aus der aktuellen
+     * Panelbreite/-hoehe neu berechnet, statt eine alte Ansicht weiterzunutzen.
+     */
+    @Override public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        rebuildHandle();
+        if (panelOpen) {
+            closePanel();
+            openPanel();
+        }
     }
 
     private void startAsForeground() {
@@ -175,10 +198,16 @@ public class EdgeService extends Service {
 
     // ---- Panel ----
 
+    // Seite, mit der das gerade offene Panel aufgebaut wurde - falls sich
+    // Settings.edgeRight() waehrenddessen aendert (selten), macht refreshPanel
+    // einen echten Neuaufbau statt der leichten Aktualisierung, siehe dort.
+    private boolean panelRight;
+
     private void openPanel() {
         if (panelOpen) return;
         panelOpen = true;
         boolean right = Settings.edgeRight(this);
+        panelRight = right;
 
         FrameLayout root = new FrameLayout(this);
         root.setOnClickListener(v -> closePanel());
@@ -190,6 +219,34 @@ public class EdgeService extends Service {
         panel.setClickable(true);
         panel.setPadding(dp(14), dp(18), dp(14), dp(18));
         panel.getBackground().setAlpha((int) ((100 - Settings.transparency(this)) / 100f * 255));
+
+        buildPanelInner(right);
+
+        int wPx = dp(Settings.panelWidth(this)) + dp(iconColumnWidthDp());
+        FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(wPx,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        plp.gravity = right ? Gravity.END : Gravity.START;
+        root.addView(panel, plp);
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+        panelView = root;
+        wm.addView(panelView, lp);
+
+        panel.setTranslationX(right ? wPx : -wPx);
+        panel.animate().translationX(0).setDuration(180).start();
+        // Das Zuwischen erledigt SwipePanel selbst (onInterceptTouchEvent),
+        // damit die Geste vor den Kacheln/dem Scrollbereich erkannt wird.
+    }
+
+    /** Kopfzeile + Icon-Spalte + Karteninhalt neu aufbauen, direkt in das
+     *  bestehende `panel`-Layout - der Teil von openPanel(), der bei jeder
+     *  Tab-/Einstellungsaenderung wiederholt werden muss. Fasst weder Fenster
+     *  noch Auf-/Zu-Animation an. */
+    private void buildPanelInner(boolean right) {
+        panel.removeAllViews();
 
         List<Tab> tabs = Tabs.buildActive(this);
         if (!showingSettings && currentTab >= tabs.size()) currentTab = 0;
@@ -220,24 +277,6 @@ public class EdgeService extends Service {
         if (right) { body.addView(content, contentLp); body.addView(iconCol, iconLp); }
         else       { body.addView(iconCol, iconLp); body.addView(content, contentLp); }
         panel.addView(body);
-
-        int wPx = dp(Settings.panelWidth(this)) + dp(iconColumnWidthDp());
-        FrameLayout.LayoutParams plp = new FrameLayout.LayoutParams(wPx,
-                ViewGroup.LayoutParams.MATCH_PARENT);
-        plp.gravity = right ? Gravity.END : Gravity.START;
-        root.addView(panel, plp);
-
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
-        panelView = root;
-        wm.addView(panelView, lp);
-
-        panel.setTranslationX(right ? wPx : -wPx);
-        panel.animate().translationX(0).setDuration(180).start();
-        // Das Zuwischen erledigt SwipePanel selbst (onInterceptTouchEvent),
-        // damit die Geste vor den Kacheln/dem Scrollbereich erkannt wird.
     }
 
     /**
@@ -289,7 +328,8 @@ public class EdgeService extends Service {
         // Bewusst das schlichte "⚙"-Zeichen statt des Vektor-Icons - Mathias'
         // Wunsch, dass ALLE Einstellungs-Zahnraeder in der App (auch dieses
         // hier) gleich aussehen, und die anderen (ShortcutsTab/ContactsTab)
-        // waren zuerst da.
+        // waren zuerst da. Bleibt bewusst AUSSERHALB der Scroll-Zone unten -
+        // immer erreichbar, egal wie viele Karten es gibt.
         View gear = gearGlyphView(showingSettings);
         gear.setOnClickListener(v -> { showingSettings = true; refreshPanel(); });
         col.addView(gear);
@@ -301,19 +341,35 @@ public class EdgeService extends Service {
         sep.setBackgroundColor(Color.parseColor("#44FFFFFF"));
         col.addView(sep);
 
-        // Fuellt den Platz zwischen Einstellungen (oben) und den restlichen
-        // Karten (unten) - Mathias' Wunsch, alle Karten am unteren Rand zu
-        // versammeln statt sie direkt unter den Einstellungen aufzureihen.
-        View spacer = new View(this);
-        col.addView(spacer, new LinearLayout.LayoutParams(dp(1), 0, 1f));
+        // Die Karten-Icons selbst stecken in einer eigenen ScrollView -
+        // vorher liefen sie bei zu wenig Hoehe (v.a. Querformat mit vielen
+        // Karten) einfach ueber den Panelrand hinaus und waren gar nicht
+        // mehr erreichbar (Mathias' Fund: Bildschirm drehen "schluckt" Karten).
+        // fillViewport+Gravity.BOTTOM auf dem inneren Layout erhaelt dabei
+        // das bisherige Verhalten, wenn genug Platz da ist (Karten unten
+        // versammelt, wie Mathias es wollte) UND macht sie scrollbar, wenn
+        // nicht - beides gleichzeitig, kein Kompromiss noetig.
+        ScrollView iconScroll = new ScrollView(this);
+        iconScroll.setVerticalScrollBarEnabled(false);
+        iconScroll.setFillViewport(true);
+        iconScroll.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        LinearLayout iconList = new LinearLayout(this);
+        iconList.setOrientation(LinearLayout.VERTICAL);
+        iconList.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        iconList.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        iconScroll.addView(iconList);
 
         for (int i = 0; i < tabs.size(); i++) {
             final int idx = i;
             Tab t = tabs.get(i);
             ImageView iv = iconView(t.iconRes(), t.customIconPath(), !showingSettings && i == currentTab);
             iv.setOnClickListener(v -> { showingSettings = false; currentTab = idx; refreshPanel(); });
-            col.addView(iv);
+            iconList.addView(iv);
         }
+        col.addView(iconScroll);
         return col;
     }
 
@@ -393,14 +449,14 @@ public class EdgeService extends Service {
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f);
 
         if (showingSettings) {
-            header.setText("Einstellungen");
+            header.setText(R.string.settings_title);
             wrap.addView(header);
             wrap.addView(new SettingsTab().buildContent(this, this::closePanel, this::refreshPanel), fillLp);
         } else if (tabs.isEmpty()) {
-            header.setText("Keine Karten aktiv");
+            header.setText(R.string.no_active_cards_title);
             wrap.addView(header);
             TextView t = new TextView(this);
-            t.setText("Aktiviere Karten oben im Zahnrad.");
+            t.setText(R.string.no_active_cards_hint);
             t.setTextColor(Color.parseColor("#9E9E9E"));
             t.setTextSize(14 * fs);
             wrap.addView(t);
@@ -418,10 +474,31 @@ public class EdgeService extends Service {
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
     }
 
-    /** Panel neu aufbauen (nach Tab-Wechsel oder Einstellungsaenderung). */
+    /**
+     * Panel-Inhalt neu aufbauen (nach Tab-Wechsel oder Einstellungsaenderung).
+     * Baut NUR den Inhalt im bereits offenen Panel neu, statt es zu- und
+     * wiederaufzufahren (frueher: closePanel()+openPanel(), sichtbar bei
+     * jeder Kleinigkeit wie einem Haekchen - Mathias' Meldung: "bei jeder
+     * Menuaenderung faehrt die Leiste zu und wieder auf"). Nur wenn sich die
+     * Seite geaendert hat (selten, echte Neu-Verankerung am Fensterrand
+     * noetig) faellt es auf den vollen Neuaufbau zurueck.
+     */
     private void refreshPanel() {
-        closePanel();
-        openPanel();
+        boolean right = Settings.edgeRight(this);
+        if (!panelOpen || panel == null || panelView == null || right != panelRight) {
+            closePanel();
+            openPanel();
+            return;
+        }
+        panel.getBackground().setAlpha((int) ((100 - Settings.transparency(this)) / 100f * 255));
+        buildPanelInner(right);
+
+        int wPx = dp(Settings.panelWidth(this)) + dp(iconColumnWidthDp());
+        ViewGroup.LayoutParams plp = panel.getLayoutParams();
+        if (plp != null && plp.width != wPx) {
+            plp.width = wPx;
+            panel.setLayoutParams(plp);
+        }
     }
 
     private void closePanel() {

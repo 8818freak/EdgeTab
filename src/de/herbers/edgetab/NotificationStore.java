@@ -18,7 +18,7 @@ import java.util.List;
 public class NotificationStore extends SQLiteOpenHelper {
 
     private static final String DB = "edgetab_notifications.db";
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     private static NotificationStore instance;
 
     public static synchronized NotificationStore get(Context ctx) {
@@ -42,7 +42,9 @@ public class NotificationStore extends SQLiteOpenHelper {
             "  title TEXT," +
             "  text TEXT," +
             "  posted INTEGER," +      // Zeitstempel
-            "  seen INTEGER DEFAULT 0" + // 0 = ungelesen, 1 = gelesen
+            "  seen INTEGER DEFAULT 0," + // 0 = ungelesen, 1 = gelesen
+            "  channel TEXT," +       // Notification-Channel-ID der Quell-App
+            "  channel_name TEXT" +   // deren vom Nutzer sichtbarer Name, falls auslesbar
             ")");
         db.execSQL("CREATE INDEX idx_pkg ON notes(pkg)");
         db.execSQL("CREATE INDEX idx_posted ON notes(posted)");
@@ -50,11 +52,15 @@ public class NotificationStore extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
-        // Erste Version - noch nichts zu migrieren.
+        if (oldV < 2) {
+            db.execSQL("ALTER TABLE notes ADD COLUMN channel TEXT");
+            db.execSQL("ALTER TABLE notes ADD COLUMN channel_name TEXT");
+        }
     }
 
     /** Neue Benachrichtigung ablegen. Gleicher Schluessel = Aktualisierung. */
-    public void add(String key, String pkg, String title, String text, long posted) {
+    public void add(String key, String pkg, String title, String text, long posted,
+                     String channel, String channelName) {
         SQLiteDatabase db = getWritableDatabase();
         // Doppelte desselben Schluessels vermeiden: vorhandene ersetzen,
         // dabei den Gelesen-Status nicht ueberschreiben.
@@ -67,6 +73,8 @@ public class NotificationStore extends SQLiteOpenHelper {
                 v.put("title", title);
                 v.put("text", text);
                 v.put("posted", posted);
+                v.put("channel", channel);
+                v.put("channel_name", channelName);
                 db.update("notes", v, "nkey=?", new String[]{key});
                 return;
             }
@@ -92,6 +100,8 @@ public class NotificationStore extends SQLiteOpenHelper {
         v.put("text", text);
         v.put("posted", posted);
         v.put("seen", 0);
+        v.put("channel", channel);
+        v.put("channel_name", channelName);
         db.insert("notes", null, v);
     }
 
@@ -100,6 +110,7 @@ public class NotificationStore extends SQLiteOpenHelper {
         public String nkey, pkg, title, text;
         public long posted;
         public boolean seen;
+        public String channel, channelName;
     }
 
     /** Die neuesten Eintraege fuer die Kachel, optional auf eine App gefiltert. */
@@ -119,7 +130,33 @@ public class NotificationStore extends SQLiteOpenHelper {
             it.text   = c.getString(c.getColumnIndexOrThrow("text"));
             it.posted = c.getLong(c.getColumnIndexOrThrow("posted"));
             it.seen   = c.getInt(c.getColumnIndexOrThrow("seen")) != 0;
+            it.channel = c.getString(c.getColumnIndexOrThrow("channel"));
+            it.channelName = c.getString(c.getColumnIndexOrThrow("channel_name"));
             out.add(it);
+        }
+        c.close();
+        return out;
+    }
+
+    /** Zeilenform fuer die Kanal-Auswahl in den Einstellungen: Kanal-ID +
+     *  lesbarer Name (falls beim Empfang auslesbar), je einmal pro App. */
+    public static class Channel {
+        public String id, name;
+        public Channel(String id, String name) { this.id = id; this.name = name; }
+    }
+
+    /** Die distinkten Benachrichtigungs-Kanaele einer App - nur sinnvoll,
+     *  wenn eine App mehrere Arten von Meldungen ueber getrennte Kanaele
+     *  schickt (z.B. eBay: "Nachrichten" vs. "Neue Artikel"). */
+    public List<Channel> distinctChannels(String pkg) {
+        List<Channel> out = new ArrayList<>();
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT channel, MAX(channel_name), COUNT(*) FROM notes "
+                + "WHERE pkg=? AND channel IS NOT NULL AND channel != '' "
+                + "GROUP BY channel ORDER BY COUNT(*) DESC", new String[]{pkg});
+        while (c.moveToNext()) {
+            String name = c.getString(1);
+            out.add(new Channel(c.getString(0), name == null || name.isEmpty() ? c.getString(0) : name));
         }
         c.close();
         return out;

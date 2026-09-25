@@ -1,6 +1,7 @@
 package de.herbers.edgetab;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Intent;
@@ -382,10 +383,31 @@ public class NotificationCollector extends NotificationListenerService {
                     + "\" semantic=" + a.getSemanticAction());
         }
 
+        // Kanal-ID + lesbarer Name auslesen - erlaubt in den Einstellungen
+        // spaeter eine Art Benachrichtigung dieser App auszublenden (z.B. bei
+        // eBay "Neue Artikel", aber "Nachrichten" behalten), genau wie
+        // Androids eigene App-Benachrichtigungseinstellungen das pro Kanal
+        // koennen. NotificationListenerService darf fremde Kanaele lesen,
+        // solange der Benachrichtigungszugriff erteilt ist.
+        String channelId = n.getChannelId();
+        String channelName = null;
+        try {
+            // Kein direktes "getNotificationChannel(pkg,user,id)" in der
+            // NotificationListenerService-API - nur die Liste aller Kanaele
+            // der App, darin den passenden suchen.
+            for (NotificationChannel ch : getNotificationChannels(pkg, sbn.getUser())) {
+                if (ch != null && channelId != null && channelId.equals(ch.getId())) {
+                    if (ch.getName() != null) channelName = ch.getName().toString();
+                    break;
+                }
+            }
+        } catch (Exception ignored) {}
+
         NotificationStore.get(this).add(
                 sbn.getKey(), pkg,
                 title, text,
-                sbn.getPostTime());
+                sbn.getPostTime(),
+                channelId, channelName);
 
         Log.d(TAG, "gespeichert: " + pkg + " – "
                 + (title == null ? "" : title) + " / "
