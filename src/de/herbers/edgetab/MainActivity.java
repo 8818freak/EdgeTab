@@ -39,6 +39,9 @@ public class MainActivity extends Activity {
     private static final int REQ_ICON = 4;
     private static final int REQ_PERMISSION = 5;
     private static final int REQ_ACCOUNT = 6;
+    private static final int REQ_BACKUP_EXPORT = 7;
+    private static final int REQ_BACKUP_IMPORT = 8;
+    private boolean pendingBackupExport, pendingBackupImport;
     /** Kontotyp von DAVx5 (siehe SyncApp-Enum in JTX Board, per jadx bestaetigt). */
     private static final String DAVX5_ACCOUNT_TYPE = "bitfire.at.davdroid";
     private int pendingWidgetId = 0;
@@ -86,6 +89,14 @@ public class MainActivity extends Activity {
                         : new String[]{in.getStringExtra("request_permission")};
                 requestPermissions(pendingPermissions, REQ_PERMISSION);
             }
+            return;
+        }
+        if (in != null && in.getBooleanExtra("backup_export", false)) {
+            if (!pendingBackupExport) { pendingBackupExport = true; startBackupExport(); }
+            return;
+        }
+        if (in != null && in.getBooleanExtra("backup_import", false)) {
+            if (!pendingBackupImport) { pendingBackupImport = true; startBackupImport(); }
             return;
         }
         if (in != null && in.getBooleanExtra("pick_jtx_account", false)) {
@@ -512,6 +523,47 @@ public class MainActivity extends Activity {
         finish();
     }
 
+    private void startBackupExport() {
+        Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("text/plain");
+        i.putExtra(Intent.EXTRA_TITLE, "edgetab-sicherung.txt");
+        try {
+            startActivityForResult(i, REQ_BACKUP_EXPORT);
+        } catch (Exception e) {
+            finishBackup();
+        }
+    }
+
+    private void startBackupImport() {
+        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("text/plain");
+        try {
+            startActivityForResult(i, REQ_BACKUP_IMPORT);
+        } catch (Exception e) {
+            finishBackup();
+        }
+    }
+
+    private void finishBackup() {
+        pendingBackupExport = false;
+        pendingBackupImport = false;
+        startService(new Intent(this, EdgeService.class).putExtra("open", true));
+        finish();
+    }
+
+    private String readUri(Uri uri) {
+        try (java.io.InputStream in = getContentResolver().openInputStream(uri)) {
+            if (in == null) return null;
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[4096];
+            int n;
+            while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+            return out.toString("UTF-8");
+        } catch (Exception e) { return null; }
+    }
+
     /** Liest das gewaehlte Bild, schneidet es quadratisch, verkleinert es und
      *  speichert es dauerhaft im App-Speicher (kein Zugriff auf eine fremde
      *  content://-URI noetig, die spaeter ungueltig werden koennte). */
@@ -572,6 +624,24 @@ public class MainActivity extends Activity {
                 // Einrichtungsbildschirm, damit die manuelle Eingabe bleibt.
                 showJtxAccountSetup();
             }
+        } else if (req == REQ_BACKUP_EXPORT) {
+            if (res == RESULT_OK && data != null && data.getData() != null) {
+                try (java.io.OutputStream out = getContentResolver().openOutputStream(data.getData())) {
+                    out.write(de.herbers.edgetab.Settings.exportText(this).getBytes("UTF-8"));
+                    Toast.makeText(this, R.string.backup_export_ok, Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(this, R.string.backup_export_failed, Toast.LENGTH_SHORT).show();
+                }
+            }
+            finishBackup();
+        } else if (req == REQ_BACKUP_IMPORT) {
+            if (res == RESULT_OK && data != null && data.getData() != null) {
+                String text = readUri(data.getData());
+                boolean ok = de.herbers.edgetab.Settings.importText(this, text);
+                Toast.makeText(this, ok ? R.string.backup_import_ok : R.string.backup_import_failed,
+                        Toast.LENGTH_LONG).show();
+            }
+            finishBackup();
         }
     }
 

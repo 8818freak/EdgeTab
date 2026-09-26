@@ -155,6 +155,15 @@
     <string name="about_changelog_hide">Änderungsprotokoll ausblenden</string>
     <string name="about_changelog_unavailable">Änderungsprotokoll konnte nicht geladen werden.</string>
 
+    <string name="section_backup">Sicherung</string>
+    <string name="backup_description">Alle Einstellungen und Registerkarten als Datei sichern oder aus einer solchen Datei wiederherstellen (ersetzt dabei den kompletten aktuellen Stand). Icon-Bilddateien selbst wandern nicht mit, nur ihre Pfade – gilt also nur auf demselben Gerät.</string>
+    <string name="button_backup_export">Sichern…</string>
+    <string name="button_backup_import">Wiederherstellen…</string>
+    <string name="backup_export_ok">Gesichert.</string>
+    <string name="backup_export_failed">Sicherung fehlgeschlagen.</string>
+    <string name="backup_import_ok">Wiederhergestellt.</string>
+    <string name="backup_import_failed">Datei nicht lesbar oder kein gültiges EdgeTab-Sicherungsformat.</string>
+
     <!-- Gemeinsam genutzte Bedienelemente -->
     <string name="done_button">Fertig</string>
     <string name="grant_access_button">Zugriff erlauben</string>

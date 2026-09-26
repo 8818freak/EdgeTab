@@ -155,6 +155,15 @@
     <string name="about_changelog_hide">Hide changelog</string>
     <string name="about_changelog_unavailable">Changelog could not be loaded.</string>
 
+    <string name="section_backup">Backup</string>
+    <string name="backup_description">Save all settings and tabs to a file, or restore them from one (replaces the entire current state). Icon image files themselves are not included, only their paths – so this only works on the same device.</string>
+    <string name="button_backup_export">Back up…</string>
+    <string name="button_backup_import">Restore…</string>
+    <string name="backup_export_ok">Saved.</string>
+    <string name="backup_export_failed">Backup failed.</string>
+    <string name="backup_import_ok">Restored.</string>
+    <string name="backup_import_failed">File not readable, or not a valid EdgeTab backup.</string>
+
     <!-- Shared controls -->
     <string name="done_button">Done</string>
     <string name="grant_access_button">Grant access</string>
