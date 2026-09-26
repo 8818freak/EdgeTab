@@ -4,6 +4,12 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.74
+- Neu: Einstellungen sichern/wiederherstellen (Einstellungen → Über EdgeTab
+  → Sicherung) - sichert/liest den kompletten Stand (alle Einstellungen und
+  Registerkarten inkl. Reihenfolge/Namen/Icon-Pfaden) als einfache
+  Textdatei. Icon-Bilddateien selbst wandern nicht mit, nur ihre Pfade.
+
 ## 0.73
 - Eingebettete Sammel-Widgets (z.B. BlackBerry Hubs Posteingang-Liste)
   erzeugten bei jedem Karten-Neuaufbau (Tab-Wechsel, Bildschirmdrehung) eine

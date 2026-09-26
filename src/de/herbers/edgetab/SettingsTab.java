@@ -540,6 +540,25 @@ public class SettingsTab {
         lic.setTextSize(12 * fs);
         root.addView(lic);
 
+        section(root, ctx.getString(R.string.section_backup), fs);
+        TextView backupDesc = new TextView(ctx);
+        backupDesc.setText(R.string.backup_description);
+        backupDesc.setTextColor(Color.parseColor("#9E9E9E"));
+        backupDesc.setTextSize(12 * fs);
+        backupDesc.setPadding(0, 0, 0, 8 * d);
+        root.addView(backupDesc);
+        LinearLayout backupRow = new LinearLayout(ctx);
+        backupRow.setOrientation(LinearLayout.HORIZONTAL);
+        Button exportBtn = new Button(ctx);
+        exportBtn.setText(R.string.button_backup_export);
+        exportBtn.setOnClickListener(new BackupClick(ctx, closePanel, true));
+        backupRow.addView(exportBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        Button importBtn = new Button(ctx);
+        importBtn.setText(R.string.button_backup_import);
+        importBtn.setOnClickListener(new BackupClick(ctx, closePanel, false));
+        backupRow.addView(importBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        root.addView(backupRow);
+
         section(root, ctx.getString(R.string.about_changelog_title), fs);
         Button toggle = new Button(ctx);
         toggle.setText(changelogOpen ? R.string.about_changelog_hide : R.string.about_changelog_show);
@@ -744,6 +763,23 @@ public class SettingsTab {
         public void onClick(View v) {
             Intent i = new Intent(ctx, MainActivity.class);
             i.putExtra("pick_icon", tabId);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            ctx.startActivity(i);
+            if (closePanel != null) closePanel.run();
+        }
+    }
+
+    /** Startet Sichern (export=true) oder Wiederherstellen (export=false)
+     *  ueber MainActivity, da eine echte Activity fuer den Datei-Picker
+     *  noetig ist (siehe IconClick). Benannt statt anonym (d8). */
+    private static final class BackupClick implements View.OnClickListener {
+        private final Context ctx; private final Runnable closePanel; private final boolean export;
+        BackupClick(Context ctx, Runnable closePanel, boolean export) {
+            this.ctx = ctx; this.closePanel = closePanel; this.export = export;
+        }
+        public void onClick(View v) {
+            Intent i = new Intent(ctx, MainActivity.class);
+            i.putExtra(export ? "backup_export" : "backup_import", true);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             ctx.startActivity(i);
             if (closePanel != null) closePanel.run();
