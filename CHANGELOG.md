@@ -4,6 +4,18 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.73
+- Eingebettete Sammel-Widgets (z.B. BlackBerry Hubs Posteingang-Liste)
+  erzeugten bei jedem Karten-Neuaufbau (Tab-Wechsel, Bildschirmdrehung) eine
+  komplett neue Widget-Ansicht - das löste jedes Mal eine frische Verbindung
+  zum `RemoteViewsService` der Fremd-App aus, inklusive vollständiger
+  Neuübertragung der ganzen Liste samt Bildern über Binder. Je nach Widget
+  und Listengröße konnte das dessen App zum Absturz bringen (dort
+  beobachtet: "Could not write bitmap blob file descriptor" beim Verpacken
+  der Bilder). Die Widget-Ansicht wird jetzt wiederverwendet und nur bei
+  Bedarf in die neue Karte umgehängt, statt bei jedem Neuaufbau neu erzeugt
+  zu werden - genau wie ein normaler Homescreen-Launcher es handhabt.
+
 ## 0.72a
 - Nur Änderungsprotokoll-Text bereinigt (keine Personenerwähnung mehr bei
   gemeldeten Fehlern/Wünschen), keine funktionale Änderung.

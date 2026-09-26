@@ -113,7 +113,7 @@ public class WidgetTab extends BaseTab {
             frame.addView(err);
         } else {
             try {
-                AppWidgetHostView view = host.createView(ctx.getApplicationContext(), ref.id, info);
+                AppWidgetHostView view = WidgetHostHolder.viewFor(ctx, host, ref.id, info);
                 Bundle opts = new Bundle();
                 opts.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, wDp);
                 opts.putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, wDp);
@@ -198,7 +198,10 @@ public class WidgetTab extends BaseTab {
         }
         public void onClick(View v) {
             Tabs.update(ctx, tabId, t -> {
-                if (slot >= 0 && slot < t.widgets.size()) t.widgets.remove(slot);
+                if (slot >= 0 && slot < t.widgets.size()) {
+                    WidgetHostHolder.forget(t.widgets.get(slot).id);
+                    t.widgets.remove(slot);
+                }
             });
             if (refresh != null) refresh.run();
         }
