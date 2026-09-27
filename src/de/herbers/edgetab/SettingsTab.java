@@ -503,6 +503,25 @@ public class SettingsTab {
                 ctx.stopService(new Intent(ctx, EdgeService.class)));
         root.addView(stop);
 
+        section(root, ctx.getString(R.string.section_backup), fs);
+        TextView backupDesc = new TextView(ctx);
+        backupDesc.setText(R.string.backup_description);
+        backupDesc.setTextColor(Color.parseColor("#9E9E9E"));
+        backupDesc.setTextSize(12 * fs);
+        backupDesc.setPadding(0, 0, 0, 8 * d);
+        root.addView(backupDesc);
+        LinearLayout backupRow = new LinearLayout(ctx);
+        backupRow.setOrientation(LinearLayout.HORIZONTAL);
+        Button exportBtn = new Button(ctx);
+        exportBtn.setText(R.string.button_backup_export);
+        exportBtn.setOnClickListener(new BackupClick(ctx, closePanel, true));
+        backupRow.addView(exportBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        Button importBtn = new Button(ctx);
+        importBtn.setText(R.string.button_backup_import);
+        importBtn.setOnClickListener(new BackupClick(ctx, closePanel, false));
+        backupRow.addView(importBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        root.addView(backupRow);
+
         TextView ver = new TextView(ctx);
         String vn;
         try { vn = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName; }
@@ -539,25 +558,6 @@ public class SettingsTab {
         lic.setTextColor(Color.parseColor("#9E9E9E"));
         lic.setTextSize(12 * fs);
         root.addView(lic);
-
-        section(root, ctx.getString(R.string.section_backup), fs);
-        TextView backupDesc = new TextView(ctx);
-        backupDesc.setText(R.string.backup_description);
-        backupDesc.setTextColor(Color.parseColor("#9E9E9E"));
-        backupDesc.setTextSize(12 * fs);
-        backupDesc.setPadding(0, 0, 0, 8 * d);
-        root.addView(backupDesc);
-        LinearLayout backupRow = new LinearLayout(ctx);
-        backupRow.setOrientation(LinearLayout.HORIZONTAL);
-        Button exportBtn = new Button(ctx);
-        exportBtn.setText(R.string.button_backup_export);
-        exportBtn.setOnClickListener(new BackupClick(ctx, closePanel, true));
-        backupRow.addView(exportBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        Button importBtn = new Button(ctx);
-        importBtn.setText(R.string.button_backup_import);
-        importBtn.setOnClickListener(new BackupClick(ctx, closePanel, false));
-        backupRow.addView(importBtn, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        root.addView(backupRow);
 
         section(root, ctx.getString(R.string.about_changelog_title), fs);
         Button toggle = new Button(ctx);

@@ -101,7 +101,7 @@
     <string name="settings_cat_tabs_title">Registerkarten</string>
     <string name="settings_cat_tabs_subtitle">Ein-/ausschalten, umbenennen, Icon, Reihenfolge</string>
     <string name="settings_cat_service_title">Dienst</string>
-    <string name="settings_cat_service_subtitle">Leiste beenden, Version</string>
+    <string name="settings_cat_service_subtitle">Leiste beenden, Sicherung, Version</string>
     <string name="settings_cat_about_title">Über EdgeTab</string>
     <string name="settings_cat_about_subtitle">Version, Lizenz, Änderungsprotokoll</string>
     <string name="back_button">‹ Zurück</string>

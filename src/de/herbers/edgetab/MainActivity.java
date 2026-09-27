@@ -523,11 +523,19 @@ public class MainActivity extends Activity {
         finish();
     }
 
+    /** Wo Mathias eigene Datensicherungen sammelt, bevor er sie auf seinen
+     *  Server laedt - als Startordner vorschlagen, wenn der Datei-Picker das
+     *  unterstuetzt (rein optional: EXTRA_INITIAL_URI wird ignoriert, wenn
+     *  der Ordner fehlt oder der Picker es nicht unterstuetzt). */
+    private static final Uri DASIS_FOLDER =
+            Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADaSis");
+
     private void startBackupExport() {
         Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("text/plain");
         i.putExtra(Intent.EXTRA_TITLE, "edgetab-sicherung.txt");
+        i.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, DASIS_FOLDER);
         try {
             startActivityForResult(i, REQ_BACKUP_EXPORT);
         } catch (Exception e) {
@@ -539,6 +547,7 @@ public class MainActivity extends Activity {
         Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("text/plain");
+        i.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, DASIS_FOLDER);
         try {
             startActivityForResult(i, REQ_BACKUP_IMPORT);
         } catch (Exception e) {

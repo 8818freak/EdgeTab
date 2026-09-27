@@ -101,7 +101,7 @@
     <string name="settings_cat_tabs_title">Cards</string>
     <string name="settings_cat_tabs_subtitle">Enable/disable, rename, icon, order</string>
     <string name="settings_cat_service_title">Service</string>
-    <string name="settings_cat_service_subtitle">Stop the bar, version</string>
+    <string name="settings_cat_service_subtitle">Stop the bar, backup, version</string>
     <string name="settings_cat_about_title">About EdgeTab</string>
     <string name="settings_cat_about_subtitle">Version, license, changelog</string>
     <string name="back_button">‹ Back</string>
