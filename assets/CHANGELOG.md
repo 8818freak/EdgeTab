@@ -4,6 +4,12 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.75
+- Sicherung von "Über EdgeTab" nach "Dienst" verschoben (dort wird zuerst
+  danach gesucht).
+- Sichern/Wiederherstellen schlägt jetzt den Ordner "DaSis" als Startort
+  vor, falls vorhanden.
+
 ## 0.74
 - Neu: Einstellungen sichern/wiederherstellen (Einstellungen → Über EdgeTab
   → Sicherung) - sichert/liest den kompletten Stand (alle Einstellungen und
