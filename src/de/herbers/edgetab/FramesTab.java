@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -138,29 +137,38 @@ public class FramesTab extends BaseTab {
 
     // ---------- Kacheln zeichnen ----------
 
+    /** Kacheln als verschachtelte LinearLayout-Reihen (NICHT GridLayout):
+     *  GridLayout misst seine Hoehe in einer ScrollView unzuverlaessig und
+     *  scrollt dann nicht. Gleichbreite Spalten per Gewicht, variable
+     *  Reihenhoehen wie im Home-Screen-Widget. */
     private View grid(Context ctx, List<Tile> tiles, int cols, Runnable close, Runnable refresh, int d) {
-        GridLayout g = new GridLayout(ctx);
-        g.setColumnCount(cols);
+        LinearLayout col = new LinearLayout(ctx);
+        col.setOrientation(LinearLayout.VERTICAL);
 
-        int availDp = Math.max(120, Settings.panelWidth(ctx) - 40);
-        int cellWDp = Math.max(60, availDp / cols);
-        int cellW = cellWDp * d;
         int fullH = Settings.framesTileHeight(ctx);
         int shortH = Math.max(52, Math.round(fullH * Settings.framesShortPct(ctx) / 100f));
         int bigRows = Settings.framesBigRows(ctx);
+        int rows = (tiles.size() + cols - 1) / cols;
 
-        for (int i = 0; i < tiles.size(); i++) {
-            int row = i / cols;
-            int hDp = row < bigRows ? fullH : shortH;
-            View tile = buildTile(ctx, tiles.get(i), close, refresh, d);
-            GridLayout.LayoutParams glp = new GridLayout.LayoutParams();
-            glp.width = cellW;
-            glp.height = hDp * d;
-            glp.setMargins(3 * d, 3 * d, 3 * d, 3 * d);
-            tile.setLayoutParams(glp);
-            g.addView(tile);
+        for (int r = 0; r < rows; r++) {
+            int hDp = r < bigRows ? fullH : shortH;
+            LinearLayout row = new LinearLayout(ctx);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            col.addView(row, new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, hDp * d));
+            for (int c = 0; c < cols; c++) {
+                int idx = r * cols + c;
+                LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
+                        0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                tlp.setMargins(3 * d, 3 * d, 3 * d, 3 * d);
+                if (idx < tiles.size()) {
+                    row.addView(buildTile(ctx, tiles.get(idx), close, refresh, d), tlp);
+                } else {
+                    row.addView(new View(ctx), tlp); // Fueller, damit die Spalten gleich breit bleiben
+                }
+            }
         }
-        return g;
+        return col;
     }
 
     private View buildTile(Context ctx, Tile t, Runnable close, Runnable refresh, int d) {
@@ -223,17 +231,12 @@ public class FramesTab extends BaseTab {
         barLp.gravity = Gravity.BOTTOM;
         card.addView(bar, barLp);
 
-        // Roter Stern oben rechts bei etwas Neuem (weisser Stern auf rotem Kreis).
+        // Roter Stern oben rechts bei etwas Neuem: derselbe Fuenf-Arm-Stern wie
+        // im Home-Screen-Widget (Vektor-Drawable) - NICHT das Zeichen "✳", das
+        // je nach Schriftart sechs-/achtstrahlig erschien.
         if (t.unread) {
-            TextView star = new TextView(ctx);
-            star.setText("✳");
-            star.setTextColor(Color.WHITE);
-            star.setTextSize(12);
-            star.setGravity(Gravity.CENTER);
-            GradientDrawable sb = new GradientDrawable();
-            sb.setShape(GradientDrawable.OVAL);
-            sb.setColor(Color.parseColor("#E53935"));
-            star.setBackground(sb);
+            ImageView star = new ImageView(ctx);
+            star.setImageResource(R.drawable.ic_star_badge);
             int ss = 20 * d;
             FrameLayout.LayoutParams stp = new FrameLayout.LayoutParams(ss, ss);
             stp.gravity = Gravity.TOP | Gravity.END;

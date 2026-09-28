@@ -4,6 +4,16 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.78
+- Karte „Aktive Kacheln" (Widget 2): Der rote „Neues"-Stern ist jetzt
+  derselbe fünfstrahlige Stern wie im Home-Screen-Widget. Vorher wurde das
+  Schriftzeichen „✳" verwendet, das je nach Geräteschriftart sechs- oder
+  achtstrahlig erschien.
+- Karte „Aktive Kacheln" scrollt jetzt zuverlässig, wenn mehr Kacheln als
+  sichtbar eingestellt sind: Das Raster wird nicht mehr über ein GridLayout
+  gebaut (das misst seine Höhe in einer ScrollView unzuverlässig und scrollte
+  dann nicht), sondern über verschachtelte Reihen.
+
 ## 0.77
 - Neue Karte „Aktive Kacheln" (Widget 2): zeigt die zuletzt benutzten Apps
   als Kacheln in der Leiste - wie BlackBerry OS10, oben links die zuletzt
