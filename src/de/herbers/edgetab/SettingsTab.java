@@ -581,6 +581,33 @@ public class SettingsTab {
             }
             root.addView(box);
         }
+
+        // Fehlerprotokoll - nur zeigen, wenn ueberhaupt etwas drinsteht (also
+        // nach einem Absturz). So sieht man die Fehlermeldung ohne Kabel/adb.
+        String crash = CrashLog.read(ctx);
+        if (crash != null && !crash.isEmpty()) {
+            section(root, ctx.getString(R.string.about_crashlog_title), fs);
+            TextView intro = new TextView(ctx);
+            intro.setText(R.string.about_crashlog_intro);
+            intro.setTextColor(Color.parseColor("#9E9E9E"));
+            intro.setTextSize(12 * fs);
+            intro.setPadding(0, 0, 0, 6 * d);
+            root.addView(intro);
+
+            TextView log = new TextView(ctx);
+            log.setText(crash);
+            log.setTextColor(Color.parseColor("#CCCCCC"));
+            log.setTextSize(11 * fs);
+            log.setTypeface(android.graphics.Typeface.MONOSPACE);
+            log.setTextIsSelectable(true);
+            log.setPadding(0, 0, 0, 6 * d);
+            root.addView(log);
+
+            Button clear = new Button(ctx);
+            clear.setText(R.string.about_crashlog_clear);
+            clear.setOnClickListener(v -> { CrashLog.clear(ctx); refresh.run(); });
+            root.addView(clear);
+        }
     }
 
     private String readAsset(String name) {

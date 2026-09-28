@@ -154,6 +154,9 @@
     <string name="about_changelog_show">Änderungsprotokoll anzeigen</string>
     <string name="about_changelog_hide">Änderungsprotokoll ausblenden</string>
     <string name="about_changelog_unavailable">Änderungsprotokoll konnte nicht geladen werden.</string>
+    <string name="about_crashlog_title">Fehlerprotokoll</string>
+    <string name="about_crashlog_intro">Wird nach einem Absturz automatisch gefüllt. Der Dienst startet danach von selbst neu.</string>
+    <string name="about_crashlog_clear">Fehlerprotokoll löschen</string>
 
     <string name="section_backup">Sicherung</string>
     <string name="backup_description">Alle Einstellungen und Registerkarten als Datei sichern oder aus einer solchen Datei wiederherstellen (ersetzt dabei den kompletten aktuellen Stand). Icon-Bilddateien selbst wandern nicht mit, nur ihre Pfade – gilt also nur auf demselben Gerät.</string>

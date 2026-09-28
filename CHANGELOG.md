@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.76
+- Absturzsicherheit: Stürzt EdgeTab ab, startet der Dienst jetzt automatisch
+  wieder neu (bisher blieb die Randleiste danach ganz weg, bis die App von
+  Hand geöffnet wurde). Möglich, weil EdgeTab die Overlay-Berechtigung hält
+  und damit von Androids Hintergrund-Startsperre für Vordergrunddienste
+  ausgenommen ist.
+- Die Fehlermeldung eines Absturzes wird jetzt in ein Fehlerprotokoll
+  gesichert und unter „Über EdgeTab" angezeigt (erscheint nur, wenn es einen
+  gab) - vorher lag sie nur flüchtig im Systemprotokoll und war ohne Kabel
+  kaum einzusehen. Mit Knopf zum Löschen.
+- Behebt einen Absturz beim Neuaufbau des Panels (u. a. nach dem Tippen auf
+  eine Verknüpfung): Androids Fokus-Neuvergabe konnte beim Leeren des Panels
+  in einen Nullzeiger-Fehler laufen; der Fokus wird jetzt vorher sauber vom
+  Panel gelöst.
+
 ## 0.75
 - Sicherung von "Über EdgeTab" nach "Dienst" verschoben (dort wird zuerst
   danach gesucht).

@@ -154,6 +154,9 @@
     <string name="about_changelog_show">Show changelog</string>
     <string name="about_changelog_hide">Hide changelog</string>
     <string name="about_changelog_unavailable">Changelog could not be loaded.</string>
+    <string name="about_crashlog_title">Error log</string>
+    <string name="about_crashlog_intro">Filled automatically after a crash. The service then restarts on its own.</string>
+    <string name="about_crashlog_clear">Clear error log</string>
 
     <string name="section_backup">Backup</string>
     <string name="backup_description">Save all settings and tabs to a file, or restore them from one (replaces the entire current state). Icon image files themselves are not included, only their paths – so this only works on the same device.</string>

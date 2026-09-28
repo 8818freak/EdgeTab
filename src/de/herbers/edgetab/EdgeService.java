@@ -246,6 +246,14 @@ public class EdgeService extends Service {
      *  Tab-/Einstellungsaenderung wiederholt werden muss. Fasst weder Fenster
      *  noch Auf-/Zu-Animation an. */
     private void buildPanelInner(boolean right) {
+        // Fokus vom Panel loesen, BEVOR removeAllViews() laeuft: hatte gerade
+        // eine Kachel den Fokus (z.B. direkt nach einem Tipp auf eine
+        // Verknuepfung), kann Androids Fokus-Neuvergabe waehrend des Entfernens
+        // in eine NPE in ViewGroup.onRequestFocusInDescendants laufen (realer
+        // Absturz v0.74, 2026-09-27). Den Fokus auf den (gleich leeren)
+        // Container selbst zu ziehen umgeht diesen AOSP-Fehler.
+        panel.setFocusableInTouchMode(true);
+        panel.requestFocus();
         panel.removeAllViews();
 
         List<Tab> tabs = Tabs.buildActive(this);
