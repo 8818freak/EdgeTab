@@ -58,8 +58,7 @@ Android-Schnittstellen.*
 ## Building
 
 No Gradle — this project is built directly with the raw Android SDK
-command-line tools (see `EdgeTab-Uebergabe2.md`, in German, for the full
-history and rationale). You need:
+command-line tools. You need:
 
 - Android SDK (`platforms;android-34`, `build-tools;34.0.0`,
   `platform-tools`)
@@ -96,9 +95,7 @@ cp build/base.apk build/unsigned.apk && (cd build && zip -qj unsigned.apk classe
 
 BlackBerry discontinued the Productivity Edge feature; this project
 recreates its spirit for anyone who misses it, using only public Android
-APIs. See `EdgeTab-Uebergabe2.md` for the full, detailed (German)
-development history, including several deep-dive reverse-engineering
-investigations into what is and isn't possible on modern Android.
+APIs.
 
 ## Documentation / Dokumentation
 
