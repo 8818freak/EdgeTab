@@ -12,6 +12,7 @@
     <string name="tab_notes">Notizen</string>
     <string name="tab_media">Medien</string>
     <string name="tab_shortcuts">Verknüpfungen</string>
+    <string name="tab_frames">Aktive Kacheln</string>
     <string name="tab_widget">Widget</string>
     <string name="tab_tasks">Aufgaben</string>
     <string name="tab_unknown">Unbekannt</string>
@@ -136,6 +137,18 @@
     <string name="add_widget_tab">+ Neue Widget-Registerkarte</string>
     <string name="add_shortcuts_tab">+ Neue Verknüpfungen-Registerkarte</string>
     <string name="add_media_tab">+ Neue Mediensteuerung-Registerkarte</string>
+    <string name="add_frames_tab">+ Neue Karte „Aktive Kacheln“</string>
+    <string name="add_frames_hint">Zeigt die zuletzt benutzten Apps als Kacheln (wie BlackBerry OS10, „Widget 2“). Benötigt die App „Active Frames“ mit erteiltem Nutzungszugriff – von dort kommen Reihenfolge, Sterne und die echten App-Fotos, ohne dass EdgeTab dafür eigene Berechtigungen braucht.</string>
+    <string name="frames_need_af">Karte „Aktive Kacheln“: Bitte die App „Active Frames“ installieren und dort den Nutzungszugriff (und optional die Bedienungshilfe für echte App-Fotos) erlauben. Von dort holt diese Karte Reihenfolge, Sterne und Bilder – EdgeTab selbst braucht keine zusätzlichen Berechtigungen.</string>
+    <string name="frames_empty">Noch keine Kacheln. Öffne ein paar Apps – oder erlaube in „Active Frames“ den Nutzungszugriff.</string>
+    <string name="frames_scroll">Scrollen (mehr Kacheln als sichtbar)</string>
+    <string name="frames_scroll_note">Diese Karte zeichnet EdgeTab selbst – Scrollen ist hier immer zuverlässig (kein Launcher, kein Vertauschen). Aus = nur wenige Kacheln kompakt zeigen.</string>
+    <string name="frames_source_note">Reihenfolge, Sterne und Bilder stammen aus der App „Active Frames“.</string>
+    <string name="frames_columns">Spalten</string>
+    <string name="frames_height">Kachelhöhe (dp)</string>
+    <string name="frames_count">Anzahl Kacheln</string>
+    <string name="frames_bigrows">Große Reihen oben</string>
+    <string name="frames_shortpct">Höhe der kleineren Reihen (%)</string>
     <string name="tasks_notes_section">Aufgaben &amp; Notizen</string>
     <string name="jtx_account_used">Verwendetes DAVx5-Konto: %1$s</string>
     <string name="jtx_account_none">Noch kein DAVx5-Konto eingerichtet.</string>

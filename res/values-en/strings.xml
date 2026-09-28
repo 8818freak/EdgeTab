@@ -12,6 +12,7 @@
     <string name="tab_notes">Notes</string>
     <string name="tab_media">Media</string>
     <string name="tab_shortcuts">Shortcuts</string>
+    <string name="tab_frames">Active Frames</string>
     <string name="tab_widget">Widget</string>
     <string name="tab_tasks">Tasks</string>
     <string name="tab_unknown">Unknown</string>
@@ -136,6 +137,18 @@
     <string name="add_widget_tab">+ New widget card</string>
     <string name="add_shortcuts_tab">+ New shortcuts card</string>
     <string name="add_media_tab">+ New media control card</string>
+    <string name="add_frames_tab">+ New Active Frames card</string>
+    <string name="add_frames_hint">Shows your recently used apps as tiles (like BlackBerry OS10, “Widget 2”). Needs the “Active Frames” app with usage access granted – order, stars and the real app photos come from there, without EdgeTab needing any permissions of its own.</string>
+    <string name="frames_need_af">Active Frames card: please install the “Active Frames” app and grant it usage access (and optionally accessibility for real app photos). This card pulls order, stars and images from there – EdgeTab itself needs no extra permissions.</string>
+    <string name="frames_empty">No tiles yet. Open a few apps – or grant usage access in “Active Frames”.</string>
+    <string name="frames_scroll">Scrolling (more tiles than fit)</string>
+    <string name="frames_scroll_note">EdgeTab draws this card itself – scrolling here is always reliable (no launcher, no swapping). Off = show only a few tiles, compact.</string>
+    <string name="frames_source_note">Order, stars and images come from the “Active Frames” app.</string>
+    <string name="frames_columns">Columns</string>
+    <string name="frames_height">Tile height (dp)</string>
+    <string name="frames_count">Number of tiles</string>
+    <string name="frames_bigrows">Large rows on top</string>
+    <string name="frames_shortpct">Height of the smaller rows (%)</string>
     <string name="tasks_notes_section">Tasks &amp; notes</string>
     <string name="jtx_account_used">DAVx5 account in use: %1$s</string>
     <string name="jtx_account_none">No DAVx5 account set up yet.</string>

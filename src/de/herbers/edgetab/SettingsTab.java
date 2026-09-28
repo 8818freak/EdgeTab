@@ -472,6 +472,18 @@ public class SettingsTab {
         addMediaTab.setOnClickListener(v -> { Tabs.addMediaTab(ctx); tabRefresh.run(); });
         root.addView(addMediaTab);
 
+        Button addFramesTab = new Button(ctx);
+        addFramesTab.setText(R.string.add_frames_tab);
+        addFramesTab.setOnClickListener(v -> { Tabs.addFramesTab(ctx); tabRefresh.run(); });
+        root.addView(addFramesTab);
+
+        TextView framesHint = new TextView(ctx);
+        framesHint.setText(R.string.add_frames_hint);
+        framesHint.setTextColor(Color.GRAY);
+        framesHint.setTextSize(11 * fs);
+        framesHint.setPadding(0, 0, 0, 8 * d);
+        root.addView(framesHint);
+
         section(root, ctx.getString(R.string.tasks_notes_section), fs);
         String jtxAccount = Settings.jtxAccountName(ctx);
         TextView jtxHint = new TextView(ctx);

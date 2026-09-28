@@ -119,6 +119,7 @@ final class Tabs {
             case TabInstance.TYPE_CONTACTS: return new ContactsTab(t);
             case TabInstance.TYPE_SHORTCUTS: return new ShortcutsTab(t);
             case TabInstance.TYPE_MEDIA:     return new MediaTab(t);
+            case TabInstance.TYPE_FRAMES:    return new FramesTab(t);
             default: return new PlaceholderTab(t, t.type, R.drawable.ic_widget, ctx.getString(R.string.unknown_card_hint));
         }
     }
@@ -170,6 +171,14 @@ final class Tabs {
     static TabInstance addMediaTab(Context ctx) {
         List<TabInstance> list = load(ctx);
         TabInstance t = new TabInstance("media_" + System.currentTimeMillis(), TabInstance.TYPE_MEDIA);
+        list.add(t);
+        save(ctx, list);
+        return t;
+    }
+
+    static TabInstance addFramesTab(Context ctx) {
+        List<TabInstance> list = load(ctx);
+        TabInstance t = new TabInstance("frames_" + System.currentTimeMillis(), TabInstance.TYPE_FRAMES);
         list.add(t);
         save(ctx, list);
         return t;

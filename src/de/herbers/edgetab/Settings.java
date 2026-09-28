@@ -43,6 +43,14 @@ public final class Settings {
     private static final String K_DISABLED_CHANNELS = "disabled_channels"; // "pkgchannelId"
     private static final String K_CONTACT_DISPLAY = "contact_display"; // "primary"/"alternative"
     private static final String K_CONTACT_SORT    = "contact_sort";    // "primary"/"alternative"
+    // Karte "Aktive Kacheln" (Widget 2) - liest ihre Daten aus der App Active
+    // Frames, zeichnet die Kacheln aber selbst (natives, zuverlaessiges Scrollen).
+    private static final String K_FRAMES_COLUMNS  = "frames_columns";
+    private static final String K_FRAMES_TILE_H   = "frames_tile_h";
+    private static final String K_FRAMES_SCROLL   = "frames_scroll";
+    private static final String K_FRAMES_MAX      = "frames_max";
+    private static final String K_FRAMES_BIG_ROWS = "frames_big_rows";
+    private static final String K_FRAMES_SHORT_PCT= "frames_short_pct";
 
     private Settings() {}
 
@@ -265,6 +273,25 @@ public final class Settings {
     public static void setContactDisplay(Context c, String v) { p(c).edit().putString(K_CONTACT_DISPLAY, v).apply(); }
     public static String contactSort(Context c) { return p(c).getString(K_CONTACT_SORT, "primary"); }
     public static void setContactSort(Context c, String v) { p(c).edit().putString(K_CONTACT_SORT, v).apply(); }
+
+    // ---- Karte "Aktive Kacheln" (Widget 2) ----
+    // Spalten (BB-Passport hatte 4; Standard 2 wie OS10). Kachelhoehe in dp
+    // (mit der vom Raster bestimmten Breite ergibt das das Format). Scrollen:
+    // hier IMMER zuverlaessig, weil die Leiste die Kacheln selbst zeichnet
+    // (kein Launcher-Host) - aus = nur wenige Kacheln zeigen. Grosse obere
+    // Reihen + Prozenthoehe der folgenden wie bei Widget 1.
+    public static int framesColumns(Context c) { return clamp(p(c).getInt(K_FRAMES_COLUMNS, 2), 1, 5); }
+    public static void setFramesColumns(Context c, int n) { p(c).edit().putInt(K_FRAMES_COLUMNS, clamp(n, 1, 5)).apply(); }
+    public static int framesTileHeight(Context c) { return clamp(p(c).getInt(K_FRAMES_TILE_H, 150), 60, 320); }
+    public static void setFramesTileHeight(Context c, int dp) { p(c).edit().putInt(K_FRAMES_TILE_H, clamp(dp, 60, 320)).apply(); }
+    public static boolean framesScroll(Context c) { return p(c).getBoolean(K_FRAMES_SCROLL, true); }
+    public static void setFramesScroll(Context c, boolean on) { p(c).edit().putBoolean(K_FRAMES_SCROLL, on).apply(); }
+    public static int framesMaxTiles(Context c) { return clamp(p(c).getInt(K_FRAMES_MAX, 12), 2, 60); }
+    public static void setFramesMaxTiles(Context c, int n) { p(c).edit().putInt(K_FRAMES_MAX, clamp(n, 2, 60)).apply(); }
+    public static int framesBigRows(Context c) { return clamp(p(c).getInt(K_FRAMES_BIG_ROWS, 1), 0, 20); }
+    public static void setFramesBigRows(Context c, int n) { p(c).edit().putInt(K_FRAMES_BIG_ROWS, clamp(n, 0, 20)).apply(); }
+    public static int framesShortPct(Context c) { return clamp(p(c).getInt(K_FRAMES_SHORT_PCT, 65), 30, 100); }
+    public static void setFramesShortPct(Context c, int n) { p(c).edit().putInt(K_FRAMES_SHORT_PCT, clamp(n, 30, 100)).apply(); }
 
     private static int clamp(int v, int lo, int hi) { return Math.max(lo, Math.min(hi, v)); }
 

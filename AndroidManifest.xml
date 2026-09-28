@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.herbers.edgetab"
-    android:versionCode="77"
-    android:versionName="0.76">
+    android:versionCode="78"
+    android:versionName="0.77">
 
     <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="34" />
 
@@ -45,6 +45,9 @@
              (dessen eigene Listen-Ansicht nimmt ACTION_SEND text/plain fuer eine
              neue Notiz entgegen) statt selbst eine IMAP-Anbindung zu bauen. -->
         <package android:name="de.niendo.ImapNotes3" />
+        <!-- Datenkanal der App Active Frames fuer die Karte "Aktive Kacheln"
+             (Widget 2): sonst waere der Provider seit Android 11 unsichtbar. -->
+        <provider android:authorities="de.herbers.activeframes.data" />
     </queries>
 
     <application

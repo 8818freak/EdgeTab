@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.77
+- Neue Karte „Aktive Kacheln" (Widget 2): zeigt die zuletzt benutzten Apps
+  als Kacheln in der Leiste - wie BlackBerry OS10, oben links die zuletzt
+  geöffnete App, mit rotem Stern bei Neuem und dem letzten App-Foto bzw.
+  Benachrichtigungsbild. Tippen öffnet die App (und nimmt den Stern weg),
+  das ✕ blendet die Kachel aus.
+- Diese Karte holt Reihenfolge, Sterne und die echten App-Fotos aus der App
+  „Active Frames" (über deren Datenkanal) - EdgeTab selbst braucht dafür
+  KEINE zusätzlichen Berechtigungen (kein Nutzungsdaten-/Bedienungshilfe-
+  Zugriff).
+- Weil EdgeTab die Kacheln in seiner eigenen Leiste selbst zeichnet (kein
+  Launcher-Host), scrollt diese Karte immer zuverlässig - anders als ein
+  Home-Screen-Widget auf älteren Launchern. Eigene Einstellungen je Karte:
+  Scrollen an/aus, Spalten, Kachelhöhe, Anzahl, große obere Reihen und Höhe
+  der kleineren Reihen. Hinzufügen unter Einstellungen → Registerkarten.
+
 ## 0.76
 - Absturzsicherheit: Stürzt EdgeTab ab, startet der Dienst jetzt automatisch
   wieder neu (bisher blieb die Randleiste danach ganz weg, bis die App von
