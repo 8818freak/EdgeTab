@@ -13,6 +13,13 @@ interfaces (`NotificationListenerService`, `CalendarContract`,
 konfigurierbaren Karten. Kein BlackBerry-Code, nur offene
 Android-Schnittstellen.*
 
+## Requirements / Voraussetzungen
+
+- **Android 10 or newer** (`minSdkVersion` 29), target `targetSdkVersion` 34
+  (Android 14). No BlackBerry device needed.
+- *Läuft ab **Android 10** aufwärts (Mindest-SDK 29), Ziel-SDK 34 (Android 14).
+  Kein BlackBerry-Gerät nötig.*
+
 ## Features
 
 - **Edge handle**: tap or swipe from either screen edge to open the panel;
