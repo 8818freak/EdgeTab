@@ -284,7 +284,15 @@ public class EdgeService extends Service {
         // Icon-Spalte auf die Wisch-/Rand-Seite: rechter Rand -> Spalte rechts.
         if (right) { body.addView(content, contentLp); body.addView(iconCol, iconLp); }
         else       { body.addView(iconCol, iconLp); body.addView(content, contentLp); }
-        panel.addView(body);
+        // body bekommt die GESAMTE restliche Panel-Hoehe (Gewicht 1) statt der
+        // Standard-WRAP_CONTENT-Hoehe. Sonst richtete sich die body-Hoehe nach
+        // dem Karteninhalt (je Tab verschieden) - und die unten verankerte
+        // Icon-Spalte wanderte je nach Tab nach oben/unten (Mathias' Fund). Mit
+        // fester Hoehe steht das Einstellungs-Zahnrad immer oben und die
+        // uebrigen Karten-Icons immer unten, unabhaengig vom Tab.
+        LinearLayout.LayoutParams bodyLp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f);
+        panel.addView(body, bodyLp);
     }
 
     /**

@@ -4,6 +4,13 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.79
+- Tab-Spalte springt nicht mehr: Das Einstellungs-Zahnrad ist fest oben
+  angeheftet, die übrigen Karten-Symbole fest unten – unabhängig davon, welcher
+  Tab geöffnet ist. Vorher richtete sich die Höhe des Leisten-Körpers nach dem
+  jeweiligen Karteninhalt, wodurch die unten verankerten Symbole je nach Tab
+  nach oben oder unten wanderten.
+
 ## 0.78
 - Karte „Aktive Kacheln" (Widget 2): Der rote „Neues"-Stern ist jetzt
   derselbe fünfstrahlige Stern wie im Home-Screen-Widget. Vorher wurde das
