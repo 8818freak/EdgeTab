@@ -100,6 +100,11 @@ APIs. See `EdgeTab-Uebergabe2.md` for the full, detailed (German)
 development history, including several deep-dive reverse-engineering
 investigations into what is and isn't possible on modern Android.
 
+## Documentation / Dokumentation
+
+- **English:** [User guide](docs/EdgeTab-Guide.pdf) · [Flyer](docs/EdgeTab-Flyer.pdf)
+- **Deutsch:** [Anleitung](docs/EdgeTab-Anleitung.pdf) · [Werbung](docs/EdgeTab-Werbung.pdf)
+
 ## License
 
 GNU General Public License v3.0 (or later) — see `LICENSE`.
