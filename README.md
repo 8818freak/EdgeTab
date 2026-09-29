@@ -2,7 +2,8 @@
 
 A from-scratch Android recreation of BlackBerry's "Productivity Edge" —
 a swipeable edge-panel with configurable cards (Calendar, Inbox, App
-Widgets, Shortcuts, Contacts, Tasks, Media Control). No BlackBerry code
+Widgets, Shortcuts, Contacts, Tasks, Media Control, SMS, Calls, and an
+"Active Frames" tile card). No BlackBerry code
 is used anywhere; every card talks only to open, documented Android
 interfaces (`NotificationListenerService`, `CalendarContract`,
 `ContactsContract`, `AppWidgetHost`, `MediaSessionManager`, and
@@ -31,8 +32,15 @@ Android-Schnittstellen.*
 - **Inbox**: reads intercepted notifications from chosen source apps
   (works well with BlackBerry Hub, Telegram, Signal, etc.), grouped by day.
   Reply (via the notification's own action, with or without inline
-  RemoteInput text entry) and delete (via the notification's own delete
-  action) both trigger the real action in the source app.
+  RemoteInput text entry), mark-as-read and delete (via the notification's
+  own actions) all trigger the real action in the source app. Shows the
+  notification's icon and, for live notifications, the big picture
+  (BigPictureStyle photo/album art). A magnifier opens a search field:
+  "search here" filters the inbox, "search in Sucher" opens the Sucher app
+  with the term for a full-text search across everything.
+- **SMS & Calls**: cards showing your latest text messages / call log
+  (name or number, direction, time); tapping opens the SMS or dialer app.
+  Optional, permission requested on demand.
 - **App Widgets**: embed any installed home-screen widget (e.g. BlackBerry
   Hub's own inbox widget) directly in the panel.
 - **Shortcuts**: pure app-icon launcher, grouped, grid or list per group.
@@ -43,6 +51,11 @@ Android-Schnittstellen.*
 - **Media control**: shows and controls active media sessions, with a
   fixed-position quick-control card (top/middle/bottom, configurable) for
   reachability with the thumb of the hand holding the phone.
+- **Permissions card**: a dedicated settings card lists every permission the
+  app uses, what it is for, and its status, with a jump to the matching
+  system setting. If a once-granted permission goes missing (e.g. after an OS
+  update), EdgeTab reminds you with a notification that offers to re-grant it
+  or to ignore it. The inbox can also be emptied here.
 
 ## Screenshots
 
