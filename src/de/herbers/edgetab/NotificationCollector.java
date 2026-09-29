@@ -185,6 +185,24 @@ public class NotificationCollector extends NotificationListenerService {
         return sbn == null ? null : findAnyReplyAction(sbn.getNotification());
     }
 
+    /** Ob zu diesem Eintrag ueberhaupt eine Antwort moeglich ist - aus der noch
+     *  lebenden Benachrichtigung ODER dem zuvor gemerkten Draht. So bleibt der
+     *  Antworten-Knopf verfuegbar, auch wenn die Benachrichtigung verschwand. */
+    static boolean canReplyAny(NotificationStore.Item it) {
+        if (resolveAnyReplyAction(it) != null) return true;
+        return it != null && de.herbers.common.NotificationActionCache.replyAction(it.nkey) != null;
+    }
+
+    /** Ob eine Direkt-Antwort mit Freitext moeglich ist (RemoteInput) - live
+     *  ODER gemerkt. Nur dann klappt das Textfeld auf; sonst wird der
+     *  Antwortbildschirm der App geoeffnet. */
+    static boolean canReplyFreeform(NotificationStore.Item it) {
+        if (resolveReplyAction(it) != null) return true;
+        if (it == null) return false;
+        Notification.Action a = de.herbers.common.NotificationActionCache.replyAction(it.nkey);
+        return a != null && Notifications.buildReplyFillIn(a, "") != null;
+    }
+
     /** Loest eine Antworten-Aktion OHNE RemoteInput direkt aus (oeffnet die
      *  Antwort-Activity der Quell-App, wie ein Tipp auf die Aktion in der
      *  System-Benachrichtigung selbst) - sofort senden, kein Vorab-
@@ -192,6 +210,7 @@ public class NotificationCollector extends NotificationListenerService {
     public static boolean openReplyAction(android.content.Context ctx, NotificationStore.Item it,
                                            Runnable panelClose) {
         Notification.Action action = resolveAnyReplyAction(it);
+        if (action == null && it != null) action = de.herbers.common.NotificationActionCache.replyAction(it.nkey);
         if (action == null) return false;
         if (panelClose != null) panelClose.run();
         boolean ok = Launcher.send(ctx, action.actionIntent, Launcher.bgAllowed());
@@ -205,7 +224,16 @@ public class NotificationCollector extends NotificationListenerService {
      *  sofort senden, sonst posten manche Apps neu und der PendingIntent
      *  verfaellt). */
     public static boolean sendReply(android.content.Context ctx, NotificationStore.Item it, String text) {
+        // Zuerst der frische Draht der noch lebenden Benachrichtigung; ist sie
+        // schon verschwunden, der zuvor gemerkte Draht aus der Bibliotheks-Ablage
+        // (so kann man auch nach dem Wegwischen noch antworten). Bleibt beides
+        // erfolglos (z.B. App aktualisiert -> Draht ungueltig), faellt der Aufrufer
+        // typischerweise auf openReplyAction (Antwortbildschirm der App) zurueck.
         Notification.Action action = resolveReplyAction(it);
+        if (action == null && it != null) {
+            action = de.herbers.common.NotificationActionCache.replyAction(it.nkey);
+            if (action != null) Log.d(TAG, "Antwort ueber gemerkten Draht fuer " + it.nkey);
+        }
         if (action == null) { Log.d(TAG, "keine Antworten-Aktion fuer " + it.nkey); return false; }
         Intent fillIn = Notifications.buildReplyFillIn(action, text);
         if (fillIn == null) { Log.d(TAG, "keine Freitext-Antwort fuer " + it.nkey); return false; }
@@ -230,7 +258,8 @@ public class NotificationCollector extends NotificationListenerService {
      *  "Als gelesen markieren"-Aktion gibt. */
     static boolean hasMarkReadAction(NotificationStore.Item it) {
         StatusBarNotification sbn = resolve(it);
-        return sbn != null && findMarkReadAction(sbn.getNotification()) != null;
+        if (sbn != null && findMarkReadAction(sbn.getNotification()) != null) return true;
+        return it != null && de.herbers.common.NotificationActionCache.markReadAction(it.nkey) != null;
     }
 
     /** Loest die "Als gelesen markieren"-Aktion der Benachrichtigung aus - wie
@@ -241,6 +270,9 @@ public class NotificationCollector extends NotificationListenerService {
         if (it == null) return false;
         StatusBarNotification sbn = resolve(it);
         PendingIntent pi = sbn == null ? null : findMarkReadAction(sbn.getNotification());
+        // Rueckfall auf den gemerkten Draht - so bleibt "als gelesen" moeglich,
+        // auch wenn die Benachrichtigung nicht mehr in der Leiste steht.
+        if (pi == null) pi = de.herbers.common.NotificationActionCache.markReadAction(it.nkey);
         if (pi == null) { Log.d(TAG, "keine Als-gelesen-Aktion fuer " + it.nkey); return false; }
         boolean ok = Launcher.send(ctx, pi, Launcher.bgAllowed());
         Log.d(TAG, "Als gelesen " + (ok ? "gesendet" : "FEHLGESCHLAGEN") + ": " + it.pkg);
@@ -275,6 +307,9 @@ public class NotificationCollector extends NotificationListenerService {
         StatusBarNotification sbn = resolve(it);
         if (sbn != null) pi = findDeleteAction(sbn.getNotification());
         if (pi == null && it.nkey != null) pi = deletes.get(it.nkey);
+        // Rueckfall auf den gemerkten Draht - so bleibt Loeschen (v.a. bei Mails)
+        // moeglich, auch wenn die Benachrichtigung nicht mehr in der Leiste steht.
+        if (pi == null && it.nkey != null) pi = de.herbers.common.NotificationActionCache.deleteAction(it.nkey);
         if (pi == null) { Log.d(TAG, "keine Loeschen-Aktion fuer " + it.nkey); return false; }
 
         if (android.os.Build.VERSION.SDK_INT >= 31) {
@@ -352,6 +387,11 @@ public class NotificationCollector extends NotificationListenerService {
         if (n.contentIntent != null) intents.put(sbn.getKey(), n.contentIntent);
         PendingIntent del = findDeleteAction(n);
         if (del != null) deletes.put(sbn.getKey(), del);
+        // Alle Draehte (contentIntent/Loeschen/Antworten) zusaetzlich in der
+        // gemeinsamen Bibliotheks-Ablage festhalten - so kann z.B. auch nach dem
+        // Verschwinden der Benachrichtigung noch geantwortet werden (siehe
+        // sendReply-Rueckfall). RAM-only, ueberlebt keinen Neustart/App-Update.
+        de.herbers.common.NotificationActionCache.remember(sbn);
 
         // Diagnose: Art des contentIntent und vorhandene Aktionen protokollieren.
         if (android.os.Build.VERSION.SDK_INT >= 31 && n.contentIntent != null) {
@@ -389,12 +429,13 @@ public class NotificationCollector extends NotificationListenerService {
         // (auch Felder, die die Karte selbst nicht anzeigt) - siehe
         // Notifications.toJson. Robust: bei Fehler leer, nie den Store blockieren.
         String infoJson = Notifications.toJson(sbn, n);
+        boolean conversational = Notifications.isConversational(n);
 
         NotificationStore.get(this).add(
                 sbn.getKey(), pkg,
                 title, text,
                 sbn.getPostTime(),
-                channelId, channelName, infoJson);
+                channelId, channelName, infoJson, conversational);
 
         Log.d(TAG, "gespeichert: " + pkg + " – "
                 + (title == null ? "" : title) + " / "

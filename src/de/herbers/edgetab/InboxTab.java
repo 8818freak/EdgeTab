@@ -759,9 +759,11 @@ public class InboxTab extends BaseTab {
         // auf die Aktion in der System-Benachrichtigung selbst).
         String replyKey = String.valueOf(it.id);
         boolean replying = REPLYING.contains(replyKey);
-        boolean hasFreeform = NotificationCollector.resolveReplyAction(it) != null;
-        boolean hasAnyReply = hasFreeform || NotificationCollector.resolveAnyReplyAction(it) != null;
-        if (live && hasAnyReply) {
+        // Live ODER gemerkter Draht - so bleibt Antworten in allen Konversationen
+        // moeglich, auch wenn die Benachrichtigung nicht mehr in der Leiste steht.
+        boolean hasFreeform = NotificationCollector.canReplyFreeform(it);
+        boolean hasAnyReply = NotificationCollector.canReplyAny(it);
+        if (hasAnyReply) {
             TextView reply = new TextView(ctx);
             reply.setText("↩");
             reply.setTextColor(Color.parseColor(replying ? "#2E9BE6" : "#8899AA"));
@@ -782,7 +784,7 @@ public class InboxTab extends BaseTab {
         // System-Benachrichtigung aus (nur wenn die Quell-App eine solche
         // anbietet und die Benachrichtigung noch lebt) UND merkt den Eintrag in
         // EdgeTab als gesehen. Kein Oeffnen, kein Loeschen - Mathias' Wunsch.
-        if (live && NotificationCollector.hasMarkReadAction(it)) {
+        if (NotificationCollector.hasMarkReadAction(it)) {
             TextView markRead = new TextView(ctx);
             markRead.setText("✓");
             markRead.setTextColor(Color.parseColor("#8899AA"));

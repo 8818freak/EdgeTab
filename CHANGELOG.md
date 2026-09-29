@@ -4,6 +4,23 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.96
+- Neu: **Antworten, „als gelesen" und Löschen bleiben verfügbar, auch wenn die
+  Benachrichtigung schon aus der Statusleiste verschwunden ist** – EdgeTab hält
+  die „Drähte" (Aktions-Verknüpfungen) jeder Benachrichtigung fest, solange es
+  läuft. So kann man z. B. eine bereits weggewischte Mail noch löschen oder in
+  einer Konversation noch antworten. (Grenzen: überlebt keinen Geräte-Neustart
+  und kein Update/Beenden der Quell-App – dann ist der Draht ungültig; EdgeTab
+  versucht dann automatisch, den Antwortbildschirm der App zu öffnen.)
+- Verbessert: Der Schutz der gespeicherten Nachricht ist jetzt treffsicherer –
+  ein bloßer Bestätigungs-/Leer-Neupost („Geantwortet.") ersetzt eine echte
+  Nachricht nicht mehr, **echte neue Nachrichten derselben Konversation kommen
+  aber weiter durch** (löst die gröbere Antwort-Sperre aus 0.95 ab, die neue
+  Nachrichten hätte verschlucken können).
+- Intern: Inhaltsschutz und Draht-Ablage sitzen in der gemeinsamen Bibliothek
+  (`Notifications.isConversational`/`looksLikeReplyConfirmation`,
+  `NotificationActionCache`) – für alle vier Apps nutzbar.
+
 ## 0.95
 - Neu: Jede erfasste Benachrichtigung wird jetzt **verlustfrei** gespeichert –
   alle Felder, die sie mitbrachte (über die Bibliothek `Notifications.toJson`),

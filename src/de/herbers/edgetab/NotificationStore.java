@@ -18,7 +18,7 @@ import java.util.List;
 public class NotificationStore extends SQLiteOpenHelper {
 
     private static final String DB = "edgetab_notifications.db";
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
     private static NotificationStore instance;
 
     public static synchronized NotificationStore get(Context ctx) {
@@ -46,7 +46,8 @@ public class NotificationStore extends SQLiteOpenHelper {
             "  channel TEXT," +       // Notification-Channel-ID der Quell-App
             "  channel_name TEXT," +  // deren vom Nutzer sichtbarer Name, falls auslesbar
             "  info_json TEXT," +     // vollstaendiger, verlustfreier Abzug der Benachrichtigung (Notifications.toJson)
-            "  sent_replies TEXT" +   // aus EdgeTab gesendete Antworten (Zeitstempel\ttext je Zeile) - baut einen Verlauf
+            "  sent_replies TEXT," +  // aus EdgeTab gesendete Antworten (Zeitstempel\ttext je Zeile) - baut einen Verlauf
+            "  conversational INTEGER DEFAULT 0" + // 1 = Chat/Mail (Notifications.isConversational) - Inhalt vor Entwertung schuetzen
             ")");
         db.execSQL("CREATE INDEX idx_pkg ON notes(pkg)");
         db.execSQL("CREATE INDEX idx_posted ON notes(posted)");
@@ -64,32 +65,45 @@ public class NotificationStore extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE notes ADD COLUMN info_json TEXT");
             db.execSQL("ALTER TABLE notes ADD COLUMN sent_replies TEXT");
         }
+        if (oldV < 4) {
+            db.execSQL("ALTER TABLE notes ADD COLUMN conversational INTEGER DEFAULT 0");
+        }
     }
 
-    /** Neue Benachrichtigung ablegen. Gleicher Schluessel = Aktualisierung. */
+    /** Neue Benachrichtigung ablegen. Gleicher Schluessel = Aktualisierung.
+     *  conversational: ob die Benachrichtigung Chat/Mail ist (Notifications.
+     *  isConversational) - nur dann greift der Schutz vor entwertenden Neuposts. */
     public void add(String key, String pkg, String title, String text, long posted,
-                     String channel, String channelName, String infoJson) {
+                     String channel, String channelName, String infoJson, boolean conversational) {
         SQLiteDatabase db = getWritableDatabase();
         // Doppelte desselben Schluessels vermeiden: vorhandene ersetzen,
         // dabei den Gelesen-Status nicht ueberschreiben.
         if (key != null) {
-            Cursor c = db.rawQuery("SELECT _id, sent_replies FROM notes WHERE nkey=? LIMIT 1", new String[]{key});
+            Cursor c = db.rawQuery("SELECT _id, text, conversational FROM notes WHERE nkey=? LIMIT 1", new String[]{key});
             boolean exists = c.moveToFirst();
-            boolean replied = exists && c.getString(1) != null && !c.getString(1).isEmpty();
+            String oldText = exists ? c.getString(1) : null;
+            boolean wasConversational = exists && c.getInt(2) != 0;
             c.close();
             if (exists) {
                 ContentValues v = new ContentValues();
-                // Haben wir aus EdgeTab schon geantwortet, friert die urspruengliche
-                // Nachricht ein: manche Apps (BlackBerry Hub/BBMe) posten dieselbe
-                // Benachrichtigung nach dem Antworten mit einem blossen
-                // Bestaetigungstext ("Geantwortet.", ohne Titel) neu - der wuerde
-                // sonst die Originalnachricht ueberschreiben. Titel/Text bleiben
-                // dann stehen (Verlauf), nur Zeit/Abzug werden aufgefrischt.
-                if (!replied) {
+                // Rueckschritt-Sperre: Bei Chat/Mail darf ein Neu-Post desselben
+                // Schluessels die gespeicherte echte Nachricht NICHT durch einen
+                // blossen Bestaetigungs-/Leertext ersetzen. Manche Apps
+                // (BlackBerry Hub/BBMe) posten nach dem Antworten "Geantwortet."
+                // (ohne Titel) neu - das wuerde sonst die Originalnachricht
+                // entwerten. ECHTE neue Nachrichten (anderer, substanzieller Text)
+                // duerfen weiter aktualisieren - so gehen Konversationen, die sich
+                // einen Schluessel teilen, nicht verloren.
+                boolean downgrade = (wasConversational || conversational)
+                        && oldText != null && !oldText.isEmpty()
+                        && !de.herbers.common.Notifications.looksLikeReplyConfirmation(null, oldText)
+                        && de.herbers.common.Notifications.looksLikeReplyConfirmation(title, text);
+                if (!downgrade) {
                     v.put("title", title);
                     v.put("text", text);
                     v.put("channel", channel);
                     v.put("channel_name", channelName);
+                    v.put("conversational", conversational ? 1 : 0);
                 }
                 v.put("posted", posted);
                 if (infoJson != null && !infoJson.isEmpty()) v.put("info_json", infoJson);
@@ -122,6 +136,7 @@ public class NotificationStore extends SQLiteOpenHelper {
         v.put("channel", channel);
         v.put("channel_name", channelName);
         v.put("info_json", infoJson);
+        v.put("conversational", conversational ? 1 : 0);
         db.insert("notes", null, v);
     }
 
