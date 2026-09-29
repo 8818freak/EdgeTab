@@ -385,11 +385,16 @@ public class NotificationCollector extends NotificationListenerService {
             }
         } catch (Exception ignored) {}
 
+        // Vollstaendigen, verlustfreien Abzug der Benachrichtigung mitspeichern
+        // (auch Felder, die die Karte selbst nicht anzeigt) - siehe
+        // Notifications.toJson. Robust: bei Fehler leer, nie den Store blockieren.
+        String infoJson = Notifications.toJson(sbn, n);
+
         NotificationStore.get(this).add(
                 sbn.getKey(), pkg,
                 title, text,
                 sbn.getPostTime(),
-                channelId, channelName);
+                channelId, channelName, infoJson);
 
         Log.d(TAG, "gespeichert: " + pkg + " – "
                 + (title == null ? "" : title) + " / "

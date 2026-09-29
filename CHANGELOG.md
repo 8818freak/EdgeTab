@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.95
+- Neu: Jede erfasste Benachrichtigung wird jetzt **verlustfrei** gespeichert –
+  alle Felder, die sie mitbrachte (über die Bibliothek `Notifications.toJson`),
+  nicht mehr nur Titel und eine Textzeile. So geht nichts Auslesbares verloren
+  und alles bleibt später auswertbar.
+- Neu: Eine im Posteingang gesendete Antwort bleibt unter der Nachricht stehen
+  (baut einen kleinen Verlauf auf). Die Originalnachricht wird dabei nicht mehr
+  vom bloßen „Geantwortet."-Neupost mancher Apps (BlackBerry Hub/BBMe)
+  überschrieben.
+
+## 0.94
+- Neu: Der Berechtigungs-Abschnitt in den Einstellungen zeigt jetzt auch
+  **SMS senden** und **Anrufliste ändern** als eigene, erklärte Einträge (zuvor
+  nur SMS/Anrufliste lesen). Die Erinnerung bei Verlust eines einmal erteilten
+  Rechts greift damit auch für diese beiden.
+
 ## 0.85
 - Intern: Das Absturz-/Diagnose-Protokoll kommt jetzt aus der gemeinsamen
   Bibliothek herbers-android-common (de.herbers.common.DiagLog / Diagnostics)

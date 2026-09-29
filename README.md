@@ -33,11 +33,16 @@ Android-Schnittstellen.*
   (works well with BlackBerry Hub, Telegram, Signal, etc.), grouped by day.
   Reply (via the notification's own action, with or without inline
   RemoteInput text entry), mark-as-read and delete (via the notification's
-  own actions) all trigger the real action in the source app. Shows the
-  notification's icon and, for live notifications, the big picture
-  (BigPictureStyle photo/album art). A magnifier opens a search field:
-  "search here" filters the inbox, "search in Sucher" opens the Sucher app
-  with the term for a full-text search across everything.
+  own actions) all trigger the real action in the source app. A reply you
+  send stays under the message (building a small history) and is protected
+  from being overwritten by a source app's "replied" confirmation re-post.
+  Every notification is stored **losslessly** (all fields it carried, via the
+  shared library's `Notifications.toJson`), not just its title and one line —
+  so nothing extractable is thrown away. Shows the notification's icon and,
+  for live notifications, the big picture (BigPictureStyle photo/album art).
+  A magnifier opens a search field: "search here" filters the inbox,
+  "search in Sucher" opens the Sucher app with the term for a full-text
+  search across everything.
 - **SMS & Calls**: cards showing your latest text messages / call log
   (name or number, direction, time); tapping opens the SMS or dialer app.
   Optional, permission requested on demand.

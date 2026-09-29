@@ -18,7 +18,7 @@ import java.util.List;
 public class NotificationStore extends SQLiteOpenHelper {
 
     private static final String DB = "edgetab_notifications.db";
-    private static final int VERSION = 2;
+    private static final int VERSION = 3;
     private static NotificationStore instance;
 
     public static synchronized NotificationStore get(Context ctx) {
@@ -44,7 +44,9 @@ public class NotificationStore extends SQLiteOpenHelper {
             "  posted INTEGER," +      // Zeitstempel
             "  seen INTEGER DEFAULT 0," + // 0 = ungelesen, 1 = gelesen
             "  channel TEXT," +       // Notification-Channel-ID der Quell-App
-            "  channel_name TEXT" +   // deren vom Nutzer sichtbarer Name, falls auslesbar
+            "  channel_name TEXT," +  // deren vom Nutzer sichtbarer Name, falls auslesbar
+            "  info_json TEXT," +     // vollstaendiger, verlustfreier Abzug der Benachrichtigung (Notifications.toJson)
+            "  sent_replies TEXT" +   // aus EdgeTab gesendete Antworten (Zeitstempel\ttext je Zeile) - baut einen Verlauf
             ")");
         db.execSQL("CREATE INDEX idx_pkg ON notes(pkg)");
         db.execSQL("CREATE INDEX idx_posted ON notes(posted)");
@@ -56,25 +58,41 @@ public class NotificationStore extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE notes ADD COLUMN channel TEXT");
             db.execSQL("ALTER TABLE notes ADD COLUMN channel_name TEXT");
         }
+        if (oldV < 3) {
+            // Vollstaendiger Benachrichtigungs-Abzug. Alt-Eintraege haben ihn
+            // nicht (nur was ab jetzt eintrifft) - Spalte bleibt dort NULL.
+            db.execSQL("ALTER TABLE notes ADD COLUMN info_json TEXT");
+            db.execSQL("ALTER TABLE notes ADD COLUMN sent_replies TEXT");
+        }
     }
 
     /** Neue Benachrichtigung ablegen. Gleicher Schluessel = Aktualisierung. */
     public void add(String key, String pkg, String title, String text, long posted,
-                     String channel, String channelName) {
+                     String channel, String channelName, String infoJson) {
         SQLiteDatabase db = getWritableDatabase();
         // Doppelte desselben Schluessels vermeiden: vorhandene ersetzen,
         // dabei den Gelesen-Status nicht ueberschreiben.
         if (key != null) {
-            Cursor c = db.rawQuery("SELECT _id FROM notes WHERE nkey=? LIMIT 1", new String[]{key});
+            Cursor c = db.rawQuery("SELECT _id, sent_replies FROM notes WHERE nkey=? LIMIT 1", new String[]{key});
             boolean exists = c.moveToFirst();
+            boolean replied = exists && c.getString(1) != null && !c.getString(1).isEmpty();
             c.close();
             if (exists) {
                 ContentValues v = new ContentValues();
-                v.put("title", title);
-                v.put("text", text);
+                // Haben wir aus EdgeTab schon geantwortet, friert die urspruengliche
+                // Nachricht ein: manche Apps (BlackBerry Hub/BBMe) posten dieselbe
+                // Benachrichtigung nach dem Antworten mit einem blossen
+                // Bestaetigungstext ("Geantwortet.", ohne Titel) neu - der wuerde
+                // sonst die Originalnachricht ueberschreiben. Titel/Text bleiben
+                // dann stehen (Verlauf), nur Zeit/Abzug werden aufgefrischt.
+                if (!replied) {
+                    v.put("title", title);
+                    v.put("text", text);
+                    v.put("channel", channel);
+                    v.put("channel_name", channelName);
+                }
                 v.put("posted", posted);
-                v.put("channel", channel);
-                v.put("channel_name", channelName);
+                if (infoJson != null && !infoJson.isEmpty()) v.put("info_json", infoJson);
                 db.update("notes", v, "nkey=?", new String[]{key});
                 return;
             }
@@ -89,6 +107,7 @@ public class NotificationStore extends SQLiteOpenHelper {
                 ContentValues v = new ContentValues();
                 v.put("nkey", key);
                 v.put("posted", posted);
+                if (infoJson != null && !infoJson.isEmpty()) v.put("info_json", infoJson);
                 db.update("notes", v, "_id=?", new String[]{String.valueOf(dupId)});
                 return;
             }
@@ -102,6 +121,7 @@ public class NotificationStore extends SQLiteOpenHelper {
         v.put("seen", 0);
         v.put("channel", channel);
         v.put("channel_name", channelName);
+        v.put("info_json", infoJson);
         db.insert("notes", null, v);
     }
 
@@ -111,6 +131,8 @@ public class NotificationStore extends SQLiteOpenHelper {
         public long posted;
         public boolean seen;
         public String channel, channelName;
+        public String infoJson;   // vollstaendiger Abzug (kann null sein bei Alt-Eintraegen)
+        public String sentReplies; // aus EdgeTab gesendete Antworten (Zeitstempel\ttext je Zeile), kann null sein
     }
 
     /** Die neuesten Eintraege fuer die Kachel, optional auf eine App gefiltert. */
@@ -132,6 +154,8 @@ public class NotificationStore extends SQLiteOpenHelper {
             it.seen   = c.getInt(c.getColumnIndexOrThrow("seen")) != 0;
             it.channel = c.getString(c.getColumnIndexOrThrow("channel"));
             it.channelName = c.getString(c.getColumnIndexOrThrow("channel_name"));
+            it.infoJson = c.getString(c.getColumnIndexOrThrow("info_json"));
+            it.sentReplies = c.getString(c.getColumnIndexOrThrow("sent_replies"));
             out.add(it);
         }
         c.close();
@@ -203,6 +227,25 @@ public class NotificationStore extends SQLiteOpenHelper {
     public void collapseDuplicates() {
         getWritableDatabase().execSQL("DELETE FROM notes WHERE _id NOT IN ("
                 + "SELECT MAX(_id) FROM notes GROUP BY pkg, title, text)");
+    }
+
+    /** Eine aus EdgeTab gesendete Antwort zum Eintrag festhalten - wird unter
+     *  der Nachricht angezeigt und baut so einen Verlauf auf. Format je Zeile:
+     *  Zeitstempel(ms) \t Text. Setzt zugleich das "geantwortet"-Kennzeichen,
+     *  das die Originalnachricht vor Ueberschreiben schuetzt (siehe add()). */
+    public void addReply(long id, String text) {
+        if (text == null || text.isEmpty()) return;
+        SQLiteDatabase db = getWritableDatabase();
+        String old = null;
+        Cursor c = db.rawQuery("SELECT sent_replies FROM notes WHERE _id=?",
+                new String[]{String.valueOf(id)});
+        if (c.moveToFirst()) old = c.getString(0);
+        c.close();
+        String line = System.currentTimeMillis() + "\t" + text.replace("\n", " ");
+        String merged = (old == null || old.isEmpty()) ? line : old + "\n" + line;
+        ContentValues v = new ContentValues();
+        v.put("sent_replies", merged);
+        db.update("notes", v, "_id=?", new String[]{String.valueOf(id)});
     }
 
     public void markSeen(long id) {

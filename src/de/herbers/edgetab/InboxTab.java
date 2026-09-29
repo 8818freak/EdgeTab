@@ -858,6 +858,32 @@ public class InboxTab extends BaseTab {
             }
         }
 
+        // Aus EdgeTab gesendete Antworten als Verlauf unter der Nachricht.
+        if (it.sentReplies != null && !it.sentReplies.isEmpty()) {
+            for (String ln : it.sentReplies.split("\n")) {
+                if (ln.isEmpty()) continue;
+                int tab = ln.indexOf('\t');
+                String when = "", body = ln;
+                if (tab > 0) {
+                    try {
+                        long ts = Long.parseLong(ln.substring(0, tab));
+                        when = DateUtils.getRelativeTimeSpanString(ts, System.currentTimeMillis(),
+                                DateUtils.MINUTE_IN_MILLIS).toString();
+                    } catch (NumberFormatException ignored) {}
+                    body = ln.substring(tab + 1);
+                }
+                TextView rv = new TextView(ctx);
+                rv.setText("↩ " + body + (when.isEmpty() ? "" : "   " + when));
+                rv.setTextColor(Color.parseColor("#5BD68A"));
+                rv.setTextSize(13 * fs);
+                LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                rlp.topMargin = 4 * d;
+                rv.setLayoutParams(rlp);
+                row.addView(rv);
+            }
+        }
+
         if (replying) {
             LinearLayout replyRow = new LinearLayout(ctx);
             replyRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -881,6 +907,10 @@ public class InboxTab extends BaseTab {
                 boolean ok = NotificationCollector.sendReply(ctx, it, txt);
                 Toast.makeText(ctx, ok ? R.string.reply_sent : R.string.reply_failed,
                         Toast.LENGTH_SHORT).show();
+                // Gesendete Antwort festhalten - bleibt unter der Nachricht
+                // stehen (Verlauf) und schuetzt zugleich die Originalnachricht
+                // vor dem Bestaetigungs-Neupost mancher Apps (siehe NotificationStore).
+                if (ok) store.addReply(it.id, txt);
                 REPLYING.remove(replyKey);
                 if (refreshContent != null) refreshContent.run();
             });
