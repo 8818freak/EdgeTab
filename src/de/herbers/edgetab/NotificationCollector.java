@@ -3,14 +3,14 @@ package de.herbers.edgetab;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.PendingIntent;
-import android.app.RemoteInput;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+
+import de.herbers.common.Notifications;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,19 +64,15 @@ public class NotificationCollector extends NotificationListenerService {
         return null;
     }
 
-    /** Titel und Text so auslesen, wie sie auch in der Ablage landen. */
+    /** Titel und Text so auslesen, wie sie auch in der Ablage landen.
+     *  Gemeinsame Logik in {@link Notifications#titleAndText}. */
     static String[] extract(Notification n) {
-        Bundle ex = n == null ? null : n.extras;
-        CharSequence title = ex == null ? null : ex.getCharSequence(Notification.EXTRA_TITLE);
-        CharSequence text  = ex == null ? null : ex.getCharSequence(Notification.EXTRA_TEXT);
-        CharSequence big   = ex == null ? null : ex.getCharSequence(Notification.EXTRA_BIG_TEXT);
-        if (big != null && (text == null || big.length() > text.length())) text = big;
-        return new String[]{ title == null ? "" : title.toString(), text == null ? "" : text.toString() };
+        return Notifications.titleAndText(n);
     }
 
     /** Inhaltliche Kennung: gleiche App + Titel + Text = dieselbe Nachricht. */
     static String signature(String pkg, String title, String text) {
-        return pkg + "\u0001" + (title == null ? "" : title) + "\u0001" + (text == null ? "" : text);
+        return Notifications.signature(pkg, title, text);
     }
 
     /**
@@ -163,14 +159,7 @@ public class NotificationCollector extends NotificationListenerService {
      *  aktive NotificationListenerService darf das auslesen und ausloesen,
      *  genau wie beim Loeschen. */
     static Notification.Action findReplyAction(Notification n) {
-        if (n == null || n.actions == null) return null;
-        for (Notification.Action a : n.actions) {
-            if (a == null || a.actionIntent == null || a.getRemoteInputs() == null) continue;
-            for (RemoteInput ri : a.getRemoteInputs()) {
-                if (ri != null && ri.getAllowFreeFormInput()) return a;
-            }
-        }
-        return null;
+        return Notifications.findReplyAction(n);
     }
 
     /** Frische Antworten-Aktion zu einem Eintrag holen (wie resolve() bei
@@ -188,20 +177,7 @@ public class NotificationCollector extends NotificationListenerService {
      *  Benachrichtigung heraus). Erkennung wie bei findDeleteAction: erst
      *  semantisch, dann per Beschriftung. */
     static Notification.Action findAnyReplyAction(Notification n) {
-        Notification.Action withInput = findReplyAction(n);
-        if (withInput != null) return withInput;
-        if (n == null || n.actions == null) return null;
-        for (Notification.Action a : n.actions) {
-            if (a == null || a.actionIntent == null
-                    || a.getSemanticAction() != Notification.Action.SEMANTIC_ACTION_REPLY) continue;
-            return a;
-        }
-        for (Notification.Action a : n.actions) {
-            if (a == null || a.actionIntent == null || a.title == null) continue;
-            String t = a.title.toString().toLowerCase(java.util.Locale.ROOT);
-            if (t.contains("antwort") || t.contains("reply")) return a;
-        }
-        return null;
+        return Notifications.findAnyReplyAction(n);
     }
 
     static Notification.Action resolveAnyReplyAction(NotificationStore.Item it) {
@@ -231,12 +207,8 @@ public class NotificationCollector extends NotificationListenerService {
     public static boolean sendReply(android.content.Context ctx, NotificationStore.Item it, String text) {
         Notification.Action action = resolveReplyAction(it);
         if (action == null) { Log.d(TAG, "keine Antworten-Aktion fuer " + it.nkey); return false; }
-        Bundle results = new Bundle();
-        for (RemoteInput ri : action.getRemoteInputs()) {
-            if (ri != null && ri.getAllowFreeFormInput()) results.putCharSequence(ri.getResultKey(), text);
-        }
-        Intent fillIn = new Intent();
-        RemoteInput.addResultsToIntent(action.getRemoteInputs(), fillIn, results);
+        Intent fillIn = Notifications.buildReplyFillIn(action, text);
+        if (fillIn == null) { Log.d(TAG, "keine Freitext-Antwort fuer " + it.nkey); return false; }
         boolean ok = Launcher.send(ctx, action.actionIntent, fillIn, Launcher.bgAllowed());
         Log.d(TAG, "Antwort " + (ok ? "gesendet" : "FEHLGESCHLAGEN") + ": " + it.pkg);
         return ok;
@@ -244,55 +216,14 @@ public class NotificationCollector extends NotificationListenerService {
 
     /** Sucht in einer Benachrichtigung die Loeschen-Aktion (auch Wearable-Aktionen). */
     static PendingIntent findDeleteAction(Notification n) {
-        if (n == null) return null;
-        java.util.ArrayList<Notification.Action> all = new java.util.ArrayList<>();
-        if (n.actions != null) java.util.Collections.addAll(all, n.actions);
-        try { all.addAll(new Notification.WearableExtender(n).getActions()); }
-        catch (Exception ignored) {}
-        // 1. Semantisch als Loeschen markiert
-        for (Notification.Action a : all) {
-            if (a != null && a.actionIntent != null
-                    && a.getSemanticAction() == Notification.Action.SEMANTIC_ACTION_DELETE) {
-                return a.actionIntent;
-            }
-        }
-        // 2. Nach Beschriftung
-        for (Notification.Action a : all) {
-            if (a == null || a.actionIntent == null || a.title == null) continue;
-            String t = a.title.toString().toLowerCase(java.util.Locale.ROOT);
-            if (t.contains("lösch") || t.contains("losch") || t.contains("delete")
-                    || t.contains("papierkorb") || t.contains("trash")) {
-                return a.actionIntent;
-            }
-        }
-        return null;
+        return Notifications.findDeleteAction(n);
     }
 
     /** Sucht die "Als gelesen markieren"-Aktion einer Benachrichtigung (wie
      *  findDeleteAction): erst semantisch (SEMANTIC_ACTION_MARK_AS_READ), dann
      *  per Beschriftung. Auch Wearable-Aktionen. */
     static PendingIntent findMarkReadAction(Notification n) {
-        if (n == null) return null;
-        java.util.ArrayList<Notification.Action> all = new java.util.ArrayList<>();
-        if (n.actions != null) java.util.Collections.addAll(all, n.actions);
-        try { all.addAll(new Notification.WearableExtender(n).getActions()); }
-        catch (Exception ignored) {}
-        // 1. Semantisch als "gelesen" markiert
-        for (Notification.Action a : all) {
-            if (a != null && a.actionIntent != null
-                    && a.getSemanticAction() == Notification.Action.SEMANTIC_ACTION_MARK_AS_READ) {
-                return a.actionIntent;
-            }
-        }
-        // 2. Nach Beschriftung
-        for (Notification.Action a : all) {
-            if (a == null || a.actionIntent == null || a.title == null) continue;
-            String t = a.title.toString().toLowerCase(java.util.Locale.ROOT);
-            if (t.contains("gelesen") || t.contains("mark as read") || t.contains("mark read")) {
-                return a.actionIntent;
-            }
-        }
-        return null;
+        return Notifications.findMarkReadAction(n);
     }
 
     /** Ob es zu diesem Eintrag (noch lebende Benachrichtigung) eine

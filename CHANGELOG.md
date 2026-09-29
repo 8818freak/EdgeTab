@@ -4,6 +4,14 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.83
+- Intern: Der Kern des Benachrichtigungs-Mitschnitts (Titel/Text-Auslesen inkl.
+  BigText, Gruppen-/Leer-Filter, Inhalts-Signatur und die Aktions-Erkennung für
+  Antworten, Löschen und „als gelesen markieren") kommt jetzt aus der
+  gemeinsamen Bibliothek „herbers-android-common" (de.herbers.common.
+  Notifications) statt aus eigenen Kopien – dieselbe, gepflegte Logik wie künftig
+  in Sucher, ActiveFrames und BBMePing. Keine sichtbare Änderung.
+
 ## 0.82
 - Intern: Einstellungs-Sicherung und die Farbwahl je Quelle (colorFor) kommen
   jetzt aus der gemeinsamen Bibliothek „herbers-android-common" (Git-Submodul,
