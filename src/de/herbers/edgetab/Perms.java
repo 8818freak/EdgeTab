@@ -56,13 +56,21 @@ final class Perms {
                 con, appDetails(ctx),
                 "Für die Kontakte-Karte – schneller Zugriff auf Personen."));
         boolean sms = ctx.checkSelfPermission(android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED;
+        boolean sendSms = ctx.checkSelfPermission(android.Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED;
         boolean calls = ctx.checkSelfPermission(android.Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED;
-        l.add(new PermReminder.Perm("sms", "SMS",
+        boolean writeCalls = ctx.checkSelfPermission(android.Manifest.permission.WRITE_CALL_LOG) == PackageManager.PERMISSION_GRANTED;
+        l.add(new PermReminder.Perm("sms", "SMS lesen",
                 sms, appDetails(ctx),
-                "Für die SMS-Karte – zeigt die letzten Kurznachrichten."));
-        l.add(new PermReminder.Perm("calls", "Anrufliste",
+                "Für die SMS-Karte und den Posteingang – zeigt die letzten Kurznachrichten."));
+        l.add(new PermReminder.Perm("send_sms", "SMS senden",
+                sendSms, appDetails(ctx),
+                "Für die Direktantwort auf eine SMS aus dem Posteingang bzw. der SMS-Karte."));
+        l.add(new PermReminder.Perm("calls", "Anrufliste lesen",
                 calls, appDetails(ctx),
-                "Für die Anrufe-Karte – zeigt die letzten Anrufe."));
+                "Für die Anrufe-Karte und den Posteingang – zeigt die letzten Anrufe."));
+        l.add(new PermReminder.Perm("write_calls", "Anrufliste ändern",
+                writeCalls, appDetails(ctx),
+                "Um verpasste Anrufe als gesehen zu markieren."));
         return l;
     }
 
