@@ -4,6 +4,13 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.82
+- Intern: Einstellungs-Sicherung und die Farbwahl je Quelle (colorFor) kommen
+  jetzt aus der gemeinsamen Bibliothek „herbers-android-common" (Git-Submodul,
+  de.herbers.common.SettingsBackup / ColorUtil) statt aus eigenen Kopien –
+  dieselbe, gepflegte Logik wie in Sucher und ActiveFrames. Keine sichtbare
+  Änderung, Sicherungsformat unverändert.
+
 ## 0.81
 - Posteingang: Neuer Knopf „✓" je Nachricht löst die „Als gelesen markieren"-
   Aktion der System-Benachrichtigung aus (sofern die Quell-App eine anbietet)

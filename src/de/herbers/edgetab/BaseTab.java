@@ -110,8 +110,7 @@ abstract class BaseTab implements Tab {
      *  die Kalenderfarbe bei Terminen). Wie im Kalender-Tab, nur ohne
      *  vorgegebene Farbe je Quelle. */
     static int colorFor(String key) {
-        int hue = Math.floorMod(key == null ? 0 : key.hashCode(), 360);
-        return android.graphics.Color.HSVToColor(new float[]{hue, 0.5f, 0.85f});
+        return de.herbers.common.ColorUtil.colorFor(key);
     }
 
     /** Hebt eine ScrollView + schwebendes Symbol in einen gemeinsamen
