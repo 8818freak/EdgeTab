@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.herbers.edgetab"
-    android:versionCode="87"
-    android:versionName="0.86">
+    android:versionCode="89"
+    android:versionName="0.88">
 
     <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="34" />
 
@@ -98,5 +98,7 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <!-- "Ignorieren" der Berechtigungs-Erinnerung (gemeinsame Bibliothek). -->
+        <receiver android:name="de.herbers.common.PermReminderReceiver" android:exported="false" />
     </application>
 </manifest>

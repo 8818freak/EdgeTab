@@ -39,6 +39,7 @@ public class SettingsTab {
     /** Welche Kategorie gerade offen ist - null = Kategorien-Menue. Statisch,
      *  weil bei jedem Panel-Aufbau ein neues SettingsTab-Objekt entsteht. */
     private static String openCategory = null;
+    private static Boolean permsOpen = null; // null = Auto (offen, wenn etwas fehlt)
 
     private static final String CAT_POSITION = "position";
     private static final String CAT_HEADER   = "header";
@@ -123,6 +124,7 @@ public class SettingsTab {
     // ---------- Kategorien-Menue ----------
 
     private void buildCategoryMenu(LinearLayout root, float fs, int d) {
+        permsSection(root, fs, d);
         root.addView(categoryRow(CAT_POSITION, ctx.getString(R.string.settings_cat_position_title),
                 ctx.getString(R.string.settings_cat_position_subtitle), fs, d));
         root.addView(categoryRow(CAT_HEADER, ctx.getString(R.string.settings_cat_header_title),
@@ -135,6 +137,55 @@ public class SettingsTab {
                 ctx.getString(R.string.settings_cat_service_subtitle), fs, d));
         root.addView(categoryRow(CAT_ABOUT, ctx.getString(R.string.settings_cat_about_title),
                 ctx.getString(R.string.settings_cat_about_subtitle), fs, d));
+    }
+
+    /** Aufklappbarer, erklaerter Berechtigungs-Abschnitt (Dreieck ▸/▾) oben im
+     *  Kategoriemenue: alle Berechtigungen mit Status + wofuer, ein Tipp fuehrt
+     *  je Berechtigung in die passende Systemeinstellung. Dieselbe Definition
+     *  wie die Erinnerung (Perms.list) - keine doppelte Pflege. */
+    private void permsSection(LinearLayout root, float fs, int d) {
+        java.util.List<de.herbers.common.PermReminder.Perm> perms = Perms.list(ctx);
+        boolean anyMissing = false;
+        for (de.herbers.common.PermReminder.Perm p : perms) if (!p.granted) anyMissing = true;
+        boolean open = (permsOpen != null) ? permsOpen : anyMissing;
+
+        TextView head = new TextView(ctx);
+        head.setText((open ? "▾ " : "▸ ") + "Berechtigungen");
+        head.setTextColor(Color.parseColor("#2E9BE6"));
+        head.setTextSize(15 * fs);
+        head.setPadding(d * 4, d * 12, d * 4, d * 8);
+        final boolean cur = open;
+        head.setOnClickListener(v -> { permsOpen = !cur; if (refresh != null) refresh.run(); });
+        root.addView(head);
+        if (!open) return;
+
+        for (de.herbers.common.PermReminder.Perm perm : perms) {
+            TextView name = new TextView(ctx);
+            name.setText((perm.granted ? "✓  " : "✗  ") + perm.label + (perm.granted ? "" : "  –  fehlt"));
+            name.setTextColor(perm.granted ? Color.parseColor("#5BD68A") : Color.parseColor("#E0533A"));
+            name.setTextSize(14 * fs);
+            name.setPadding(d * 8, d * 8, d * 8, d * 2);
+            root.addView(name);
+            if (perm.explanation != null && !perm.explanation.isEmpty()) {
+                TextView why = new TextView(ctx);
+                why.setText(perm.explanation);
+                why.setTextColor(Color.parseColor("#99AAB8"));
+                why.setTextSize(12 * fs);
+                why.setPadding(d * 8, 0, d * 8, d * 4);
+                root.addView(why);
+            }
+            Button go = new Button(ctx);
+            go.setText(perm.granted ? "In den Einstellungen ändern" : "Jetzt erteilen");
+            go.setTextSize(13 * fs);
+            go.setOnClickListener(v -> {
+                try {
+                    Intent i = perm.settings;
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    ctx.startActivity(i);
+                } catch (Throwable ignored) {}
+            });
+            root.addView(go);
+        }
     }
 
     private View categoryRow(String key, String title, String subtitle, float fs, int d) {

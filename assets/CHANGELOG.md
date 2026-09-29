@@ -4,6 +4,17 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.88
+- Neu: In der Posteingang-Karte werden große Bilder aus Benachrichtigungen
+  (BigPictureStyle, z. B. ein Foto in einer Chat-Nachricht) angezeigt, solange
+  die Benachrichtigung noch aktiv ist.
+- Neu: Erinnerung, wenn eine einmal erteilte Berechtigung fehlt (z. B. nach
+  einem System-Update) – Overlay, Benachrichtigungszugriff, Kalender, Kontakte.
+  Die Meldung führt direkt zum Erteilen und lässt sich „Ignorieren“.
+- Neu: Aufklappbarer Abschnitt „Berechtigungen“ in den Einstellungen (Dreieck
+  ▸/▾) – zeigt je Berechtigung Status und wofür sie gebraucht wird; ein Tipp
+  führt in die passende Systemeinstellung.
+
 ## 0.86
 - Verbessert: Das Diagnose-/Fehlerprotokoll steht jetzt fest ganz unten in den
   Einstellungen, zeigt die neuesten Einträge zuerst, und alle Schaltflächen

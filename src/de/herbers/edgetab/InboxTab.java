@@ -3,6 +3,7 @@ package de.herbers.edgetab;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.service.notification.StatusBarNotification;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -343,6 +344,29 @@ public class InboxTab extends BaseTab {
             text.setTextSize(13 * fs);
             text.setMaxLines(6);              // groessere Vorschau als bisher (war 2)
             row.addView(text);
+        }
+
+        // Grosses Bild (BigPictureStyle, z.B. Foto in einer Chat-Nachricht) -
+        // nur solange die Benachrichtigung noch lebt (das Bild steckt in ihr,
+        // nicht in unserer Ablage). Auswertung kommt aus der gemeinsamen
+        // Bibliothek (Notifications.bigPicture).
+        if (live) {
+            StatusBarNotification liveSbn = NotificationCollector.resolve(it);
+            if (liveSbn != null) {
+                android.graphics.Bitmap pic = de.herbers.common.Notifications.bigPicture(ctx, liveSbn.getNotification());
+                if (pic != null) {
+                    android.widget.ImageView iv = new android.widget.ImageView(ctx);
+                    iv.setImageBitmap(pic);
+                    iv.setAdjustViewBounds(true);
+                    iv.setScaleType(android.widget.ImageView.ScaleType.FIT_START);
+                    iv.setMaxHeight(220 * d);
+                    LinearLayout.LayoutParams ivLp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    ivLp.topMargin = 8 * d;
+                    iv.setLayoutParams(ivLp);
+                    row.addView(iv);
+                }
+            }
         }
 
         if (replying) {

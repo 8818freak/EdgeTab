@@ -318,6 +318,9 @@ public class NotificationCollector extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn) {
         try {
             store(sbn);
+            // Nebenbei pruefen, ob eine einmal erteilte Berechtigung fehlt
+            // (z.B. nach OS-Update) - dann erinnern. Billig, nur einmal je Verlust.
+            Perms.checkReminders(this);
         } catch (Exception e) {
             Log.w(TAG, "Fehler beim Ablegen", e);
         }
