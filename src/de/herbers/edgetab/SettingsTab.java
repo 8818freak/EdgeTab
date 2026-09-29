@@ -542,6 +542,16 @@ public class SettingsTab {
         addFramesTab.setOnClickListener(v -> { Tabs.addFramesTab(ctx); tabRefresh.run(); });
         root.addView(addFramesTab);
 
+        Button addSmsTab = new Button(ctx);
+        addSmsTab.setText(R.string.add_sms_tab);
+        addSmsTab.setOnClickListener(v -> { Tabs.addSmsTab(ctx); tabRefresh.run(); });
+        root.addView(addSmsTab);
+
+        Button addCallsTab = new Button(ctx);
+        addCallsTab.setText(R.string.add_calls_tab);
+        addCallsTab.setOnClickListener(v -> { Tabs.addCallsTab(ctx); tabRefresh.run(); });
+        root.addView(addCallsTab);
+
         TextView framesHint = new TextView(ctx);
         framesHint.setText(R.string.add_frames_hint);
         framesHint.setTextColor(Color.GRAY);

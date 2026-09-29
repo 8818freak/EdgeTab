@@ -55,6 +55,14 @@ final class Perms {
         l.add(new PermReminder.Perm("contacts", "Kontakte",
                 con, appDetails(ctx),
                 "Für die Kontakte-Karte – schneller Zugriff auf Personen."));
+        boolean sms = ctx.checkSelfPermission(android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED;
+        boolean calls = ctx.checkSelfPermission(android.Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED;
+        l.add(new PermReminder.Perm("sms", "SMS",
+                sms, appDetails(ctx),
+                "Für die SMS-Karte – zeigt die letzten Kurznachrichten."));
+        l.add(new PermReminder.Perm("calls", "Anrufliste",
+                calls, appDetails(ctx),
+                "Für die Anrufe-Karte – zeigt die letzten Anrufe."));
         return l;
     }
 

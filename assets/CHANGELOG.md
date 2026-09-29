@@ -4,6 +4,15 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.91
+- Neu: SMS- und Anrufe-Karten. Über die Einstellungen („+ Neue SMS-/Anrufe-
+  Registerkarte“) hinzufügbar – zeigen die letzten Kurznachrichten bzw. Anrufe
+  mit Name/Nummer, Richtung und Zeit; Tippen öffnet die SMS-App bzw. Wähl-App.
+  Braucht die Rechte SMS bzw. Anrufliste (erst bei Bedarf).
+- Neu: Suche im Posteingang. Über die Lupe öffnet sich ein Suchfeld: „Hier
+  suchen“ filtert den EdgeTab-Posteingang, „In Sucher suchen“ öffnet (falls
+  installiert) Sucher mit dem Begriff für die Volltextsuche über alles.
+
 ## 0.90
 - Neu: In der Berechtigungen-Karte lässt sich der Posteingang gezielt leeren
   („Erfasste Benachrichtigungen löschen“, mit Bestätigung durch nochmaliges

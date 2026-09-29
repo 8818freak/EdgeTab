@@ -28,6 +28,8 @@ final class TabInstance {
     static final String TYPE_SHORTCUTS = "shortcuts";
     static final String TYPE_MEDIA     = "media";
     static final String TYPE_FRAMES    = "frames";
+    static final String TYPE_SMS       = "sms";
+    static final String TYPE_CALLS     = "calls";
 
     final String id;
     final String type;

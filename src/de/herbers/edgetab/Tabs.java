@@ -120,6 +120,8 @@ final class Tabs {
             case TabInstance.TYPE_SHORTCUTS: return new ShortcutsTab(t);
             case TabInstance.TYPE_MEDIA:     return new MediaTab(t);
             case TabInstance.TYPE_FRAMES:    return new FramesTab(t);
+            case TabInstance.TYPE_SMS:       return new SmsTab(t);
+            case TabInstance.TYPE_CALLS:     return new CallsTab(t);
             default: return new PlaceholderTab(t, t.type, R.drawable.ic_widget, ctx.getString(R.string.unknown_card_hint));
         }
     }
@@ -179,6 +181,22 @@ final class Tabs {
     static TabInstance addFramesTab(Context ctx) {
         List<TabInstance> list = load(ctx);
         TabInstance t = new TabInstance("frames_" + System.currentTimeMillis(), TabInstance.TYPE_FRAMES);
+        list.add(t);
+        save(ctx, list);
+        return t;
+    }
+
+    static TabInstance addSmsTab(Context ctx) {
+        List<TabInstance> list = load(ctx);
+        TabInstance t = new TabInstance("sms_" + System.currentTimeMillis(), TabInstance.TYPE_SMS);
+        list.add(t);
+        save(ctx, list);
+        return t;
+    }
+
+    static TabInstance addCallsTab(Context ctx) {
+        List<TabInstance> list = load(ctx);
+        TabInstance t = new TabInstance("calls_" + System.currentTimeMillis(), TabInstance.TYPE_CALLS);
         list.add(t);
         save(ctx, list);
         return t;

@@ -136,6 +136,14 @@
     <string name="tabs_section_hint">Ein-/ausschalten, umbenennen, eigenes Bild wählen, Reihenfolge ändern (▲▼) und einstellen, ob die Leiste nach Tippen darin schließt. Von „Widget" und „Verknüpfungen" lassen sich beliebig viele Registerkarten anlegen.</string>
     <string name="add_widget_tab">+ Neue Widget-Registerkarte</string>
     <string name="add_shortcuts_tab">+ Neue Verknüpfungen-Registerkarte</string>
+    <string name="tab_sms">SMS</string>
+    <string name="tab_calls">Anrufe</string>
+    <string name="add_sms_tab">+ Neue SMS-Registerkarte</string>
+    <string name="add_calls_tab">+ Neue Anrufe-Registerkarte</string>
+    <string name="sms_permission_missing">Für die SMS-Karte fehlt die Berechtigung, deine SMS zu lesen.</string>
+    <string name="sms_none">Keine SMS gefunden.</string>
+    <string name="calls_permission_missing">Für die Anrufe-Karte fehlt die Berechtigung, die Anrufliste zu lesen.</string>
+    <string name="calls_none">Keine Anrufe gefunden.</string>
     <string name="add_media_tab">+ Neue Mediensteuerung-Registerkarte</string>
     <string name="add_frames_tab">+ Neue Karte „Aktive Kacheln“</string>
     <string name="add_frames_hint">Zeigt die zuletzt benutzten Apps als Kacheln (wie BlackBerry OS10, „Widget 2“). Benötigt die App „Active Frames“ mit erteiltem Nutzungszugriff – von dort kommen Reihenfolge, Sterne und die echten App-Fotos, ohne dass EdgeTab dafür eigene Berechtigungen braucht.</string>

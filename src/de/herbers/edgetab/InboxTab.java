@@ -43,6 +43,8 @@ public class InboxTab extends BaseTab {
     // Gewaehlter Kategorie-Schnellfilter (null = alle) - bewusst nicht in
     // Settings gespeichert, nur fuer die laufende Sitzung.
     private static String activeCategory = null;
+    private static boolean searchOpen = false;      // Lupe angetippt -> Suchfeld sichtbar
+    private static String inboxQuery = "";           // aktueller Filterbegriff
 
     public InboxTab(TabInstance inst) { super(inst, R.string.tab_inbox, R.drawable.ic_inbox); }
 
@@ -93,6 +95,8 @@ public class InboxTab extends BaseTab {
             list.addView(categoryChips(ctx, presentCats, fs, d, refreshContent));
         }
 
+        list.addView(searchBar(ctx, fs, d, refreshContent, closePanel));
+
         int unseen = 0;
         for (NotificationStore.Item it : all) if (sources.contains(it.pkg) && !it.seen) unseen++;
         if (unseen > 0) {
@@ -113,6 +117,7 @@ public class InboxTab extends BaseTab {
             if (!sources.contains(it.pkg)) continue;
             if (!Settings.isChannelEnabled(ctx, it.pkg, it.channel)) continue;
             if (activeCategory != null && !activeCategory.equals(Settings.category(ctx, it.pkg))) continue;
+            if (!inboxQuery.isEmpty() && !matchesQuery(it)) continue;
             long day = dayIndex(it.posted);
             if (day != lastDay) {
                 list.addView(dayHeader(ctx, it.posted, fs, d));
@@ -168,6 +173,81 @@ public class InboxTab extends BaseTab {
         h.setTextSize(12 * fs);
         h.setPadding(2 * d, 14 * d, 0, 6 * d);
         return h;
+    }
+
+    private boolean matchesQuery(NotificationStore.Item it) {
+        String q = inboxQuery.toLowerCase();
+        return (it.title != null && it.title.toLowerCase().contains(q))
+                || (it.text != null && it.text.toLowerCase().contains(q));
+    }
+
+    /** Suchleiste: Lupe -> Suchfeld. "Hier" filtert diesen Posteingang live,
+     *  "In Sucher" oeffnet (falls installiert) den Sucher mit dem Begriff fuer
+     *  die Volltextsuche ueber alles; sonst bleibt es bei der lokalen Liste. */
+    private View searchBar(Context ctx, float fs, int d, Runnable refreshContent, Runnable closePanel) {
+        LinearLayout box = new LinearLayout(ctx);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(0, 0, 0, 8 * d);
+
+        LinearLayout topRow = new LinearLayout(ctx);
+        topRow.setOrientation(LinearLayout.HORIZONTAL);
+        topRow.setGravity(Gravity.CENTER_VERTICAL);
+        TextView lupe = new TextView(ctx);
+        lupe.setText(searchOpen ? "🔍  Suche schließen" : "🔍  Posteingang durchsuchen");
+        lupe.setTextColor(Color.parseColor("#8899AA"));
+        lupe.setTextSize(13 * fs);
+        lupe.setPadding(2 * d, 4 * d, 2 * d, 4 * d);
+        lupe.setOnClickListener(v -> {
+            searchOpen = !searchOpen;
+            if (!searchOpen) inboxQuery = "";
+            if (refreshContent != null) refreshContent.run();
+        });
+        topRow.addView(lupe);
+        box.addView(topRow);
+
+        if (!searchOpen) return box;
+
+        final EditText input = new EditText(ctx);
+        input.setHint("Suchbegriff…");
+        input.setText(inboxQuery);
+        input.setSelection(inboxQuery.length());
+        input.setTextColor(Color.WHITE);
+        input.setTextSize(14 * fs);
+        input.setSingleLine(true);
+        box.addView(input);
+
+        LinearLayout btns = new LinearLayout(ctx);
+        btns.setOrientation(LinearLayout.HORIZONTAL);
+
+        Button here = new Button(ctx);
+        here.setText("Hier suchen");
+        here.setOnClickListener(v -> {
+            inboxQuery = input.getText().toString().trim();
+            if (refreshContent != null) refreshContent.run();
+        });
+        btns.addView(here);
+
+        Button inSucher = new Button(ctx);
+        inSucher.setText("In Sucher suchen");
+        inSucher.setOnClickListener(v -> {
+            String q = input.getText().toString().trim();
+            try {
+                Intent i = new Intent()
+                        .setClassName("de.herbers.sucher", "de.herbers.sucher.MainActivity")
+                        .putExtra("query", q)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                ctx.startActivity(i);
+                if (closePanel != null) closePanel.run();
+            } catch (Exception e) {
+                android.widget.Toast.makeText(ctx, "Sucher ist nicht installiert – hier gefiltert.",
+                        android.widget.Toast.LENGTH_SHORT).show();
+                inboxQuery = q;
+                if (refreshContent != null) refreshContent.run();
+            }
+        });
+        btns.addView(inSucher);
+        box.addView(btns);
+        return box;
     }
 
     /** Chip-Leiste "Alle / Kommunikation / Einkaufen / ..." ueber der Liste -

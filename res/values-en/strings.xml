@@ -136,6 +136,14 @@
     <string name="tabs_section_hint">Enable/disable, rename, choose a custom image, change the order (▲▼), and set whether the bar closes after tapping in it. Any number of "Widget" and "Shortcuts" cards can be created.</string>
     <string name="add_widget_tab">+ New widget card</string>
     <string name="add_shortcuts_tab">+ New shortcuts card</string>
+    <string name="tab_sms">SMS</string>
+    <string name="tab_calls">Calls</string>
+    <string name="add_sms_tab">+ New SMS tab</string>
+    <string name="add_calls_tab">+ New calls tab</string>
+    <string name="sms_permission_missing">The SMS card needs permission to read your text messages.</string>
+    <string name="sms_none">No messages found.</string>
+    <string name="calls_permission_missing">The calls card needs permission to read your call log.</string>
+    <string name="calls_none">No calls found.</string>
     <string name="add_media_tab">+ New media control card</string>
     <string name="add_frames_tab">+ New Active Frames card</string>
     <string name="add_frames_hint">Shows your recently used apps as tiles (like BlackBerry OS10, “Widget 2”). Needs the “Active Frames” app with usage access granted – order, stars and the real app photos come from there, without EdgeTab needing any permissions of its own.</string>

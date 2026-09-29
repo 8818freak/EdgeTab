@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.herbers.edgetab"
-    android:versionCode="91"
-    android:versionName="0.90">
+    android:versionCode="92"
+    android:versionName="0.91">
 
     <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="34" />
 
@@ -18,6 +18,9 @@
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <!-- Kontakte-Karte (optional, erst bei Bedarf abgefragt) -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- SMS-/Anrufe-Karten (optional, erst bei Bedarf erteilt) -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <!-- Aufgaben-Karte: liest JTX Boards eigenen, offenen Content-Provider
          (von JTX Board selbst deklariert, keine Signatur-Sperre) - optional,
          erst bei Bedarf abgefragt. -->
