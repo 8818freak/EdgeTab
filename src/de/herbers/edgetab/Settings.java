@@ -62,6 +62,16 @@ public final class Settings {
     public static boolean showHeader(Context c) { return p(c).getBoolean(K_SHOW_HEADER, true); }
     public static void setShowHeader(Context c, boolean on) { p(c).edit().putBoolean(K_SHOW_HEADER, on).apply(); }
 
+    // SMS/Anrufe zusaetzlich im Posteingang anzeigen (die eigenen Karten bleiben
+    // davon unabhaengig). Standard AUS - der Posteingang bleibt sonst wie gewohnt.
+    public static boolean smsInInbox(Context c) { return p(c).getBoolean("sms_in_inbox", false); }
+    public static void setSmsInInbox(Context c, boolean on) { p(c).edit().putBoolean("sms_in_inbox", on).apply(); }
+    public static boolean callsInInbox(Context c) { return p(c).getBoolean("calls_in_inbox", false); }
+    public static void setCallsInInbox(Context c, boolean on) { p(c).edit().putBoolean("calls_in_inbox", on).apply(); }
+    // Nachrichten zu Konversationen (Threads) gruppieren und aufklappbar machen.
+    public static boolean groupConversations(Context c) { return p(c).getBoolean("group_conversations", true); }
+    public static void setGroupConversations(Context c, boolean on) { p(c).edit().putBoolean("group_conversations", on).apply(); }
+
     // ---- Akkuanzeige in der Kopfzeile ----
     public static boolean showBattery(Context c) { return p(c).getBoolean(K_SHOW_BATTERY, true); }
     public static void setShowBattery(Context c, boolean on) { p(c).edit().putBoolean(K_SHOW_BATTERY, on).apply(); }

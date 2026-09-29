@@ -16,9 +16,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -111,21 +113,54 @@ public class InboxTab extends BaseTab {
 
         PackageManager pm = ctx.getPackageManager();
         java.util.Set<String> live = NotificationCollector.liveIndex();
-        int shown = 0;
-        long lastDay = -1;
+
+        // 1) Kandidaten sammeln: Benachrichtigungen + optional SMS/Anrufe.
+        List<Entry> entries = new ArrayList<>();
         for (NotificationStore.Item it : all) {
             if (!sources.contains(it.pkg)) continue;
             if (!Settings.isChannelEnabled(ctx, it.pkg, it.channel)) continue;
             if (activeCategory != null && !activeCategory.equals(Settings.category(ctx, it.pkg))) continue;
             if (!inboxQuery.isEmpty() && !matchesQuery(it)) continue;
-            long day = dayIndex(it.posted);
-            if (day != lastDay) {
-                list.addView(dayHeader(ctx, it.posted, fs, d));
-                lastDay = day;
+            entries.add(Entry.notif(it, it.pkg + "|" + (it.title == null ? "" : it.title.trim().toLowerCase())));
+        }
+        if (activeCategory == null) { // SMS/Anrufe haben keine Kategorie -> nur in "Alle"
+            if (Settings.smsInInbox(ctx)
+                    && ctx.checkSelfPermission(android.Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) {
+                entries.addAll(smsEntries(ctx));
             }
-            list.addView(row(ctx, it, appLabel(pm, it.pkg), live.contains(it.nkey)
-                    || live.contains(NotificationCollector.signature(it.pkg, it.title, it.text)),
-                    fs, d, store, close, refreshContent));
+            if (Settings.callsInInbox(ctx)
+                    && ctx.checkSelfPermission(android.Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED) {
+                entries.addAll(callEntries(ctx));
+            }
+        }
+        java.util.Collections.sort(entries, (a, b) -> Long.compare(b.time, a.time));
+
+        // 2) zu Konversationen gruppieren (optional).
+        boolean group = Settings.groupConversations(ctx);
+        java.util.LinkedHashMap<String, List<Entry>> groups = new java.util.LinkedHashMap<>();
+        if (group) {
+            for (Entry e : entries) {
+                List<Entry> g = groups.get(e.convKey);
+                if (g == null) { g = new ArrayList<>(); groups.put(e.convKey, g); }
+                g.add(e);
+            }
+        } else {
+            int i = 0;
+            for (Entry e : entries) { List<Entry> g = new ArrayList<>(); g.add(e); groups.put("_" + (i++), g); }
+        }
+
+        // 3) rendern, Tagesueberschrift nach dem neuesten Eintrag der Gruppe.
+        int shown = 0;
+        long lastDay = -1;
+        for (List<Entry> g : groups.values()) {
+            Entry newest = g.get(0);
+            long day = dayIndex(newest.time);
+            if (day != lastDay) { list.addView(dayHeader(ctx, newest.time, fs, d)); lastDay = day; }
+            if (g.size() == 1) {
+                list.addView(renderEntry(ctx, newest, pm, live, fs, d, store, close, refreshContent));
+            } else {
+                list.addView(conversationBlock(ctx, g, pm, live, fs, d, store, close, refreshContent));
+            }
             if (++shown >= 40) break;
         }
         if (shown == 0) {
@@ -173,6 +208,328 @@ public class InboxTab extends BaseTab {
         h.setTextSize(12 * fs);
         h.setPadding(2 * d, 14 * d, 0, 6 * d);
         return h;
+    }
+
+    // ---------- Vereinheitlichte Eintraege (Benachrichtigung / SMS / Anruf) ----------
+
+    private static final Set<String> CONV_OPEN = new HashSet<>();
+
+    static final class Entry {
+        long time; String convKey; int kind; // 0=notif, 1=sms, 2=call
+        NotificationStore.Item item;         // kind 0
+        long rowId;                          // kind 1/2 (sms _id / call _id)
+        String addr, body; boolean incoming; // kind 1 (SMS)
+        String callName, callNumber; int callType; boolean callNew; boolean callFailed; // kind 2
+
+        static Entry notif(NotificationStore.Item it, String convKey) {
+            Entry e = new Entry(); e.kind = 0; e.item = it; e.time = it.posted; e.convKey = convKey; return e;
+        }
+    }
+
+    private List<Entry> smsEntries(Context ctx) {
+        List<Entry> out = new ArrayList<>();
+        String q = inboxQuery.toLowerCase();
+        try (android.database.Cursor c = ctx.getContentResolver().query(android.net.Uri.parse("content://sms"),
+                new String[]{"_id", "address", "body", "date", "type"}, null, null, "date DESC")) {
+            if (c != null) {
+                while (c.moveToNext() && out.size() < 60) {
+                    String addr = c.getString(1), body = c.getString(2);
+                    if (body == null) continue;
+                    String name = TabPermHint.contactName(ctx, addr);
+                    if (!q.isEmpty() && !body.toLowerCase().contains(q)
+                            && (name == null || !name.toLowerCase().contains(q))
+                            && (addr == null || !addr.toLowerCase().contains(q))) continue;
+                    Entry e = new Entry();
+                    e.kind = 1; e.rowId = c.getLong(0); e.addr = addr; e.body = body;
+                    e.time = c.isNull(3) ? 0 : c.getLong(3);
+                    e.incoming = c.getInt(4) == 1;
+                    e.convKey = "sms|" + (name != null ? name : (addr == null ? "?" : addr));
+                    out.add(e);
+                }
+            }
+        } catch (Exception ignored) {}
+        return out;
+    }
+
+    private List<Entry> callEntries(Context ctx) {
+        List<Entry> out = new ArrayList<>();
+        String q = inboxQuery.toLowerCase();
+        try (android.database.Cursor c = ctx.getContentResolver().query(android.provider.CallLog.Calls.CONTENT_URI,
+                new String[]{android.provider.CallLog.Calls._ID, android.provider.CallLog.Calls.NUMBER,
+                        android.provider.CallLog.Calls.CACHED_NAME, android.provider.CallLog.Calls.TYPE,
+                        android.provider.CallLog.Calls.DATE, android.provider.CallLog.Calls.NEW,
+                        android.provider.CallLog.Calls.DURATION},
+                null, null, android.provider.CallLog.Calls.DATE + " DESC")) {
+            if (c != null) {
+                while (c.moveToNext() && out.size() < 60) {
+                    String num = c.getString(1), name = c.getString(2);
+                    if (name == null || name.isEmpty()) name = TabPermHint.contactName(ctx, num);
+                    if (!q.isEmpty() && (num == null || !num.toLowerCase().contains(q))
+                            && (name == null || !name.toLowerCase().contains(q))) continue;
+                    Entry e = new Entry();
+                    e.kind = 2; e.rowId = c.getLong(0); e.callNumber = num; e.callName = name;
+                    e.callType = c.getInt(3);
+                    e.time = c.isNull(4) ? 0 : c.getLong(4);
+                    e.callNew = c.getInt(5) == 1;
+                    long dur = c.isNull(6) ? 0 : c.getLong(6);
+                    e.callFailed = e.callType == android.provider.CallLog.Calls.OUTGOING_TYPE && dur == 0;
+                    e.convKey = "call|" + (num == null ? "?" : num);
+                    out.add(e);
+                }
+            }
+        } catch (Exception ignored) {}
+        return out;
+    }
+
+    private View renderEntry(Context ctx, Entry e, PackageManager pm, java.util.Set<String> live,
+                            float fs, int d, NotificationStore store, Runnable close, Runnable refreshContent) {
+        if (e.kind == 1) return smsRow(ctx, e, fs, d, close, refreshContent);
+        if (e.kind == 2) return callRow(ctx, e, fs, d, close, refreshContent);
+        NotificationStore.Item it = e.item;
+        return row(ctx, it, appLabel(pm, it.pkg), live.contains(it.nkey)
+                || live.contains(NotificationCollector.signature(it.pkg, it.title, it.text)),
+                fs, d, store, close, refreshContent);
+    }
+
+    /** Aufklappbarer Konversationsblock: neuester Eintrag + "N Nachrichten"-
+     *  Umschalter; aufgeklappt werden alle Eintraege der Konversation gezeigt. */
+    private View conversationBlock(Context ctx, List<Entry> g, PackageManager pm, java.util.Set<String> live,
+                                   float fs, int d, NotificationStore store, Runnable close, Runnable refreshContent) {
+        LinearLayout box = new LinearLayout(ctx);
+        box.setOrientation(LinearLayout.VERTICAL);
+        String key = g.get(0).convKey;
+        boolean open = CONV_OPEN.contains(key);
+
+        // Immer den neuesten Eintrag zeigen.
+        box.addView(renderEntry(ctx, g.get(0), pm, live, fs, d, store, close, refreshContent));
+
+        TextView toggle = new TextView(ctx);
+        toggle.setText((open ? "▾ " : "▸ ") + (g.size() - 1) + " weitere in dieser Konversation");
+        toggle.setTextColor(Color.parseColor("#2E9BE6"));
+        toggle.setTextSize(12 * fs);
+        toggle.setPadding(8 * d, 2 * d, 8 * d, 8 * d);
+        toggle.setOnClickListener(v -> {
+            if (open) CONV_OPEN.remove(key); else CONV_OPEN.add(key);
+            if (refreshContent != null) refreshContent.run();
+        });
+        box.addView(toggle);
+
+        if (open) {
+            for (int i = 1; i < g.size(); i++) {
+                View child = renderEntry(ctx, g.get(i), pm, live, fs, d, store, close, refreshContent);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                lp.leftMargin = 10 * d;
+                child.setLayoutParams(lp);
+                box.addView(child);
+            }
+        }
+        return box;
+    }
+
+    private static final Set<String> SMS_REPLYING = new HashSet<>();
+
+    private View smsRow(Context ctx, Entry e, float fs, int d, Runnable close, Runnable refreshContent) {
+        LinearLayout box = new LinearLayout(ctx);
+        box.setOrientation(LinearLayout.VERTICAL);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.parseColor("#2C2C2E"));
+        bg.setCornerRadius(10 * d);
+        box.setBackground(bg);
+        box.setPadding(10 * d, 8 * d, 10 * d, 8 * d);
+        LinearLayout.LayoutParams boxLp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        boxLp.bottomMargin = 6 * d;
+        box.setLayoutParams(boxLp);
+
+        LinearLayout head = new LinearLayout(ctx);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        ImageView icon = new ImageView(ctx);
+        icon.setImageResource(R.drawable.ic_sms);
+        icon.setColorFilter(Color.parseColor("#5BD68A"));
+        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(20 * d, 20 * d);
+        ilp.rightMargin = 8 * d;
+        icon.setLayoutParams(ilp);
+        head.addView(icon);
+        String name = TabPermHint.contactName(ctx, e.addr);
+        TextView who = new TextView(ctx);
+        who.setText((e.incoming ? "" : "→ ") + (name != null ? name : (e.addr == null ? "?" : e.addr)));
+        who.setTextColor(Color.parseColor("#8899AA"));
+        who.setTextSize(11 * fs);
+        who.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        head.addView(who);
+        // Antworten (nur bei empfangenen SMS sinnvoll).
+        final String replyKey = "sms" + e.rowId;
+        final boolean replying = SMS_REPLYING.contains(replyKey);
+        final String addr = e.addr;
+        if (e.incoming && addr != null && !addr.isEmpty()) {
+            TextView reply = new TextView(ctx);
+            reply.setText("↩");
+            reply.setTextColor(Color.parseColor(replying ? "#2E9BE6" : "#8899AA"));
+            reply.setTextSize(17 * fs);
+            reply.setPadding(10 * d, 6 * d, 6 * d, 6 * d);
+            reply.setOnClickListener(v -> {
+                if (replying) SMS_REPLYING.remove(replyKey); else SMS_REPLYING.add(replyKey);
+                if (refreshContent != null) refreshContent.run();
+            });
+            head.addView(reply);
+        }
+        box.addView(head);
+
+        TextView body = new TextView(ctx);
+        body.setText(e.body);
+        body.setTextColor(Color.WHITE);
+        body.setTextSize(13 * fs);
+        body.setMaxLines(replying ? 8 : 3);
+        box.addView(body);
+        if (e.time > 0) {
+            TextView t = new TextView(ctx);
+            t.setText(DateUtils.getRelativeTimeSpanString(e.time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
+            t.setTextColor(Color.parseColor("#8899AA"));
+            t.setTextSize(11 * fs);
+            box.addView(t);
+        }
+
+        if (replying) {
+            LinearLayout rr = new LinearLayout(ctx);
+            rr.setOrientation(LinearLayout.HORIZONTAL);
+            rr.setGravity(Gravity.CENTER_VERTICAL);
+            rr.setPadding(0, 8 * d, 0, 0);
+            EditText input = new EditText(ctx);
+            input.setHint(R.string.reply_hint);
+            input.setTextColor(Color.WHITE);
+            input.setTextSize(13 * fs);
+            input.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+            rr.addView(input);
+            Button send = new Button(ctx);
+            send.setText(R.string.send_action);
+            send.setOnClickListener(v -> {
+                String txt = input.getText().toString().trim();
+                if (txt.isEmpty()) return;
+                if (ctx.checkSelfPermission(android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                    Intent i = new Intent(ctx, MainActivity.class)
+                            .putExtra("request_permission", android.Manifest.permission.SEND_SMS)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    ctx.startActivity(i);
+                    if (close != null) close.run();
+                    return;
+                }
+                boolean ok = sendSms(ctx, addr, txt);
+                android.widget.Toast.makeText(ctx, ok ? R.string.reply_sent : R.string.reply_failed,
+                        android.widget.Toast.LENGTH_SHORT).show();
+                SMS_REPLYING.remove(replyKey);
+                if (refreshContent != null) refreshContent.run();
+            });
+            rr.addView(send);
+            box.addView(rr);
+        }
+
+        box.setClickable(true);
+        box.setOnClickListener(v -> {
+            try {
+                ctx.startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse("sms:" + (addr == null ? "" : addr)))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            } catch (Exception ignored) {}
+            if (close != null) close.run();
+        });
+        return box;
+    }
+
+    private boolean sendSms(Context ctx, String addr, String text) {
+        try {
+            android.telephony.SmsManager sm = ctx.getSystemService(android.telephony.SmsManager.class);
+            if (sm == null) sm = android.telephony.SmsManager.getDefault();
+            java.util.ArrayList<String> parts = sm.divideMessage(text);
+            sm.sendMultipartTextMessage(addr, null, parts, null, null);
+            return true;
+        } catch (Throwable t) { return false; }
+    }
+
+    private View callRow(Context ctx, Entry e, float fs, int d, Runnable close, Runnable refreshContent) {
+        LinearLayout box = new LinearLayout(ctx);
+        box.setOrientation(LinearLayout.HORIZONTAL);
+        box.setGravity(Gravity.CENTER_VERTICAL);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.parseColor("#2C2C2E"));
+        bg.setCornerRadius(10 * d);
+        box.setBackground(bg);
+        box.setPadding(10 * d, 8 * d, 10 * d, 8 * d);
+        LinearLayout.LayoutParams boxLp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        boxLp.bottomMargin = 6 * d;
+        box.setLayoutParams(boxLp);
+
+        boolean missed = e.callType == android.provider.CallLog.Calls.MISSED_TYPE;
+        ImageView icon = new ImageView(ctx);
+        icon.setImageResource(R.drawable.ic_call);
+        icon.setColorFilter(Color.parseColor(missed ? "#E0533A" : "#2E9BE6"));
+        LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(20 * d, 20 * d);
+        ilp.rightMargin = 10 * d;
+        icon.setLayoutParams(ilp);
+        box.addView(icon);
+
+        LinearLayout col = new LinearLayout(ctx);
+        col.setOrientation(LinearLayout.VERTICAL);
+        col.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        TextView who = new TextView(ctx);
+        who.setText(e.callName != null && !e.callName.isEmpty() ? e.callName : (e.callNumber == null ? "?" : e.callNumber));
+        who.setTextColor(Color.WHITE);
+        who.setTextSize(14 * fs);
+        col.addView(who);
+        String dir = missed ? "verpasst"
+                : (e.callType == android.provider.CallLog.Calls.OUTGOING_TYPE
+                    ? (e.callFailed ? "ausgehend · nicht erreicht" : "ausgehend") : "eingehend");
+        String when = e.time > 0 ? DateUtils.getRelativeTimeSpanString(e.time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString() : "";
+        TextView sub = new TextView(ctx);
+        sub.setText((dir.isEmpty() ? "" : dir + " · ") + when);
+        sub.setTextColor(Color.parseColor(missed ? "#E0866A" : "#8899AA"));
+        sub.setTextSize(11 * fs);
+        col.addView(sub);
+        box.addView(col);
+
+        // Verpasste, noch "neue" Anrufe als gesehen markieren (CallLog NEW/IS_READ).
+        if (missed && e.callNew) {
+            TextView seen = new TextView(ctx);
+            seen.setText("✓");
+            seen.setTextColor(Color.parseColor("#5BD68A"));
+            seen.setTextSize(18 * fs);
+            seen.setPadding(10 * d, 6 * d, 6 * d, 6 * d);
+            final long id = e.rowId;
+            seen.setOnClickListener(v -> {
+                markCallSeen(ctx, id);
+                if (refreshContent != null) refreshContent.run();
+            });
+            box.addView(seen);
+        }
+
+        final String num = e.callNumber;
+        box.setClickable(true);
+        box.setOnClickListener(v -> {
+            try {
+                ctx.startActivity(new Intent(Intent.ACTION_DIAL, android.net.Uri.parse("tel:" + (num == null ? "" : num)))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            } catch (Exception ignored) {}
+            if (close != null) close.run();
+        });
+        return box;
+    }
+
+    private void markCallSeen(Context ctx, long id) {
+        if (ctx.checkSelfPermission(android.Manifest.permission.WRITE_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            Intent i = new Intent(ctx, MainActivity.class)
+                    .putExtra("request_permission", android.Manifest.permission.WRITE_CALL_LOG)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            ctx.startActivity(i);
+            return;
+        }
+        try {
+            android.content.ContentValues cv = new android.content.ContentValues();
+            cv.put(android.provider.CallLog.Calls.NEW, 0);
+            cv.put(android.provider.CallLog.Calls.IS_READ, 1);
+            ctx.getContentResolver().update(android.provider.CallLog.Calls.CONTENT_URI, cv,
+                    android.provider.CallLog.Calls._ID + "=?", new String[]{String.valueOf(id)});
+        } catch (Throwable ignored) {}
     }
 
     private boolean matchesQuery(NotificationStore.Item it) {

@@ -4,6 +4,20 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.92
+- Neu: SMS und Anrufe können jetzt auch direkt im Posteingang erscheinen
+  (zwei Schalter in den Posteingang-Einstellungen) – zusätzlich zu den eigenen
+  SMS-/Anrufe-Karten.
+- Neu: Nachrichten werden zu aufklappbaren Konversationen gruppiert – SMS je
+  Kontakt, Benachrichtigungen je Absender/Betreff. Der neueste Eintrag steht
+  oben, „N weitere in dieser Konversation" klappt den Verlauf auf. Abschaltbar.
+- Neu: Direkt auf eine empfangene SMS antworten (↩ im Posteingang, braucht das
+  SMS-Senden-Recht) und verpasste Anrufe als gesehen markieren (✓, braucht das
+  Anrufliste-Schreiben-Recht).
+- Verbessert: Erfolglose ausgehende Anrufe (niemanden erreicht) werden als
+  „ausgehend · nicht erreicht" gekennzeichnet (Posteingang und Anrufe-Karte).
+- SMS löschen ist nicht möglich: Android erlaubt das nur der Standard-SMS-App.
+
 ## 0.91
 - Neu: SMS- und Anrufe-Karten. Über die Einstellungen („+ Neue SMS-/Anrufe-
   Registerkarte“) hinzufügbar – zeigen die letzten Kurznachrichten bzw. Anrufe

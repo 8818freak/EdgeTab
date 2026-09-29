@@ -56,12 +56,13 @@ public class CallsTab extends BaseTab {
         return scroll;
     }
 
-    private static final class Row { String number, name; int type; long date; }
+    private static final class Row { String number, name; int type; long date; boolean failed; }
 
     private List<Row> query(Context ctx) {
         List<Row> out = new ArrayList<>();
         try (Cursor c = ctx.getContentResolver().query(CallLog.Calls.CONTENT_URI,
-                new String[]{CallLog.Calls.NUMBER, CallLog.Calls.CACHED_NAME, CallLog.Calls.TYPE, CallLog.Calls.DATE},
+                new String[]{CallLog.Calls.NUMBER, CallLog.Calls.CACHED_NAME, CallLog.Calls.TYPE,
+                        CallLog.Calls.DATE, CallLog.Calls.DURATION},
                 null, null, CallLog.Calls.DATE + " DESC")) {
             if (c != null) {
                 while (c.moveToNext() && out.size() < 40) {
@@ -70,6 +71,8 @@ public class CallsTab extends BaseTab {
                     r.name = c.getString(1);
                     r.type = c.getInt(2);
                     r.date = c.isNull(3) ? 0 : c.getLong(3);
+                    long dur = c.isNull(4) ? 0 : c.getLong(4);
+                    r.failed = r.type == CallLog.Calls.OUTGOING_TYPE && dur == 0;
                     out.add(r);
                 }
             }
@@ -112,7 +115,7 @@ public class CallsTab extends BaseTab {
         String dir;
         switch (r.type) {
             case CallLog.Calls.INCOMING_TYPE: dir = "eingehend"; break;
-            case CallLog.Calls.OUTGOING_TYPE: dir = "ausgehend"; break;
+            case CallLog.Calls.OUTGOING_TYPE: dir = r.failed ? "ausgehend · nicht erreicht" : "ausgehend"; break;
             case CallLog.Calls.MISSED_TYPE:   dir = "verpasst"; break;
             default: dir = "";
         }

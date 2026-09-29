@@ -362,6 +362,32 @@ public class SettingsTab {
     }
 
     private void buildInboxSection(LinearLayout root, float fs, int d, Runnable sectionRefresh) {
+        section(root, "Posteingang-Inhalt", fs);
+        CheckBox smsCb = new CheckBox(ctx);
+        smsCb.setText("  SMS im Posteingang anzeigen");
+        smsCb.setTextColor(Color.WHITE); smsCb.setTextSize(13 * fs);
+        smsCb.setChecked(Settings.smsInInbox(ctx));
+        smsCb.setOnCheckedChangeListener((v, on) -> { Settings.setSmsInInbox(ctx, on); sectionRefresh.run(); });
+        root.addView(smsCb);
+        CheckBox callsCb = new CheckBox(ctx);
+        callsCb.setText("  Anrufe im Posteingang anzeigen");
+        callsCb.setTextColor(Color.WHITE); callsCb.setTextSize(13 * fs);
+        callsCb.setChecked(Settings.callsInInbox(ctx));
+        callsCb.setOnCheckedChangeListener((v, on) -> { Settings.setCallsInInbox(ctx, on); sectionRefresh.run(); });
+        root.addView(callsCb);
+        CheckBox convCb = new CheckBox(ctx);
+        convCb.setText("  Nachrichten zu Konversationen gruppieren (aufklappbar)");
+        convCb.setTextColor(Color.WHITE); convCb.setTextSize(13 * fs);
+        convCb.setChecked(Settings.groupConversations(ctx));
+        convCb.setOnCheckedChangeListener((v, on) -> { Settings.setGroupConversations(ctx, on); sectionRefresh.run(); });
+        root.addView(convCb);
+        TextView inboxHint = new TextView(ctx);
+        inboxHint.setText("SMS/Anrufe gibt es weiterhin auch als eigene Karten. Antworten auf "
+                + "SMS und „verpasst als gesehen“ bei Anrufen direkt im Posteingang.");
+        inboxHint.setTextColor(Color.GRAY); inboxHint.setTextSize(12 * fs);
+        inboxHint.setPadding(0, 0, 0, 8 * d);
+        root.addView(inboxHint);
+
         section(root, ctx.getString(R.string.inbox_sources_section), fs);
         TextView srcHint = new TextView(ctx);
         java.util.List<String> pkgs = allNotifyCapableApps(ctx);
