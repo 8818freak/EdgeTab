@@ -4,6 +4,14 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.89
+- Verbessert: Die Berechtigungen sind jetzt eine eigene Karte in den
+  Einstellungen (vorletzter Punkt) statt oben eingeklappt – übersichtlicher,
+  wo welche Einstellung zu finden ist.
+- Neu: Im Posteingang steht vor jedem Eintrag das Benachrichtigungs-Icon
+  (Statusleisten-Symbol der App, in der Akzentfarbe). Emoji im Text werden
+  ohnehin normal dargestellt.
+
 ## 0.88
 - Neu: In der Posteingang-Karte werden große Bilder aus Benachrichtigungen
   (BigPictureStyle, z. B. ein Foto in einer Chat-Nachricht) angezeigt, solange

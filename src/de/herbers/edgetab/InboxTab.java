@@ -247,10 +247,27 @@ public class InboxTab extends BaseTab {
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         outer.addView(row);
 
-        // Kopf: App-Name links, Zeit + Loeschen rechts
+        // Kopf: [Icon] App-Name links, Zeit + Loeschen rechts
         LinearLayout head = new LinearLayout(ctx);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
+
+        // Benachrichtigungs-Icon (Statusleisten-Icon der App, eingefaerbt) -
+        // nur solange die Benachrichtigung lebt (steckt in ihr). Auswertung aus
+        // der gemeinsamen Bibliothek (Notifications.smallIcon).
+        if (live) {
+            StatusBarNotification sbnIcon = NotificationCollector.resolve(it);
+            android.graphics.Bitmap ic = sbnIcon == null ? null
+                    : de.herbers.common.Notifications.smallIcon(ctx, sbnIcon.getNotification());
+            if (ic != null) {
+                android.widget.ImageView iv = new android.widget.ImageView(ctx);
+                iv.setImageBitmap(ic);
+                LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(15 * d, 15 * d);
+                ilp.rightMargin = 6 * d;
+                iv.setLayoutParams(ilp);
+                head.addView(iv);
+            }
+        }
 
         TextView appTv = new TextView(ctx);
         // Nicht mehr in der Statusleiste: Tippen oeffnet nur noch die App,
