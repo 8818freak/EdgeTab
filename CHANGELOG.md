@@ -4,6 +4,12 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.84
+- Intern: Die Aufzählung wählbarer Benachrichtigungsquellen (alle startbaren
+  Apps) kommt jetzt aus der gemeinsamen Bibliothek herbers-android-common
+  (de.herbers.common.Apps) statt aus eigenem Code – dieselbe Logik wie in
+  Sucher. Keine sichtbare Änderung.
+
 ## 0.83
 - Intern: Der Kern des Benachrichtigungs-Mitschnitts (Titel/Text-Auslesen inkl.
   BigText, Gruppen-/Leer-Filter, Inhalts-Signatur und die Aktions-Erkennung für

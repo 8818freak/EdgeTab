@@ -283,15 +283,9 @@ public class SettingsTab {
      *  Faelle ohne eigenes Startsymbol ab, z.B. manche Download-Dienste). */
     private static java.util.List<String> allNotifyCapableApps(Context ctx) {
         java.util.LinkedHashSet<String> pkgs = new java.util.LinkedHashSet<>();
-        android.content.pm.PackageManager pm = ctx.getPackageManager();
-        android.content.Intent main = new android.content.Intent(android.content.Intent.ACTION_MAIN)
-                .addCategory(android.content.Intent.CATEGORY_LAUNCHER);
-        java.util.List<android.content.pm.ResolveInfo> apps = pm.queryIntentActivities(main, 0);
-        if (apps != null) for (android.content.pm.ResolveInfo ri : apps) {
-            if (ri.activityInfo == null) continue;
-            String pkg = ri.activityInfo.packageName;
-            if (!pkg.equals(ctx.getPackageName())) pkgs.add(pkg);
-        }
+        // Startbare Apps (ohne die eigene) aus der gemeinsamen Bibliothek ...
+        for (String[] row : de.herbers.common.Apps.launchable(ctx)) pkgs.add(row[0]);
+        // ... plus bereits beobachtete Absender (auch ohne Startsymbol).
         pkgs.addAll(NotificationStore.get(ctx).distinctPackages());
         return new java.util.ArrayList<>(pkgs);
     }
