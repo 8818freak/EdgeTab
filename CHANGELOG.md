@@ -4,6 +4,18 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.81
+- Posteingang: Neuer Knopf „✓" je Nachricht löst die „Als gelesen markieren"-
+  Aktion der System-Benachrichtigung aus (sofern die Quell-App eine anbietet)
+  und markiert den Eintrag in EdgeTab als gesehen – ohne die App zu öffnen oder
+  die Nachricht zu löschen. Erkennung über die semantische Aktion bzw. die
+  Beschriftung („gelesen"/„mark as read").
+- Fehlerbehebung Mediensteuerung: Der Tipp auf den Textbereich holt die
+  Wiedergabe-App jetzt tatsächlich in den Vordergrund. Zuvor schloss sich zwar
+  die Leiste, der App-Start aus dem Dienst wurde von Android 14 aber lautlos
+  blockiert; jetzt mit ausdrücklicher Hintergrund-Start-Erlaubnis (wie beim
+  Öffnen aus dem Posteingang).
+
 ## 0.80
 - Mediensteuerung: Ein Tipp auf den Textbereich einer Wiedergabe (App-Name,
   Titel, Interpret) öffnet jetzt direkt die Wiedergabe-App – bevorzugt deren

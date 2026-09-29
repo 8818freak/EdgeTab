@@ -268,6 +268,54 @@ public class NotificationCollector extends NotificationListenerService {
         return null;
     }
 
+    /** Sucht die "Als gelesen markieren"-Aktion einer Benachrichtigung (wie
+     *  findDeleteAction): erst semantisch (SEMANTIC_ACTION_MARK_AS_READ), dann
+     *  per Beschriftung. Auch Wearable-Aktionen. */
+    static PendingIntent findMarkReadAction(Notification n) {
+        if (n == null) return null;
+        java.util.ArrayList<Notification.Action> all = new java.util.ArrayList<>();
+        if (n.actions != null) java.util.Collections.addAll(all, n.actions);
+        try { all.addAll(new Notification.WearableExtender(n).getActions()); }
+        catch (Exception ignored) {}
+        // 1. Semantisch als "gelesen" markiert
+        for (Notification.Action a : all) {
+            if (a != null && a.actionIntent != null
+                    && a.getSemanticAction() == Notification.Action.SEMANTIC_ACTION_MARK_AS_READ) {
+                return a.actionIntent;
+            }
+        }
+        // 2. Nach Beschriftung
+        for (Notification.Action a : all) {
+            if (a == null || a.actionIntent == null || a.title == null) continue;
+            String t = a.title.toString().toLowerCase(java.util.Locale.ROOT);
+            if (t.contains("gelesen") || t.contains("mark as read") || t.contains("mark read")) {
+                return a.actionIntent;
+            }
+        }
+        return null;
+    }
+
+    /** Ob es zu diesem Eintrag (noch lebende Benachrichtigung) eine
+     *  "Als gelesen markieren"-Aktion gibt. */
+    static boolean hasMarkReadAction(NotificationStore.Item it) {
+        StatusBarNotification sbn = resolve(it);
+        return sbn != null && findMarkReadAction(sbn.getNotification()) != null;
+    }
+
+    /** Loest die "Als gelesen markieren"-Aktion der Benachrichtigung aus - wie
+     *  der Knopf in der System-Benachrichtigung. Sofort senden mit
+     *  Hintergrund-Start-Erlaubnis, kein Vorab-Foregrounding (dieselbe Lehre
+     *  wie beim Loeschen). */
+    public static boolean markReadInApp(android.content.Context ctx, NotificationStore.Item it) {
+        if (it == null) return false;
+        StatusBarNotification sbn = resolve(it);
+        PendingIntent pi = sbn == null ? null : findMarkReadAction(sbn.getNotification());
+        if (pi == null) { Log.d(TAG, "keine Als-gelesen-Aktion fuer " + it.nkey); return false; }
+        boolean ok = Launcher.send(ctx, pi, Launcher.bgAllowed());
+        Log.d(TAG, "Als gelesen " + (ok ? "gesendet" : "FEHLGESCHLAGEN") + ": " + it.pkg);
+        return ok;
+    }
+
     /**
      * Loescht die Nachricht in der Quell-App, indem die "Loeschen"-Aktion der
      * Benachrichtigung ausgeloest wird - wie der Knopf in der Systembenachrichtigung.

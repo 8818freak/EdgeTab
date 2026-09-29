@@ -287,22 +287,17 @@ public class MediaTab extends BaseTab {
             this.ctx = ctx; this.mc = mc; this.closePanel = closePanel;
         }
         public void onClick(View v) {
+            // WICHTIG: Hintergrund-Start ausdruecklich erlauben (Launcher.bgAllowed),
+            // sonst blockiert Android 14 den Start aus dem Dienst lautlos - die
+            // Leiste schloss sich dann, die App kam aber nicht nach vorne.
+            android.os.Bundle opts = Launcher.bgAllowed();
             boolean opened = false;
             try {
                 PendingIntent pi = mc.getSessionActivity();
-                if (pi != null) { pi.send(); opened = true; }
+                if (pi != null) opened = Launcher.send(ctx, pi, opts);
             } catch (Throwable ignored) {}
-            if (!opened) {
-                try {
-                    Intent i = ctx.getPackageManager().getLaunchIntentForPackage(mc.getPackageName());
-                    if (i != null) {
-                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        ctx.startActivity(i);
-                        opened = true;
-                    }
-                } catch (Throwable ignored) {}
-            }
-            if (opened && closePanel != null) closePanel.run();
+            if (!opened) Launcher.launchApp(ctx, mc.getPackageName(), opts);
+            if (closePanel != null) closePanel.run();
         }
     }
 

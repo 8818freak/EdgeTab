@@ -296,6 +296,24 @@ public class InboxTab extends BaseTab {
             head.addView(reply);
         }
 
+        // Als gelesen (✓): loest die "Als gelesen markieren"-Aktion der
+        // System-Benachrichtigung aus (nur wenn die Quell-App eine solche
+        // anbietet und die Benachrichtigung noch lebt) UND merkt den Eintrag in
+        // EdgeTab als gesehen. Kein Oeffnen, kein Loeschen - Mathias' Wunsch.
+        if (live && NotificationCollector.hasMarkReadAction(it)) {
+            TextView markRead = new TextView(ctx);
+            markRead.setText("✓");
+            markRead.setTextColor(Color.parseColor("#8899AA"));
+            markRead.setTextSize(17 * fs);
+            markRead.setPadding(10 * d, 10 * d, 6 * d, 10 * d);
+            markRead.setOnClickListener(v -> {
+                NotificationCollector.markReadInApp(ctx, it);
+                store.markSeen(it.id);
+                if (refreshContent != null) refreshContent.run();
+            });
+            head.addView(markRead);
+        }
+
         // Loeschen (X): entfernt aus Statusleiste und Ablage. Grosszuegiges
         // Polster ringsum - die reine Glyphe war ein zu kleines Ziel zum Treffen.
         TextView del = new TextView(ctx);
