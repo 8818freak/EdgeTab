@@ -196,6 +196,35 @@ public class NotificationStore extends SQLiteOpenHelper {
         return out;
     }
 
+    /** Alle Eintraege ab einem Zeitpunkt (posted >= cutoff), neueste zuerst,
+     *  ohne Anzahl-Begrenzung - fuer die per Alter (Tage) einstellbare Liste. */
+    public List<Item> recentSince(long cutoffMillis, String pkgFilter) {
+        List<Item> out = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
+        String where = "posted >= ?" + (pkgFilter == null ? "" : " AND pkg=?");
+        String[] args = pkgFilter == null
+                ? new String[]{String.valueOf(cutoffMillis)}
+                : new String[]{String.valueOf(cutoffMillis), pkgFilter};
+        Cursor c = db.query("notes", null, where, args, null, null, "posted DESC");
+        while (c.moveToNext()) {
+            Item it = new Item();
+            it.id     = c.getLong(c.getColumnIndexOrThrow("_id"));
+            it.nkey   = c.getString(c.getColumnIndexOrThrow("nkey"));
+            it.pkg    = c.getString(c.getColumnIndexOrThrow("pkg"));
+            it.title  = c.getString(c.getColumnIndexOrThrow("title"));
+            it.text   = c.getString(c.getColumnIndexOrThrow("text"));
+            it.posted = c.getLong(c.getColumnIndexOrThrow("posted"));
+            it.seen   = c.getInt(c.getColumnIndexOrThrow("seen")) != 0;
+            it.channel = c.getString(c.getColumnIndexOrThrow("channel"));
+            it.channelName = c.getString(c.getColumnIndexOrThrow("channel_name"));
+            it.infoJson = c.getString(c.getColumnIndexOrThrow("info_json"));
+            it.sentReplies = c.getString(c.getColumnIndexOrThrow("sent_replies"));
+            out.add(it);
+        }
+        c.close();
+        return out;
+    }
+
     /** Zeilenform fuer die Kanal-Auswahl in den Einstellungen: Kanal-ID +
      *  lesbarer Name (falls beim Empfang auslesbar), je einmal pro App. */
     public static class Channel {

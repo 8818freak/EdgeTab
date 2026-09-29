@@ -393,6 +393,32 @@ public class SettingsTab {
         inboxHint.setPadding(0, 0, 0, 8 * d);
         root.addView(inboxHint);
 
+        // ---- Zeitanzeige + Listen-Alter ----
+        section(root, "Zeitanzeige & Umfang", fs);
+        CheckBox relCb = new CheckBox(ctx);
+        relCb.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
+        relCb.setText("  Relative Zeit anzeigen (z. B. „vor 3 Min“)");
+        relCb.setTextColor(Color.WHITE); relCb.setTextSize(13 * fs);
+        relCb.setChecked(Settings.relTimeOn(ctx));
+        relCb.setOnCheckedChangeListener((v, on) -> { Settings.setRelTimeOn(ctx, on); sectionRefresh.run(); });
+        root.addView(relCb);
+        dayInput(root, "Relativ anzeigen für Einträge der letzten … Tage", Settings.relTimeDays(ctx), fs, d,
+                days -> Settings.setRelTimeDays(ctx, days));
+        TextView relHint = new TextView(ctx);
+        relHint.setText("Ältere (und bei ausgeschalteter Option alle) Einträge zeigen Datum + Uhrzeit, "
+                + "z. B. „09:15 Uhr, 28.09.2026“. In Posteingang, SMs und Anrufen. 1–999 Tage.");
+        relHint.setTextColor(Color.GRAY); relHint.setTextSize(12 * fs);
+        relHint.setPadding(0, 0, 0, 8 * d);
+        root.addView(relHint);
+        dayInput(root, "Einträge zeigen der letzten … Tage (Posteingang, SMS, Anrufe)", Settings.listDays(ctx), fs, d,
+                days -> Settings.setListDays(ctx, days));
+        TextView listHint = new TextView(ctx);
+        listHint.setText("Keine feste Anzahl-Grenze mehr – die Liste reicht so weit zurück, wie hier "
+                + "eingestellt (1–999 Tage). Bei Benachrichtigungen zusätzlich durch die Aufbewahrung unten begrenzt.");
+        listHint.setTextColor(Color.GRAY); listHint.setTextSize(12 * fs);
+        listHint.setPadding(0, 0, 0, 8 * d);
+        root.addView(listHint);
+
         section(root, ctx.getString(R.string.inbox_sources_section), fs);
         TextView srcHint = new TextView(ctx);
         java.util.List<String> pkgs = allNotifyCapableApps(ctx);
@@ -970,6 +996,39 @@ public class SettingsTab {
     }
 
     private interface IntSink { void set(int v); }
+
+    /** Beschriftetes Zahlenfeld fuer eine Tages-Angabe (1..999). Schreibt beim
+     *  Tippen direkt in die Einstellung (der Setter begrenzt selbst). */
+    private void dayInput(LinearLayout root, String label, int value, float fs, int d, IntSink sink) {
+        TextView t = new TextView(ctx);
+        t.setText(label);
+        t.setTextColor(Color.parseColor("#DDDDDD"));
+        t.setTextSize(13 * fs);
+        t.setPadding(0, 10 * d, 0, 0);
+        root.addView(t);
+        EditText in = new EditText(ctx);
+        in.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        in.setText(String.valueOf(value));
+        in.setTextColor(Color.WHITE);
+        in.setHintTextColor(Color.parseColor("#9AA6B2"));
+        in.setTextSize(13 * fs);
+        in.addTextChangedListener(new DayWatcher(sink));
+        root.addView(in);
+    }
+
+    /** Uebernimmt eine getippte Tages-Zahl in die Einstellung (leer = ignorieren);
+     *  Begrenzung 1..999 macht der jeweilige Setter. Benannt statt anonym (d8). */
+    private static final class DayWatcher implements TextWatcher {
+        private final IntSink sink;
+        DayWatcher(IntSink sink) { this.sink = sink; }
+        public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
+        public void onTextChanged(CharSequence s, int a, int b, int c) {}
+        public void afterTextChanged(Editable e) {
+            String t = e.toString().trim();
+            if (t.isEmpty()) return;
+            try { sink.set(Integer.parseInt(t)); } catch (NumberFormatException ignored) {}
+        }
+    }
 
     private void slider(LinearLayout root, String label, int min, int max,
                         int value, float fs, boolean livePanel, IntSink sink) {

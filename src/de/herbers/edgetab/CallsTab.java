@@ -63,9 +63,10 @@ public class CallsTab extends BaseTab {
         try (Cursor c = ctx.getContentResolver().query(CallLog.Calls.CONTENT_URI,
                 new String[]{CallLog.Calls.NUMBER, CallLog.Calls.CACHED_NAME, CallLog.Calls.TYPE,
                         CallLog.Calls.DATE, CallLog.Calls.DURATION},
-                null, null, CallLog.Calls.DATE + " DESC")) {
+                CallLog.Calls.DATE + " >= ?", new String[]{String.valueOf(Settings.listCutoff(ctx))},
+                CallLog.Calls.DATE + " DESC")) {
             if (c != null) {
-                while (c.moveToNext() && out.size() < 40) {
+                while (c.moveToNext() && out.size() < 5000) {
                     Row r = new Row();
                     r.number = c.getString(0);
                     r.name = c.getString(1);
@@ -121,8 +122,7 @@ public class CallsTab extends BaseTab {
             case CallLog.Calls.MISSED_TYPE:   dir = "verpasst"; break;
             default: dir = "";
         }
-        String when = r.date > 0 ? DateUtils.getRelativeTimeSpanString(r.date,
-                System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString() : "";
+        String when = Settings.formatTime(ctx, r.date);
         TextView sub = new TextView(ctx);
         sub.setText((dir.isEmpty() ? "" : dir + " · ") + when);
         sub.setTextColor(Color.parseColor(callColor));

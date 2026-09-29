@@ -90,7 +90,9 @@ public class InboxTab extends BaseTab {
             store.pruneOlderThan(System.currentTimeMillis() - keepDays * 86400000L);
         }
         store.collapseDuplicates();
-        List<NotificationStore.Item> all = store.recent(80, null);
+        // Keine feste Anzahl-Grenze mehr: alle Eintraege der letzten N Tage
+        // (einstellbar, bis 999) - siehe Settings.listDays.
+        List<NotificationStore.Item> all = store.recentSince(Settings.listCutoff(ctx), null);
 
         // Kategorie-Schnellfilter: nur Kategorien anbieten, die unter den
         // gerade aktiven Quellen ueberhaupt vorkommen (wie BlackBerry Hub+'s
@@ -244,9 +246,10 @@ public class InboxTab extends BaseTab {
         List<Entry> out = new ArrayList<>();
         String q = inboxQuery.toLowerCase();
         try (android.database.Cursor c = ctx.getContentResolver().query(android.net.Uri.parse("content://sms"),
-                new String[]{"_id", "address", "body", "date", "type"}, null, null, "date DESC")) {
+                new String[]{"_id", "address", "body", "date", "type"},
+                "date >= ?", new String[]{String.valueOf(Settings.listCutoff(ctx))}, "date DESC")) {
             if (c != null) {
-                while (c.moveToNext() && out.size() < 60) {
+                while (c.moveToNext() && out.size() < 5000) {
                     String addr = c.getString(1), body = c.getString(2);
                     if (body == null) continue;
                     String name = TabPermHint.contactName(ctx, addr);
@@ -273,9 +276,11 @@ public class InboxTab extends BaseTab {
                         android.provider.CallLog.Calls.CACHED_NAME, android.provider.CallLog.Calls.TYPE,
                         android.provider.CallLog.Calls.DATE, android.provider.CallLog.Calls.NEW,
                         android.provider.CallLog.Calls.DURATION},
-                null, null, android.provider.CallLog.Calls.DATE + " DESC")) {
+                android.provider.CallLog.Calls.DATE + " >= ?",
+                new String[]{String.valueOf(Settings.listCutoff(ctx))},
+                android.provider.CallLog.Calls.DATE + " DESC")) {
             if (c != null) {
-                while (c.moveToNext() && out.size() < 60) {
+                while (c.moveToNext() && out.size() < 5000) {
                     String num = c.getString(1), name = c.getString(2);
                     if (name == null || name.isEmpty()) name = TabPermHint.contactName(ctx, num);
                     if (!q.isEmpty() && (num == null || !num.toLowerCase().contains(q))
@@ -407,7 +412,7 @@ public class InboxTab extends BaseTab {
         box.addView(body);
         if (e.time > 0) {
             TextView t = new TextView(ctx);
-            t.setText(DateUtils.getRelativeTimeSpanString(e.time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
+            t.setText(Settings.formatTime(ctx, e.time));
             t.setTextColor(Color.parseColor("#8899AA"));
             t.setTextSize(11 * fs);
             box.addView(t);
@@ -505,7 +510,7 @@ public class InboxTab extends BaseTab {
         String dir = missed ? "verpasst"
                 : (e.callType == android.provider.CallLog.Calls.OUTGOING_TYPE
                     ? (e.callFailed ? "ausgehend · nicht erreicht" : "ausgehend") : "eingehend");
-        String when = e.time > 0 ? DateUtils.getRelativeTimeSpanString(e.time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString() : "";
+        String when = Settings.formatTime(ctx, e.time);
         TextView sub = new TextView(ctx);
         sub.setText((dir.isEmpty() ? "" : dir + " · ") + when);
         sub.setTextColor(Color.parseColor(callColor));
@@ -744,8 +749,7 @@ public class InboxTab extends BaseTab {
         head.addView(appTv);
 
         TextView time = new TextView(ctx);
-        time.setText(DateUtils.getRelativeTimeSpanString(it.posted,
-                System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString());
+        time.setText(Settings.formatTime(ctx, it.posted));
         time.setTextColor(Color.parseColor("#8899AA"));
         time.setTextSize(11 * fs);
         head.addView(time);
@@ -869,8 +873,7 @@ public class InboxTab extends BaseTab {
                 if (tab > 0) {
                     try {
                         long ts = Long.parseLong(ln.substring(0, tab));
-                        when = DateUtils.getRelativeTimeSpanString(ts, System.currentTimeMillis(),
-                                DateUtils.MINUTE_IN_MILLIS).toString();
+                        when = Settings.formatTime(ctx, ts);
                     } catch (NumberFormatException ignored) {}
                     body = ln.substring(tab + 1);
                 }

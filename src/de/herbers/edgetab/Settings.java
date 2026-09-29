@@ -3,7 +3,9 @@ package de.herbers.edgetab;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.text.format.DateUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,6 +53,10 @@ public final class Settings {
     private static final String K_FRAMES_MAX      = "frames_max";
     private static final String K_FRAMES_BIG_ROWS = "frames_big_rows";
     private static final String K_FRAMES_SHORT_PCT= "frames_short_pct";
+    // Zeitanzeige in Posteingang/Anrufe/SMS und Listen-Alter
+    private static final String K_REL_TIME_ON   = "rel_time_on";     // relative Zeit ("vor 3 Min") anzeigen?
+    private static final String K_REL_TIME_DAYS = "rel_time_days";   // ...fuer Eintraege juenger als N Tage (sonst Datum+Uhrzeit)
+    private static final String K_LIST_DAYS     = "list_days";       // in Posteingang/Anrufe/SMS nur Eintraege der letzten N Tage
 
     private Settings() {}
 
@@ -302,6 +308,34 @@ public final class Settings {
     public static void setFramesBigRows(Context c, int n) { p(c).edit().putInt(K_FRAMES_BIG_ROWS, clamp(n, 0, 20)).apply(); }
     public static int framesShortPct(Context c) { return clamp(p(c).getInt(K_FRAMES_SHORT_PCT, 65), 30, 100); }
     public static void setFramesShortPct(Context c, int n) { p(c).edit().putInt(K_FRAMES_SHORT_PCT, clamp(n, 30, 100)).apply(); }
+
+    // ---- Zeitanzeige (Posteingang/Anrufe/SMS) ----
+    /** Relative Zeit ("vor 3 Min") ueberhaupt anzeigen? Sonst immer Datum+Uhrzeit. */
+    public static boolean relTimeOn(Context c) { return p(c).getBoolean(K_REL_TIME_ON, true); }
+    public static void setRelTimeOn(Context c, boolean on) { p(c).edit().putBoolean(K_REL_TIME_ON, on).apply(); }
+    /** Relative Zeit nur fuer Eintraege juenger als so viele Tage; aeltere zeigen
+     *  Datum+Uhrzeit. 1..999. */
+    public static int relTimeDays(Context c) { return clamp(p(c).getInt(K_REL_TIME_DAYS, 2), 1, 999); }
+    public static void setRelTimeDays(Context c, int days) { p(c).edit().putInt(K_REL_TIME_DAYS, clamp(days, 1, 999)).apply(); }
+
+    /** Zeit fuer eine Zeile formatieren: relativ ("vor 3 Min"), wenn eingeschaltet
+     *  UND juenger als die eingestellte Spanne - sonst absolutes Datum+Uhrzeit
+     *  ("09:15 Uhr, 28.09.2026"). Leer bei fehlendem Zeitstempel. */
+    public static String formatTime(Context c, long millis) {
+        if (millis <= 0) return "";
+        long now = System.currentTimeMillis();
+        if (relTimeOn(c) && (now - millis) <= relTimeDays(c) * 86400000L) {
+            return DateUtils.getRelativeTimeSpanString(millis, now, DateUtils.MINUTE_IN_MILLIS).toString();
+        }
+        return new SimpleDateFormat("HH:mm 'Uhr', dd.MM.yyyy", java.util.Locale.getDefault())
+                .format(new java.util.Date(millis));
+    }
+
+    // ---- Listen-Alter (Posteingang/Anrufe/SMS): nur Eintraege der letzten N Tage ----
+    public static int listDays(Context c) { return clamp(p(c).getInt(K_LIST_DAYS, 30), 1, 999); }
+    public static void setListDays(Context c, int days) { p(c).edit().putInt(K_LIST_DAYS, clamp(days, 1, 999)).apply(); }
+    /** Zeitschranke (ms): Eintraege aelter als diese werden nicht mehr gezeigt. */
+    public static long listCutoff(Context c) { return System.currentTimeMillis() - listDays(c) * 86400000L; }
 
     private static int clamp(int v, int lo, int hi) { return Math.max(lo, Math.min(hi, v)); }
 

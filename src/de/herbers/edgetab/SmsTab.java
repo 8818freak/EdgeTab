@@ -94,9 +94,10 @@ public class SmsTab extends BaseTab {
     private List<Msg> query(Context ctx) {
         List<Msg> out = new ArrayList<>();
         try (Cursor c = ctx.getContentResolver().query(Uri.parse("content://sms"),
-                new String[]{"address", "body", "date", "type"}, null, null, "date DESC")) {
+                new String[]{"address", "body", "date", "type"},
+                "date >= ?", new String[]{String.valueOf(Settings.listCutoff(ctx))}, "date DESC")) {
             if (c != null) {
-                while (c.moveToNext() && out.size() < 200) {
+                while (c.moveToNext() && out.size() < 5000) {
                     Msg m = new Msg();
                     m.address = c.getString(0);
                     m.body = c.getString(1);
@@ -244,7 +245,7 @@ public class SmsTab extends BaseTab {
         col.addView(body);
         if (m.date > 0) {
             TextView t = new TextView(ctx);
-            t.setText(DateUtils.getRelativeTimeSpanString(m.date, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
+            t.setText(Settings.formatTime(ctx, m.date));
             t.setTextColor(Color.parseColor("#8899AA"));
             t.setTextSize(11 * fs);
             col.addView(t);

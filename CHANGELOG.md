@@ -4,6 +4,16 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.98
+- Neu: **Datum + Uhrzeit** in Posteingang, Anrufen und SMS. Junge Einträge
+  zeigen weiterhin die relative Angabe („vor 3 Min"), ältere das Datum
+  („09:15 Uhr, 28.09.2026").
+- Neu: In den Einstellungen (Posteingang → „Zeitanzeige & Umfang") einstellbar:
+  ob relative Zeit überhaupt gezeigt wird und **bis zu welchem Alter in Tagen**
+  (1–999) – darüber Datum + Uhrzeit.
+- Neu: **Die Listenlänge ist nicht mehr fest begrenzt**, sondern über das Alter
+  in Tagen einstellbar (1–999) – gilt für Posteingang, SMS und Anrufe.
+
 ## 0.97
 - Verbessert: **Die Sicherung nimmt jetzt auch die Daten mit**, nicht nur die
   Einstellungen – den kompletten Posteingang-Verlauf (erfasste
