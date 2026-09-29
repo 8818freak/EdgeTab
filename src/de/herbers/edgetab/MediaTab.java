@@ -1,7 +1,9 @@
 package de.herbers.edgetab;
 
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -82,14 +84,14 @@ public class MediaTab extends BaseTab {
             // stehen, nur eine kleine Extra-Leiste bewegte sich - wirkte wie
             // doppelt UND wie "die Einstellung tut nichts").
             if (mc == primary) continue;
-            root.addView(sessionCard(ctx, mc, refreshContent, d, true));
+            root.addView(sessionCard(ctx, mc, refreshContent, closePanel, d, true));
         }
 
         FrameLayout frame = new FrameLayout(ctx);
         frame.addView(scroll, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         if (primary != null) {
-            View card = sessionCard(ctx, primary, refreshContent, d, true);
+            View card = sessionCard(ctx, primary, refreshContent, closePanel, d, true);
             FrameLayout.LayoutParams barLp = new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
             barLp.gravity = "top".equals(pos) ? Gravity.TOP
@@ -158,7 +160,7 @@ public class MediaTab extends BaseTab {
         }
     }
 
-    private View sessionCard(Context ctx, MediaController mc, Runnable refresh, int d, boolean showControls) {
+    private View sessionCard(Context ctx, MediaController mc, Runnable refresh, Runnable closePanel, int d, boolean showControls) {
         LinearLayout card = new LinearLayout(ctx);
         card.setOrientation(LinearLayout.VERTICAL);
         GradientDrawable bg = new GradientDrawable();
@@ -223,6 +225,11 @@ public class MediaTab extends BaseTab {
             a.setTextSize(15);
             textCol.addView(a);
         }
+        // Tippen auf den Textbereich (App-Name/Titel/Interpret) oeffnet die
+        // Wiedergabe-App direkt (Mathias' Wunsch) - bevorzugt deren eigene
+        // Now-Playing-Oberflaeche (getSessionActivity), sonst der normale
+        // App-Start; danach das Panel schliessen.
+        textCol.setOnClickListener(new OpenAppClick(ctx, mc, closePanel));
         head.addView(textCol);
         card.addView(head);
 
@@ -268,6 +275,35 @@ public class MediaTab extends BaseTab {
             android.content.pm.PackageManager pm = ctx.getPackageManager();
             return pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString();
         } catch (Exception e) { return pkg; }
+    }
+
+    /** Oeffnet die Wiedergabe-App beim Tippen auf den Textbereich. Bevorzugt die
+     *  von der Sitzung angebotene Oberflaeche (getSessionActivity, meist die
+     *  Now-Playing-Ansicht), sonst der normale Starteintrag der App. Benannt
+     *  statt anonym (d8). */
+    static final class OpenAppClick implements View.OnClickListener {
+        private final Context ctx; private final MediaController mc; private final Runnable closePanel;
+        OpenAppClick(Context ctx, MediaController mc, Runnable closePanel) {
+            this.ctx = ctx; this.mc = mc; this.closePanel = closePanel;
+        }
+        public void onClick(View v) {
+            boolean opened = false;
+            try {
+                PendingIntent pi = mc.getSessionActivity();
+                if (pi != null) { pi.send(); opened = true; }
+            } catch (Throwable ignored) {}
+            if (!opened) {
+                try {
+                    Intent i = ctx.getPackageManager().getLaunchIntentForPackage(mc.getPackageName());
+                    if (i != null) {
+                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        ctx.startActivity(i);
+                        opened = true;
+                    }
+                } catch (Throwable ignored) {}
+            }
+            if (opened && closePanel != null) closePanel.run();
+        }
     }
 
     /** Sendet einen Steuerbefehl und baut den Inhalt kurz danach neu auf,

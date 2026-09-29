@@ -4,6 +4,13 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.80
+- Mediensteuerung: Ein Tipp auf den Textbereich einer Wiedergabe (App-Name,
+  Titel, Interpret) öffnet jetzt direkt die Wiedergabe-App – bevorzugt deren
+  eigene „Aktuelle Wiedergabe"-Oberfläche (über die von der Medien-Sitzung
+  angebotene Aktion), sonst der normale App-Start; danach schließt sich das
+  Panel. Die Steuertasten (⏮ ⏯ ⏭) bleiben davon unberührt.
+
 ## 0.79
 - Tab-Spalte springt nicht mehr: Das Einstellungs-Zahnrad ist fest oben
   angeheftet, die übrigen Karten-Symbole fest unten – unabhängig davon, welcher
