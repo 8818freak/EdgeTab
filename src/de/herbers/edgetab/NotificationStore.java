@@ -173,6 +173,11 @@ public class NotificationStore extends SQLiteOpenHelper {
         getWritableDatabase().delete("notes", "_id=?", new String[]{String.valueOf(id)});
     }
 
+    /** Alle erfassten Benachrichtigungen aus der Ablage loeschen. */
+    public void clearAll() {
+        getWritableDatabase().delete("notes", null, null);
+    }
+
     public int unseenCount(String pkgFilter) {
         SQLiteDatabase db = getReadableDatabase();
         String sql = "SELECT COUNT(*) FROM notes WHERE seen=0";

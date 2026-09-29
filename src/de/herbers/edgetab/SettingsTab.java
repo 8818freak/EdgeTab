@@ -39,6 +39,7 @@ public class SettingsTab {
     /** Welche Kategorie gerade offen ist - null = Kategorien-Menue. Statisch,
      *  weil bei jedem Panel-Aufbau ein neues SettingsTab-Objekt entsteht. */
     private static String openCategory = null;
+    private static boolean clearNotifConfirm = false; // Zwei-Tipp-Bestaetigung fuer Posteingang leeren
 
     private static final String CAT_POSITION = "position";
     private static final String CAT_HEADER   = "header";
@@ -182,6 +183,28 @@ public class SettingsTab {
                 } catch (Throwable ignored) {}
             });
             root.addView(go);
+
+            // Zugehoerige, gespeicherte Daten gezielt loeschen: der Posteingang
+            // (erfasste Benachrichtigungen). Zwei-Tipp-Bestaetigung, weil im
+            // Overlay kein normaler Dialog moeglich ist.
+            if ("notif".equals(perm.key)) {
+                Button del = new Button(ctx);
+                del.setText(clearNotifConfirm ? "Wirklich? Nochmal tippen zum Löschen"
+                                              : "Erfasste Benachrichtigungen löschen");
+                del.setTextColor(Color.parseColor(clearNotifConfirm ? "#FF7043" : "#E06666"));
+                del.setTextSize(13 * fs);
+                del.setOnClickListener(v -> {
+                    if (clearNotifConfirm) {
+                        try { NotificationStore.get(ctx).clearAll(); } catch (Throwable ignored) {}
+                        clearNotifConfirm = false;
+                        android.widget.Toast.makeText(ctx, "Posteingang geleert.", android.widget.Toast.LENGTH_SHORT).show();
+                    } else {
+                        clearNotifConfirm = true;
+                    }
+                    if (refresh != null) refresh.run();
+                });
+                root.addView(del);
+            }
         }
     }
 

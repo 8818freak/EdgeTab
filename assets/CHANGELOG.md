@@ -4,6 +4,12 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.90
+- Neu: In der Berechtigungen-Karte lässt sich der Posteingang gezielt leeren
+  („Erfasste Benachrichtigungen löschen“, mit Bestätigung durch nochmaliges
+  Tippen). Die erfassten Benachrichtigungen bleiben sonst auch nach Entzug des
+  Zugriffs erhalten – so kann man sie bewusst entfernen.
+
 ## 0.89
 - Verbessert: Die Berechtigungen sind jetzt eine eigene Karte in den
   Einstellungen (vorletzter Punkt) statt oben eingeklappt – übersichtlicher,
