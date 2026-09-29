@@ -4,6 +4,13 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.85
+- Intern: Das Absturz-/Diagnose-Protokoll kommt jetzt aus der gemeinsamen
+  Bibliothek herbers-android-common (de.herbers.common.DiagLog / Diagnostics)
+  statt aus eigenem Code – dieselbe Diagnose wie in Sucher und ActiveFrames.
+  Die automatische Dienst-Neustart-Logik nach einem Absturz bleibt unverändert.
+  Keine sichtbare Änderung.
+
 ## 0.84
 - Intern: Die Aufzählung wählbarer Benachrichtigungsquellen (alle startbaren
   Apps) kommt jetzt aus der gemeinsamen Bibliothek herbers-android-common

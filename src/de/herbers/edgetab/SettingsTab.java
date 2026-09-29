@@ -590,7 +590,7 @@ public class SettingsTab {
 
         // Fehlerprotokoll - nur zeigen, wenn ueberhaupt etwas drinsteht (also
         // nach einem Absturz). So sieht man die Fehlermeldung ohne Kabel/adb.
-        String crash = CrashLog.read(ctx);
+        String crash = de.herbers.common.DiagLog.read(ctx);
         if (crash != null && !crash.isEmpty()) {
             section(root, ctx.getString(R.string.about_crashlog_title), fs);
             TextView intro = new TextView(ctx);
@@ -611,7 +611,7 @@ public class SettingsTab {
 
             Button clear = new Button(ctx);
             clear.setText(R.string.about_crashlog_clear);
-            clear.setOnClickListener(v -> { CrashLog.clear(ctx); refresh.run(); });
+            clear.setOnClickListener(v -> { de.herbers.common.DiagLog.clear(ctx); refresh.run(); });
             root.addView(clear);
         }
     }
