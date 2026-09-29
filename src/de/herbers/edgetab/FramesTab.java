@@ -292,6 +292,7 @@ public class FramesTab extends BaseTab {
         box.setPadding(10 * d, 8 * d, 10 * d, 10 * d);
 
         CheckBox scroll = new CheckBox(ctx);
+        scroll.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
         scroll.setText(R.string.frames_scroll);
         scroll.setTextColor(Color.WHITE);
         scroll.setChecked(Settings.framesScroll(ctx));

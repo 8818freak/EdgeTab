@@ -47,6 +47,7 @@ public class InboxTab extends BaseTab {
     private static String activeCategory = null;
     private static boolean searchOpen = false;      // Lupe angetippt -> Suchfeld sichtbar
     private static String inboxQuery = "";           // aktueller Filterbegriff
+    private static int inboxScrollY = -1;            // Scroll-Position ueber Neuaufbau hinweg merken
 
     public InboxTab(TabInstance inst) { super(inst, R.string.tab_inbox, R.drawable.ic_inbox); }
 
@@ -59,6 +60,13 @@ public class InboxTab extends BaseTab {
         LinearLayout list = new LinearLayout(ctx);
         list.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(list);
+
+        // Beim Aufklappen/Antworten baut das Panel neu auf - dabei zuerst die
+        // Scroll-Position merken, damit die Liste nicht an den Anfang springt.
+        final Runnable refresh = () -> {
+            inboxScrollY = scroll.getScrollY();
+            if (refreshContent != null) refreshContent.run();
+        };
 
         String flat = android.provider.Settings.Secure.getString(
                 ctx.getContentResolver(), "enabled_notification_listeners");
@@ -94,10 +102,10 @@ public class InboxTab extends BaseTab {
         }
         if (activeCategory != null && !presentCats.contains(activeCategory)) activeCategory = null;
         if (presentCats.size() > 1) {
-            list.addView(categoryChips(ctx, presentCats, fs, d, refreshContent));
+            list.addView(categoryChips(ctx, presentCats, fs, d, refresh));
         }
 
-        list.addView(searchBar(ctx, fs, d, refreshContent, closePanel));
+        list.addView(searchBar(ctx, fs, d, refresh, closePanel));
 
         int unseen = 0;
         for (NotificationStore.Item it : all) if (sources.contains(it.pkg) && !it.seen) unseen++;
@@ -157,15 +165,21 @@ public class InboxTab extends BaseTab {
             long day = dayIndex(newest.time);
             if (day != lastDay) { list.addView(dayHeader(ctx, newest.time, fs, d)); lastDay = day; }
             if (g.size() == 1) {
-                list.addView(renderEntry(ctx, newest, pm, live, fs, d, store, close, refreshContent));
+                list.addView(renderEntry(ctx, newest, pm, live, fs, d, store, close, refresh));
             } else {
-                list.addView(conversationBlock(ctx, g, pm, live, fs, d, store, close, refreshContent));
+                list.addView(conversationBlock(ctx, g, pm, live, fs, d, store, close, refresh));
             }
             if (++shown >= 40) break;
         }
         if (shown == 0) {
             list.addView(CalendarTab.note(ctx,
                     ctx.getString(R.string.inbox_nothing_yet), "#9E9E9E", fs));
+        }
+        // Scroll-Position nach dem Neuaufbau wiederherstellen (siehe refresh).
+        if (inboxScrollY > 0) {
+            final int y = inboxScrollY;
+            inboxScrollY = -1;
+            scroll.post(() -> scroll.scrollTo(0, y));
         }
         // Schwebendes Stift-Symbol wie bei Kalender/Kontakte - startet die
         // "mailto:"-Absicht, die Android an die als E-Mail-App eingerichtete
@@ -304,10 +318,19 @@ public class InboxTab extends BaseTab {
         box.addView(renderEntry(ctx, g.get(0), pm, live, fs, d, store, close, refreshContent));
 
         TextView toggle = new TextView(ctx);
-        toggle.setText((open ? "▾ " : "▸ ") + (g.size() - 1) + " weitere in dieser Konversation");
+        toggle.setText((open ? "▾   " : "▸   ") + (g.size() - 1) + " weitere in dieser Konversation");
         toggle.setTextColor(Color.parseColor("#2E9BE6"));
-        toggle.setTextSize(12 * fs);
-        toggle.setPadding(8 * d, 2 * d, 8 * d, 8 * d);
+        toggle.setTextSize(14 * fs);
+        // Grosses, leicht treffbares Ziel (volle Breite, hohe Trefferflaeche).
+        GradientDrawable tbg = new GradientDrawable();
+        tbg.setColor(Color.parseColor("#22314A"));
+        tbg.setCornerRadius(8 * d);
+        toggle.setBackground(tbg);
+        toggle.setPadding(14 * d, 12 * d, 14 * d, 12 * d);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        tlp.topMargin = 2 * d; tlp.bottomMargin = 6 * d;
+        toggle.setLayoutParams(tlp);
         toggle.setOnClickListener(v -> {
             if (open) CONV_OPEN.remove(key); else CONV_OPEN.add(key);
             if (refreshContent != null) refreshContent.run();
@@ -381,7 +404,6 @@ public class InboxTab extends BaseTab {
         body.setText(e.body);
         body.setTextColor(Color.WHITE);
         body.setTextSize(13 * fs);
-        body.setMaxLines(replying ? 8 : 3);
         box.addView(body);
         if (e.time > 0) {
             TextView t = new TextView(ctx);
@@ -397,6 +419,7 @@ public class InboxTab extends BaseTab {
             rr.setGravity(Gravity.CENTER_VERTICAL);
             rr.setPadding(0, 8 * d, 0, 0);
             EditText input = new EditText(ctx);
+            input.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
             input.setHint(R.string.reply_hint);
             input.setTextColor(Color.WHITE);
             input.setTextSize(13 * fs);
@@ -461,9 +484,11 @@ public class InboxTab extends BaseTab {
         box.setLayoutParams(boxLp);
 
         boolean missed = e.callType == android.provider.CallLog.Calls.MISSED_TYPE;
+        // Farbe: gruen = erfolgreich, rot = verpasst, blau = vergeblich (abgehend, niemanden erreicht).
+        String callColor = missed ? "#E0533A" : (e.callFailed ? "#2E9BE6" : "#5BD68A");
         ImageView icon = new ImageView(ctx);
         icon.setImageResource(R.drawable.ic_call);
-        icon.setColorFilter(Color.parseColor(missed ? "#E0533A" : "#2E9BE6"));
+        icon.setColorFilter(Color.parseColor(callColor));
         LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(20 * d, 20 * d);
         ilp.rightMargin = 10 * d;
         icon.setLayoutParams(ilp);
@@ -483,7 +508,7 @@ public class InboxTab extends BaseTab {
         String when = e.time > 0 ? DateUtils.getRelativeTimeSpanString(e.time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString() : "";
         TextView sub = new TextView(ctx);
         sub.setText((dir.isEmpty() ? "" : dir + " · ") + when);
-        sub.setTextColor(Color.parseColor(missed ? "#E0866A" : "#8899AA"));
+        sub.setTextColor(Color.parseColor(callColor));
         sub.setTextSize(11 * fs);
         col.addView(sub);
         box.addView(col);
@@ -565,6 +590,8 @@ public class InboxTab extends BaseTab {
         if (!searchOpen) return box;
 
         final EditText input = new EditText(ctx);
+        input.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
+        input.setTextColor(android.graphics.Color.WHITE);
         input.setHint("Suchbegriff…");
         input.setText(inboxQuery);
         input.setSelection(inboxQuery.length());
@@ -791,12 +818,21 @@ public class InboxTab extends BaseTab {
         if (!it.seen) title.setTypeface(null, Typeface.BOLD);
         row.addView(title);
 
-        if (it.text != null && !it.text.isEmpty()) {
+        // Lebende Benachrichtigung einmal aufloesen - fuer reicheren Text
+        // (InboxStyle/MessagingStyle/Zusatzzeile) UND das grosse Bild.
+        StatusBarNotification liveSbn = live ? NotificationCollector.resolve(it) : null;
+        String displayText = it.text == null ? "" : it.text;
+        if (liveSbn != null) {
+            String rich = de.herbers.common.Notifications.richText(liveSbn.getNotification());
+            if (rich != null && rich.length() > displayText.length()) displayText = rich;
+        }
+        if (!displayText.isEmpty()) {
             TextView text = new TextView(ctx);
-            text.setText(it.text);
+            text.setText(displayText);
             text.setTextColor(Color.parseColor(it.seen ? "#9A9A9A" : "#D0D0D0"));
             text.setTextSize(13 * fs);
-            text.setMaxLines(6);              // groessere Vorschau als bisher (war 2)
+            // Volle Laenge (Mathias' Wunsch: alles zeigen, was aus der
+            // Benachrichtigung auslesbar ist).
             row.addView(text);
         }
 
@@ -804,9 +840,8 @@ public class InboxTab extends BaseTab {
         // nur solange die Benachrichtigung noch lebt (das Bild steckt in ihr,
         // nicht in unserer Ablage). Auswertung kommt aus der gemeinsamen
         // Bibliothek (Notifications.bigPicture).
-        if (live) {
-            StatusBarNotification liveSbn = NotificationCollector.resolve(it);
-            if (liveSbn != null) {
+        if (liveSbn != null) {
+            {
                 android.graphics.Bitmap pic = de.herbers.common.Notifications.bigPicture(ctx, liveSbn.getNotification());
                 if (pic != null) {
                     android.widget.ImageView iv = new android.widget.ImageView(ctx);
@@ -830,6 +865,7 @@ public class InboxTab extends BaseTab {
             replyRow.setPadding(0, 8 * d, 0, 0);
 
             EditText input = new EditText(ctx);
+            input.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
             input.setHint(R.string.reply_hint);
             input.setTextColor(Color.WHITE);
             input.setTextSize(13 * fs);

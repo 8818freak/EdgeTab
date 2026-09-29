@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.93
+- Behoben: Beim Auf-/Zuklappen und Antworten sprang die Liste an den Anfang –
+  die Scroll-Position bleibt jetzt erhalten (Posteingang und SMS-Karte).
+- Verbessert: Die Aufklapp-Schaltflächen der Konversationen sind jetzt große,
+  leicht treffbare Flächen (volle Breite) statt winziger Pfeile.
+- Neu: Die SMS-Karte gruppiert jetzt ebenfalls zu aufklappbaren Konversationen
+  und hat eine Direktantwort (Schreibfeld, braucht SMS-Senden-Recht).
+- Verbessert: Anruf-Farben – grün = erfolgreich, rot = verpasst, blau =
+  vergeblich (abgehend, niemanden erreicht).
+- Verbessert: SMS werden in voller Länge angezeigt; Benachrichtigungen zeigen
+  jetzt den reicheren Inhalt (Chat-Zeilen, Mehrzeiler, Zusatzzeile), soweit die
+  Benachrichtigung noch aktiv ist.
+- Behoben: In Eingabefeldern war die Schrift auf dunklem Grund fast unsichtbar
+  (schwarz); jetzt hell. Häkchen-Kästchen sind jetzt sichtbar (blauer Rahmen).
+
 ## 0.92
 - Neu: SMS und Anrufe können jetzt auch direkt im Posteingang erscheinen
   (zwei Schalter in den Posteingang-Einstellungen) – zusätzlich zu den eigenen

@@ -212,6 +212,7 @@ public class TasksTab extends BaseTab {
         row.setLayoutParams(lp);
 
         CheckBox done = new CheckBox(ctx);
+        done.setTextColor(android.graphics.Color.WHITE);
         done.setButtonTintList(ColorStateList.valueOf(Color.parseColor("#2E9BE6")));
         done.setPadding(0, 0, 8 * d, 0);
         done.setOnClickListener(v -> {

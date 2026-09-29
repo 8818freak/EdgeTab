@@ -368,6 +368,8 @@ public class MainActivity extends Activity {
         nameLabel.setTextSize(12);
         root.addView(nameLabel);
         EditText nameField = new EditText(this);
+        nameField.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
+        nameField.setTextColor(android.graphics.Color.WHITE);
         nameField.setSingleLine(true);
         if (current != null) nameField.setText(current);
         root.addView(nameField);
@@ -378,6 +380,8 @@ public class MainActivity extends Activity {
         typeLabel.setPadding(0, dp(12), 0, 0);
         root.addView(typeLabel);
         EditText typeField = new EditText(this);
+        typeField.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
+        typeField.setTextColor(android.graphics.Color.WHITE);
         typeField.setSingleLine(true);
         String currentType = de.herbers.edgetab.Settings.jtxAccountType(this);
         typeField.setText(currentType != null ? currentType : DAVX5_ACCOUNT_TYPE);

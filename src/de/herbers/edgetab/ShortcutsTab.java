@@ -328,6 +328,7 @@ public class ShortcutsTab extends BaseTab {
             row.setPadding(0, 6 * d, 0, 6 * d);
 
             CheckBox cb = new CheckBox(ctx);
+            cb.setTextColor(android.graphics.Color.WHITE);
             cb.setButtonTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#2E9BE6")));
             cb.setChecked(pickSel.contains(pkg));
             cb.setOnCheckedChangeListener((v, on) -> {
@@ -574,6 +575,7 @@ public class ShortcutsTab extends BaseTab {
         head.addView(icon);
 
         EditText name = new EditText(ctx);
+        name.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
         name.setText(r.label);
         name.setHint(appLabel(pm, r));
         name.setTextColor(Color.WHITE);
@@ -598,6 +600,7 @@ public class ShortcutsTab extends BaseTab {
         // des Feldes neu auf, damit der Eintrag sichtbar in seine neue
         // Gruppe wandert.
         EditText group = new EditText(ctx);
+        group.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
         group.setText(r.group);
         group.setHint(R.string.group_hint);
         group.setTextColor(Color.parseColor("#B0B0B0"));

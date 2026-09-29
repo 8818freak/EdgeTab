@@ -324,6 +324,7 @@ public class SettingsTab {
 
     private void buildHeaderSection(LinearLayout root, float fs, int d) {
         CheckBox hdr = new CheckBox(ctx);
+        hdr.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
         hdr.setText("  " + ctx.getString(R.string.show_clock_checkbox));
         hdr.setTextColor(Color.WHITE);
         hdr.setTextSize(15 * fs);
@@ -331,6 +332,7 @@ public class SettingsTab {
         hdr.setOnCheckedChangeListener((v, on) -> { Settings.setShowHeader(ctx, on); });
         root.addView(hdr);
         CheckBox batt = new CheckBox(ctx);
+        batt.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
         batt.setText("  " + ctx.getString(R.string.show_battery_checkbox));
         batt.setTextColor(Color.WHITE);
         batt.setTextSize(15 * fs);
@@ -364,18 +366,21 @@ public class SettingsTab {
     private void buildInboxSection(LinearLayout root, float fs, int d, Runnable sectionRefresh) {
         section(root, "Posteingang-Inhalt", fs);
         CheckBox smsCb = new CheckBox(ctx);
+        smsCb.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
         smsCb.setText("  SMS im Posteingang anzeigen");
         smsCb.setTextColor(Color.WHITE); smsCb.setTextSize(13 * fs);
         smsCb.setChecked(Settings.smsInInbox(ctx));
         smsCb.setOnCheckedChangeListener((v, on) -> { Settings.setSmsInInbox(ctx, on); sectionRefresh.run(); });
         root.addView(smsCb);
         CheckBox callsCb = new CheckBox(ctx);
+        callsCb.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
         callsCb.setText("  Anrufe im Posteingang anzeigen");
         callsCb.setTextColor(Color.WHITE); callsCb.setTextSize(13 * fs);
         callsCb.setChecked(Settings.callsInInbox(ctx));
         callsCb.setOnCheckedChangeListener((v, on) -> { Settings.setCallsInInbox(ctx, on); sectionRefresh.run(); });
         root.addView(callsCb);
         CheckBox convCb = new CheckBox(ctx);
+        convCb.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
         convCb.setText("  Nachrichten zu Konversationen gruppieren (aufklappbar)");
         convCb.setTextColor(Color.WHITE); convCb.setTextSize(13 * fs);
         convCb.setChecked(Settings.groupConversations(ctx));
@@ -424,6 +429,7 @@ public class SettingsTab {
             appRow.setGravity(Gravity.CENTER_VERTICAL);
 
             CheckBox cb = new CheckBox(ctx);
+            cb.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
             cb.setText("  " + label);
             cb.setTextColor(Color.WHITE);
             cb.setTextSize(14 * fs);
@@ -467,6 +473,7 @@ public class SettingsTab {
             if (chans.size() > 1) {
                 for (NotificationStore.Channel ch : chans) {
                     CheckBox ccb = new CheckBox(ctx);
+                    ccb.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
                     ccb.setText("     " + ch.name);
                     ccb.setTextColor(Color.parseColor("#B0B0B5"));
                     ccb.setTextSize(12 * fs);
@@ -706,6 +713,7 @@ public class SettingsTab {
         root.addView(intro);
 
         CheckBox showLog = new CheckBox(ctx);
+        showLog.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
         showLog.setText("  Protokoll anzeigen");
         showLog.setTextColor(Color.WHITE);
         showLog.setTextSize(13 * fs);
@@ -809,6 +817,8 @@ public class SettingsTab {
         head.setGravity(Gravity.CENTER_VERTICAL);
 
         CheckBox cb = new CheckBox(ctx);
+        cb.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
+        cb.setTextColor(android.graphics.Color.WHITE);
         cb.setChecked(t.enabled);
         cb.setOnCheckedChangeListener((v, on) -> {
             Tabs.update(ctx, t.id, ti -> ti.enabled = on);
@@ -833,6 +843,7 @@ public class SettingsTab {
         head.addView(icon);
 
         EditText name = new EditText(ctx);
+        name.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
         name.setText(t.name);
         name.setHint(live.title(ctx));
         name.setTextColor(Color.WHITE);
@@ -849,6 +860,7 @@ public class SettingsTab {
         row2.setPadding(0, 4 * d, 0, 0);
 
         CheckBox closeCb = new CheckBox(ctx);
+        closeCb.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
         closeCb.setText("  " + ctx.getString(R.string.close_on_tap_checkbox));
         closeCb.setTextColor(Color.parseColor("#B0B0B0"));
         closeCb.setTextSize(12 * fs);

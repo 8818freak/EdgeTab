@@ -41,6 +41,17 @@ final class TabPermHint {
         return box;
     }
 
+    /** Eine SMS senden (mehrteilig). Braucht SEND_SMS. true bei Erfolg. */
+    static boolean sendSms(Context ctx, String addr, String text) {
+        try {
+            android.telephony.SmsManager sm = ctx.getSystemService(android.telephony.SmsManager.class);
+            if (sm == null) sm = android.telephony.SmsManager.getDefault();
+            java.util.ArrayList<String> parts = sm.divideMessage(text);
+            sm.sendMultipartTextMessage(addr, null, parts, null, null);
+            return true;
+        } catch (Throwable t) { return false; }
+    }
+
     /** Kontaktname zu einer Telefonnummer (falls Kontakte-Zugriff besteht), sonst null. */
     static String contactName(Context ctx, String number) {
         if (number == null || number.isEmpty()) return null;

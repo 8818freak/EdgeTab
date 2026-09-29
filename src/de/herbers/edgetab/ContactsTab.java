@@ -341,6 +341,7 @@ public class ContactsTab extends BaseTab {
             // erkennen (die Service-Ansicht hat kein eigenes Theme, das dem
             // Standard-Kaestchen genug Kontrast zur dunklen Karte gibt).
             CheckBox cb = new CheckBox(ctx);
+            cb.setTextColor(android.graphics.Color.WHITE);
             cb.setButtonTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#2E9BE6")));
             cb.setChecked(inst.selectedContacts.contains(row.lookupKey));
             final String key = row.lookupKey;

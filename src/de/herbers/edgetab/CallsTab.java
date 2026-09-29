@@ -97,7 +97,9 @@ public class CallsTab extends BaseTab {
         ImageView icon = new ImageView(ctx);
         icon.setImageResource(R.drawable.ic_call);
         boolean missed = r.type == CallLog.Calls.MISSED_TYPE;
-        icon.setColorFilter(Color.parseColor(missed ? "#E0533A" : "#2E9BE6"));
+        // gruen = erfolgreich, rot = verpasst, blau = vergeblich (abgehend, niemanden erreicht)
+        String callColor = missed ? "#E0533A" : (r.failed ? "#2E9BE6" : "#5BD68A");
+        icon.setColorFilter(Color.parseColor(callColor));
         int s = 24 * d;
         LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(s, s);
         ilp.rightMargin = 12 * d;
@@ -123,7 +125,7 @@ public class CallsTab extends BaseTab {
                 System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString() : "";
         TextView sub = new TextView(ctx);
         sub.setText((dir.isEmpty() ? "" : dir + " · ") + when);
-        sub.setTextColor(Color.parseColor(missed ? "#E0866A" : "#8899AA"));
+        sub.setTextColor(Color.parseColor(callColor));
         sub.setTextSize(11);
         col.addView(sub);
         box.addView(col);
