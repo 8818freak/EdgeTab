@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,24 @@ public class NotificationStore extends SQLiteOpenHelper {
 
     private NotificationStore(Context ctx) {
         super(ctx, DB, null, VERSION);
+    }
+
+    /** Datei der Ablage auf der Platte - fuer die Sicherung (Backup kopiert die
+     *  Datei direkt, statt jede Benachrichtigung einzeln zu exportieren). */
+    public static File dbFile(Context ctx) {
+        return ctx.getApplicationContext().getDatabasePath(DB);
+    }
+
+    /** Offene Instanz schliessen (WAL vorher checkpointen), damit eine Datei-
+     *  Kopie/-Ersetzung konsistent ist. Die naechste get()-Anfrage oeffnet neu.
+     *  Fuer Sichern (Kopie muss vollstaendig sein) UND Wiederherstellen (Datei
+     *  darf nicht offen sein, wenn sie ersetzt wird) - wie Suchers SearchStore. */
+    public static synchronized void closeForBackup() {
+        if (instance != null) {
+            try { instance.getWritableDatabase().execSQL("PRAGMA wal_checkpoint(FULL)"); } catch (Exception ignored) {}
+            instance.close();
+            instance = null;
+        }
     }
 
     @Override

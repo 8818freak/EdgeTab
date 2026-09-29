@@ -537,8 +537,8 @@ public class MainActivity extends Activity {
     private void startBackupExport() {
         Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
-        i.setType("text/plain");
-        i.putExtra(Intent.EXTRA_TITLE, "edgetab-sicherung.txt");
+        i.setType("application/zip");
+        i.putExtra(Intent.EXTRA_TITLE, "edgetab-sicherung.zip");
         i.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, DASIS_FOLDER);
         try {
             startActivityForResult(i, REQ_BACKUP_EXPORT);
@@ -550,7 +550,8 @@ public class MainActivity extends Activity {
     private void startBackupImport() {
         Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
-        i.setType("text/plain");
+        // Beide zulassen: neue Zip-Sicherung UND alte reine Text-Sicherung.
+        i.setType("*/*");
         i.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, DASIS_FOLDER);
         try {
             startActivityForResult(i, REQ_BACKUP_IMPORT);
@@ -640,7 +641,8 @@ public class MainActivity extends Activity {
         } else if (req == REQ_BACKUP_EXPORT) {
             if (res == RESULT_OK && data != null && data.getData() != null) {
                 try (java.io.OutputStream out = getContentResolver().openOutputStream(data.getData())) {
-                    out.write(de.herbers.edgetab.Settings.exportText(this).getBytes("UTF-8"));
+                    // Einstellungen UND Benachrichtigungs-DB (Verlauf/info_json).
+                    Backup.exportZip(this, out);
                     Toast.makeText(this, R.string.backup_export_ok, Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(this, R.string.backup_export_failed, Toast.LENGTH_SHORT).show();
@@ -649,8 +651,11 @@ public class MainActivity extends Activity {
             finishBackup();
         } else if (req == REQ_BACKUP_IMPORT) {
             if (res == RESULT_OK && data != null && data.getData() != null) {
-                String text = readUri(data.getData());
-                boolean ok = de.herbers.edgetab.Settings.importText(this, text);
+                boolean ok = false;
+                try (java.io.InputStream in = getContentResolver().openInputStream(data.getData())) {
+                    // Erkennt Zip (Einstellungen + DB) und alte Text-Sicherung.
+                    ok = in != null && Backup.importAuto(this, in);
+                } catch (Exception ignored) {}
                 Toast.makeText(this, ok ? R.string.backup_import_ok : R.string.backup_import_failed,
                         Toast.LENGTH_LONG).show();
             }

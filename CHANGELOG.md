@@ -4,6 +4,15 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.97
+- Verbessert: **Die Sicherung nimmt jetzt auch die Daten mit**, nicht nur die
+  Einstellungen – den kompletten Posteingang-Verlauf (erfasste
+  Benachrichtigungen samt Gelesen-Status, gesendeter Antworten und des
+  vollständigen Abzugs jeder Benachrichtigung). Gesichert wird als eine
+  Zip-Datei (`edgetab-sicherung.zip`); „Wiederherstellen" spielt Einstellungen
+  **und** Daten zurück. Ältere reine Text-Sicherungen (nur Einstellungen)
+  werden beim Wiederherstellen weiterhin erkannt und eingelesen.
+
 ## 0.96
 - Neu: **Antworten, „als gelesen" und Löschen bleiben verfügbar, auch wenn die
   Benachrichtigung schon aus der Statusleiste verschwunden ist** – EdgeTab hält
