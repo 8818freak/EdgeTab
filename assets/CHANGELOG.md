@@ -4,6 +4,12 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.86
+- Verbessert: Das Diagnose-/Fehlerprotokoll steht jetzt fest ganz unten in den
+  Einstellungen, zeigt die neuesten Einträge zuerst, und alle Schaltflächen
+  (Anzeigen-Schalter, „Protokoll löschen“) stehen darüber. Neuer Schalter
+  „Protokoll anzeigen“ blendet es bei Bedarf aus. (Einheitlich in allen Apps.)
+
 ## 0.82
 - Intern: Einstellungs-Sicherung und die Farbwahl je Quelle (colorFor) kommen
   jetzt aus der gemeinsamen Bibliothek „herbers-android-common" (Git-Submodul,

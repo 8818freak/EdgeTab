@@ -588,31 +588,40 @@ public class SettingsTab {
             root.addView(box);
         }
 
-        // Fehlerprotokoll - nur zeigen, wenn ueberhaupt etwas drinsteht (also
-        // nach einem Absturz). So sieht man die Fehlermeldung ohne Kabel/adb.
-        String crash = de.herbers.common.DiagLog.read(ctx);
-        if (crash != null && !crash.isEmpty()) {
-            section(root, ctx.getString(R.string.about_crashlog_title), fs);
-            TextView intro = new TextView(ctx);
-            intro.setText(R.string.about_crashlog_intro);
-            intro.setTextColor(Color.parseColor("#9E9E9E"));
-            intro.setTextSize(12 * fs);
-            intro.setPadding(0, 0, 0, 6 * d);
-            root.addView(intro);
+        // Fehlerprotokoll - bewusst ganz unten, neueste Eintraege zuerst,
+        // Schalter/Knopf darueber, ein-/ausschaltbar (in allen Apps gleich).
+        section(root, ctx.getString(R.string.about_crashlog_title), fs);
+        TextView intro = new TextView(ctx);
+        intro.setText(R.string.about_crashlog_intro);
+        intro.setTextColor(Color.parseColor("#9E9E9E"));
+        intro.setTextSize(12 * fs);
+        intro.setPadding(0, 0, 0, 6 * d);
+        root.addView(intro);
 
-            TextView log = new TextView(ctx);
-            log.setText(crash);
-            log.setTextColor(Color.parseColor("#CCCCCC"));
-            log.setTextSize(11 * fs);
-            log.setTypeface(android.graphics.Typeface.MONOSPACE);
-            log.setTextIsSelectable(true);
-            log.setPadding(0, 0, 0, 6 * d);
-            root.addView(log);
+        CheckBox showLog = new CheckBox(ctx);
+        showLog.setText("  Protokoll anzeigen");
+        showLog.setTextColor(Color.WHITE);
+        showLog.setTextSize(13 * fs);
+        showLog.setChecked(de.herbers.common.DiagLog.isDisplayEnabled(ctx));
+        showLog.setOnCheckedChangeListener((v, on) -> {
+            de.herbers.common.DiagLog.setDisplayEnabled(ctx, on); refresh.run(); });
+        root.addView(showLog);
 
+        if (de.herbers.common.DiagLog.isDisplayEnabled(ctx)) {
             Button clear = new Button(ctx);
             clear.setText(R.string.about_crashlog_clear);
             clear.setOnClickListener(v -> { de.herbers.common.DiagLog.clear(ctx); refresh.run(); });
             root.addView(clear);
+
+            String crash = de.herbers.common.DiagLog.readNewestFirst(ctx);
+            TextView log = new TextView(ctx);
+            log.setText((crash == null || crash.isEmpty()) ? "(noch leer)" : crash);
+            log.setTextColor((crash == null || crash.isEmpty()) ? Color.GRAY : Color.parseColor("#CCCCCC"));
+            log.setTextSize(11 * fs);
+            log.setTypeface(android.graphics.Typeface.MONOSPACE);
+            log.setTextIsSelectable(true);
+            log.setPadding(0, 6 * d, 0, 6 * d);
+            root.addView(log);
         }
     }
 
