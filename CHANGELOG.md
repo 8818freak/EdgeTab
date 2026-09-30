@@ -4,6 +4,12 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.99
+- Verbessert: Die Relativ-Zeit-Schwelle ist jetzt in **Minuten, Stunden oder
+  Tagen** einstellbar (Wert + Einheit-Umschalter), nicht mehr nur in Tagen – so
+  lässt sich z. B. „relativ bis 2 Stunden, danach Datum + Uhrzeit" einstellen.
+  Standard ist jetzt **2 Stunden**.
+
 ## 0.98
 - Neu: **Datum + Uhrzeit** in Posteingang, Anrufen und SMS. Junge Einträge
   zeigen weiterhin die relative Angabe („vor 3 Min"), ältere das Datum

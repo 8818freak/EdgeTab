@@ -55,7 +55,9 @@ public final class Settings {
     private static final String K_FRAMES_SHORT_PCT= "frames_short_pct";
     // Zeitanzeige in Posteingang/Anrufe/SMS und Listen-Alter
     private static final String K_REL_TIME_ON   = "rel_time_on";     // relative Zeit ("vor 3 Min") anzeigen?
-    private static final String K_REL_TIME_DAYS = "rel_time_days";   // ...fuer Eintraege juenger als N Tage (sonst Datum+Uhrzeit)
+    private static final String K_REL_TIME_DAYS = "rel_time_days";   // ALT (nur Tage) - nur noch zur Migration gelesen
+    private static final String K_REL_TIME_VALUE= "rel_time_value";  // Schwellen-Wert (mit Einheit)
+    private static final String K_REL_TIME_UNIT = "rel_time_unit";   // Einheit: "min"/"h"/"d"
     private static final String K_LIST_DAYS     = "list_days";       // in Posteingang/Anrufe/SMS nur Eintraege der letzten N Tage
 
     private Settings() {}
@@ -313,10 +315,42 @@ public final class Settings {
     /** Relative Zeit ("vor 3 Min") ueberhaupt anzeigen? Sonst immer Datum+Uhrzeit. */
     public static boolean relTimeOn(Context c) { return p(c).getBoolean(K_REL_TIME_ON, true); }
     public static void setRelTimeOn(Context c, boolean on) { p(c).edit().putBoolean(K_REL_TIME_ON, on).apply(); }
-    /** Relative Zeit nur fuer Eintraege juenger als so viele Tage; aeltere zeigen
-     *  Datum+Uhrzeit. 1..999. */
-    public static int relTimeDays(Context c) { return clamp(p(c).getInt(K_REL_TIME_DAYS, 2), 1, 999); }
-    public static void setRelTimeDays(Context c, int days) { p(c).edit().putInt(K_REL_TIME_DAYS, clamp(days, 1, 999)).apply(); }
+    /** Schwelle fuer die relative Zeit als Wert + Einheit ("min"/"h"/"d"):
+     *  Eintraege juenger als (Wert x Einheit) zeigen "vor 3 Min", aeltere
+     *  Datum+Uhrzeit. Migriert die frueher rein tagesbasierte Einstellung. */
+    public static int relTimeValue(Context c) {
+        if (!p(c).contains(K_REL_TIME_VALUE) && p(c).contains(K_REL_TIME_DAYS)) {
+            return clamp(p(c).getInt(K_REL_TIME_DAYS, 2), 1, 9999);
+        }
+        return clamp(p(c).getInt(K_REL_TIME_VALUE, 2), 1, 9999);
+    }
+    public static void setRelTimeValue(Context c, int v) { p(c).edit().putInt(K_REL_TIME_VALUE, clamp(v, 1, 9999)).apply(); }
+    /** Einheit der Schwelle: "min", "h" (Standard) oder "d". */
+    public static String relTimeUnit(Context c) {
+        if (!p(c).contains(K_REL_TIME_UNIT) && p(c).contains(K_REL_TIME_DAYS)) return "d";
+        return p(c).getString(K_REL_TIME_UNIT, "h");
+    }
+    public static void setRelTimeUnit(Context c, String u) {
+        if (!"min".equals(u) && !"h".equals(u) && !"d".equals(u)) u = "h";
+        p(c).edit().putString(K_REL_TIME_UNIT, u).apply();
+    }
+    /** Deutscher Anzeigename der Einheit. */
+    public static String relTimeUnitLabel(Context c) {
+        switch (relTimeUnit(c)) {
+            case "min": return "Minuten";
+            case "d":   return "Tage";
+            default:    return "Stunden";
+        }
+    }
+    private static long unitMs(String u) {
+        switch (u) {
+            case "min": return 60000L;
+            case "d":   return 86400000L;
+            default:    return 3600000L; // Stunden
+        }
+    }
+    /** Schwelle in Millisekunden (Wert x Einheit). */
+    public static long relTimeThresholdMs(Context c) { return relTimeValue(c) * unitMs(relTimeUnit(c)); }
 
     /** Zeit fuer eine Zeile formatieren: relativ ("vor 3 Min"), wenn eingeschaltet
      *  UND juenger als die eingestellte Spanne - sonst absolutes Datum+Uhrzeit
@@ -324,7 +358,7 @@ public final class Settings {
     public static String formatTime(Context c, long millis) {
         if (millis <= 0) return "";
         long now = System.currentTimeMillis();
-        if (relTimeOn(c) && (now - millis) <= relTimeDays(c) * 86400000L) {
+        if (relTimeOn(c) && (now - millis) <= relTimeThresholdMs(c)) {
             return DateUtils.getRelativeTimeSpanString(millis, now, DateUtils.MINUTE_IN_MILLIS).toString();
         }
         return new SimpleDateFormat("HH:mm 'Uhr', dd.MM.yyyy", java.util.Locale.getDefault())

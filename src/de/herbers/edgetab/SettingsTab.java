@@ -402,11 +402,10 @@ public class SettingsTab {
         relCb.setChecked(Settings.relTimeOn(ctx));
         relCb.setOnCheckedChangeListener((v, on) -> { Settings.setRelTimeOn(ctx, on); sectionRefresh.run(); });
         root.addView(relCb);
-        dayInput(root, "Relativ anzeigen für Einträge der letzten … Tage", Settings.relTimeDays(ctx), fs, d,
-                days -> Settings.setRelTimeDays(ctx, days));
+        relThresholdRow(root, fs, d, sectionRefresh);
         TextView relHint = new TextView(ctx);
         relHint.setText("Ältere (und bei ausgeschalteter Option alle) Einträge zeigen Datum + Uhrzeit, "
-                + "z. B. „09:15 Uhr, 28.09.2026“. In Posteingang, SMs und Anrufen. 1–999 Tage.");
+                + "z. B. „09:15 Uhr, 28.09.2026“. In Posteingang, SMS und Anrufen. Einheit über den Knopf umschaltbar (Minuten/Stunden/Tage).");
         relHint.setTextColor(Color.GRAY); relHint.setTextSize(12 * fs);
         relHint.setPadding(0, 0, 0, 8 * d);
         root.addView(relHint);
@@ -1014,6 +1013,39 @@ public class SettingsTab {
         in.setTextSize(13 * fs);
         in.addTextChangedListener(new DayWatcher(sink));
         root.addView(in);
+    }
+
+    /** Zeile fuer die Relativ-Schwelle: Zahlenfeld + Einheit-Umschalter
+     *  (Stunden ⇄ Tage ⇄ Minuten). So laesst sich z. B. "bis 2 Stunden" setzen. */
+    private void relThresholdRow(LinearLayout root, float fs, int d, Runnable sectionRefresh) {
+        TextView t = new TextView(ctx);
+        t.setText("Relativ anzeigen für Einträge der letzten:");
+        t.setTextColor(Color.parseColor("#DDDDDD"));
+        t.setTextSize(13 * fs);
+        t.setPadding(0, 10 * d, 0, 4 * d);
+        root.addView(t);
+        LinearLayout row = new LinearLayout(ctx);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        EditText val = new EditText(ctx);
+        val.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        val.setText(String.valueOf(Settings.relTimeValue(ctx)));
+        val.setTextColor(Color.WHITE);
+        val.setHintTextColor(Color.parseColor("#9AA6B2"));
+        val.setTextSize(13 * fs);
+        val.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        val.addTextChangedListener(new DayWatcher(v -> Settings.setRelTimeValue(ctx, v)));
+        row.addView(val);
+        Button unit = new Button(ctx);
+        unit.setText(Settings.relTimeUnitLabel(ctx));
+        unit.setOnClickListener(v2 -> {
+            String cur = Settings.relTimeUnit(ctx);
+            String next = "h".equals(cur) ? "d" : ("d".equals(cur) ? "min" : "h");
+            Settings.setRelTimeUnit(ctx, next);
+            sectionRefresh.run();
+        });
+        row.addView(unit);
+        root.addView(row);
     }
 
     /** Uebernimmt eine getippte Tages-Zahl in die Einstellung (leer = ignorieren);
