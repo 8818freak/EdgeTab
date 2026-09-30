@@ -744,15 +744,23 @@ public class InboxTab extends BaseTab {
         appTv.setText(live ? app : ctx.getString(R.string.inbox_app_only, app));
         appTv.setTextColor(Color.parseColor("#8899AA"));
         appTv.setTextSize(11 * fs);
+        // Einzeilig + Ellipse: sonst quetscht ein langer Nachbar (frueher der
+        // Zeitstempel) die Spalte auf 0 und der Text bricht Buchstabe fuer
+        // Buchstabe senkrecht um.
+        appTv.setSingleLine(true);
+        appTv.setEllipsize(android.text.TextUtils.TruncateAt.END);
         appTv.setLayoutParams(new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         head.addView(appTv);
 
+        // Zeitstempel (jetzt Datum+Uhrzeit, also lang): NICHT mehr in die
+        // Kopfzeile neben den App-Namen (das quetschte ihn), sondern als eigene
+        // schmale Zeile darunter (siehe unten, nach head).
         TextView time = new TextView(ctx);
         time.setText(Settings.formatTime(ctx, it.posted));
         time.setTextColor(Color.parseColor("#8899AA"));
         time.setTextSize(11 * fs);
-        head.addView(time);
+        time.setSingleLine(true);
 
         // Antworten (↩): nur wenn die Benachrichtigung noch lebt UND eine
         // Antworten-Aktion mitbringt - entweder mit echter Direkteingabe
@@ -816,6 +824,9 @@ public class InboxTab extends BaseTab {
         });
         head.addView(del);
         row.addView(head);
+
+        // Zeitstempel als eigene, volle Zeile unter der Kopfzeile.
+        if (it.posted > 0) row.addView(time);
 
         TextView title = new TextView(ctx);
         title.setText(it.title == null || it.title.isEmpty() ? ctx.getString(R.string.no_title) : it.title);

@@ -4,6 +4,12 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 1.2
+- Behoben: Im Posteingang wurde bei älteren Einträgen der App-Name senkrecht
+  (Buchstabe für Buchstabe) umgebrochen – der lange Datum-/Uhrzeit-Stempel hatte
+  die Namensspalte auf null Breite gequetscht. Der App-Name ist jetzt einzeilig
+  (bei Bedarf gekürzt), der Zeitstempel steht in einer eigenen Zeile darunter.
+
 ## 1.1
 - Neu: **Suche in der SMS- und in der Anrufe-Karte.** Die Lupe öffnet ein Feld:
   „Hier suchen" filtert die Liste nach Name/Nummer/Text, „In Sucher suchen"
