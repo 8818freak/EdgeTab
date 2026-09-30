@@ -35,6 +35,8 @@ public class SmsTab extends BaseTab {
     private static final Set<String> CONV_OPEN = new HashSet<>();
     private static final Set<String> REPLYING = new HashSet<>();
     private static int scrollY = -1;
+    private static boolean searchOpen = false;   // Lupe angetippt -> Suchfeld sichtbar
+    private static String query = "";            // aktueller Filterbegriff
 
     SmsTab(TabInstance inst) { super(inst, R.string.tab_sms, R.drawable.ic_sms); }
 
@@ -57,10 +59,23 @@ public class SmsTab extends BaseTab {
             if (refreshContent != null) refreshContent.run();
         };
 
+        root.addView(searchBar(ctx, fs, d, refresh, close));
+
         List<Msg> msgs = query(ctx);
+        // Lokaler Filter (Name/Nummer/Text) - wie im Posteingang.
+        String q = query.toLowerCase();
+        if (!q.isEmpty()) {
+            List<Msg> f = new ArrayList<>();
+            for (Msg m : msgs) {
+                if ((m.body != null && m.body.toLowerCase().contains(q))
+                        || (m.name != null && m.name.toLowerCase().contains(q))
+                        || (m.address != null && m.address.toLowerCase().contains(q))) f.add(m);
+            }
+            msgs = f;
+        }
         if (msgs.isEmpty()) {
             TextView none = new TextView(ctx);
-            none.setText(R.string.sms_none);
+            none.setText(q.isEmpty() ? ctx.getString(R.string.sms_none) : "Keine Treffer.");
             none.setTextColor(Color.parseColor("#9E9E9E"));
             none.setTextSize(14 * fs);
             none.setPadding(0, 12 * d, 0, 0);
@@ -87,6 +102,62 @@ public class SmsTab extends BaseTab {
 
         if (scrollY > 0) { final int y = scrollY; scrollY = -1; scroll.post(() -> scroll.scrollTo(0, y)); }
         return scroll;
+    }
+
+    /** Suchleiste: Lupe -> Feld. "Hier suchen" filtert diese Liste, "In Sucher
+     *  suchen" oeffnet Sucher mit dem Begriff (Volltext ueber alles). */
+    private View searchBar(Context ctx, float fs, int d, Runnable refresh, Runnable close) {
+        LinearLayout box = new LinearLayout(ctx);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(0, 0, 0, 8 * d);
+        TextView lupe = new TextView(ctx);
+        lupe.setText(searchOpen ? "🔍  Suche schließen" : "🔍  SMS durchsuchen");
+        lupe.setTextColor(Color.parseColor("#8899AA"));
+        lupe.setTextSize(13 * fs);
+        lupe.setPadding(2 * d, 4 * d, 2 * d, 4 * d);
+        lupe.setOnClickListener(v -> {
+            searchOpen = !searchOpen;
+            if (!searchOpen) query = "";
+            refresh.run();
+        });
+        box.addView(lupe);
+        if (!searchOpen) return box;
+
+        final EditText input = new EditText(ctx);
+        input.setHint("Suchbegriff…");
+        input.setHintTextColor(Color.parseColor("#9AA6B2"));
+        input.setTextColor(Color.WHITE);
+        input.setText(query);
+        input.setSelection(query.length());
+        input.setTextSize(14 * fs);
+        input.setSingleLine(true);
+        box.addView(input);
+
+        LinearLayout btns = new LinearLayout(ctx);
+        btns.setOrientation(LinearLayout.HORIZONTAL);
+        Button here = new Button(ctx);
+        here.setText("Hier suchen");
+        here.setOnClickListener(v -> { query = input.getText().toString().trim(); refresh.run(); });
+        btns.addView(here);
+        Button inSucher = new Button(ctx);
+        inSucher.setText("In Sucher suchen");
+        inSucher.setOnClickListener(v -> {
+            String qq = input.getText().toString().trim();
+            try {
+                ctx.startActivity(new Intent()
+                        .setClassName("de.herbers.sucher", "de.herbers.sucher.MainActivity")
+                        .putExtra("query", qq)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                if (close != null) close.run();
+            } catch (Exception e) {
+                Toast.makeText(ctx, "Sucher ist nicht installiert – hier gefiltert.", Toast.LENGTH_SHORT).show();
+                query = qq;
+                refresh.run();
+            }
+        });
+        btns.addView(inSucher);
+        box.addView(btns);
+        return box;
     }
 
     private static final class Msg { String address, name, body; long date; boolean incoming; String convKey; }

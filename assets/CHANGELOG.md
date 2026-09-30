@@ -4,6 +4,12 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 1.1
+- Neu: **Suche in der SMS- und in der Anrufe-Karte.** Die Lupe öffnet ein Feld:
+  „Hier suchen" filtert die Liste nach Name/Nummer/Text, „In Sucher suchen"
+  öffnet Sucher für die Volltextsuche über alles. Besonders nützlich, seit die
+  Listen (0 = alle) lang werden können.
+
 ## 1.0
 - Verbessert: Bei „Einträge zeigen der letzten … Tage" bedeutet jetzt **0 = alle
   (unbegrenzt)** – wie bei der Aufbewahrung. Neuer **Standard ist 0 (alle)**,

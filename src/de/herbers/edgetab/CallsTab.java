@@ -11,10 +11,13 @@ import android.provider.CallLog;
 import android.text.format.DateUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +29,14 @@ import java.util.List;
  */
 public class CallsTab extends BaseTab {
 
+    private static boolean searchOpen = false;   // Lupe angetippt -> Suchfeld sichtbar
+    private static String query = "";            // aktueller Filterbegriff
+
     CallsTab(TabInstance inst) { super(inst, R.string.tab_calls, R.drawable.ic_call); }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {
         int d = Math.round(ctx.getResources().getDisplayMetrics().density);
+        float fs = Settings.fontScale(ctx);
         Runnable close = effectiveClose(closePanel);
 
         if (ctx.checkSelfPermission(android.Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
@@ -41,19 +48,89 @@ public class CallsTab extends BaseTab {
         LinearLayout root = new LinearLayout(ctx);
         root.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(root);
+        final Runnable refresh = () -> { if (refreshContent != null) refreshContent.run(); };
+
+        root.addView(searchBar(ctx, fs, d, refresh, close));
 
         List<Row> rows = query(ctx);
+        // Lokaler Filter (Name/Nummer) - wie im Posteingang.
+        String q = query.toLowerCase();
+        if (!q.isEmpty()) {
+            List<Row> f = new ArrayList<>();
+            for (Row r : rows) {
+                String nm = r.name != null && !r.name.isEmpty() ? r.name : TabPermHint.contactName(ctx, r.number);
+                if ((nm != null && nm.toLowerCase().contains(q))
+                        || (r.number != null && r.number.toLowerCase().contains(q))) f.add(r);
+            }
+            rows = f;
+        }
         if (rows.isEmpty()) {
             TextView none = new TextView(ctx);
-            none.setText(R.string.calls_none);
+            none.setText(q.isEmpty() ? ctx.getString(R.string.calls_none) : "Keine Treffer.");
             none.setTextColor(Color.parseColor("#9E9E9E"));
-            none.setTextSize(14);
+            none.setTextSize(14 * fs);
             none.setPadding(0, 12 * d, 0, 0);
             root.addView(none);
             return scroll;
         }
         for (Row r : rows) root.addView(row(ctx, r, close, d));
         return scroll;
+    }
+
+    /** Suchleiste: Lupe -> Feld. "Hier suchen" filtert diese Liste, "In Sucher
+     *  suchen" oeffnet Sucher mit dem Begriff (Volltext ueber alles). */
+    private View searchBar(Context ctx, float fs, int d, Runnable refresh, Runnable close) {
+        LinearLayout box = new LinearLayout(ctx);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(0, 0, 0, 8 * d);
+        TextView lupe = new TextView(ctx);
+        lupe.setText(searchOpen ? "🔍  Suche schließen" : "🔍  Anrufe durchsuchen");
+        lupe.setTextColor(Color.parseColor("#8899AA"));
+        lupe.setTextSize(13 * fs);
+        lupe.setPadding(2 * d, 4 * d, 2 * d, 4 * d);
+        lupe.setOnClickListener(v -> {
+            searchOpen = !searchOpen;
+            if (!searchOpen) query = "";
+            refresh.run();
+        });
+        box.addView(lupe);
+        if (!searchOpen) return box;
+
+        final EditText input = new EditText(ctx);
+        input.setHint("Suchbegriff…");
+        input.setHintTextColor(Color.parseColor("#9AA6B2"));
+        input.setTextColor(Color.WHITE);
+        input.setText(query);
+        input.setSelection(query.length());
+        input.setTextSize(14 * fs);
+        input.setSingleLine(true);
+        box.addView(input);
+
+        LinearLayout btns = new LinearLayout(ctx);
+        btns.setOrientation(LinearLayout.HORIZONTAL);
+        Button here = new Button(ctx);
+        here.setText("Hier suchen");
+        here.setOnClickListener(v -> { query = input.getText().toString().trim(); refresh.run(); });
+        btns.addView(here);
+        Button inSucher = new Button(ctx);
+        inSucher.setText("In Sucher suchen");
+        inSucher.setOnClickListener(v -> {
+            String qq = input.getText().toString().trim();
+            try {
+                ctx.startActivity(new Intent()
+                        .setClassName("de.herbers.sucher", "de.herbers.sucher.MainActivity")
+                        .putExtra("query", qq)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+                if (close != null) close.run();
+            } catch (Exception e) {
+                Toast.makeText(ctx, "Sucher ist nicht installiert – hier gefiltert.", Toast.LENGTH_SHORT).show();
+                query = qq;
+                refresh.run();
+            }
+        });
+        btns.addView(inSucher);
+        box.addView(btns);
+        return box;
     }
 
     private static final class Row { String number, name; int type; long date; boolean failed; }
