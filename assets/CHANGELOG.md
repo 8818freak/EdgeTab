@@ -4,6 +4,13 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 1.0
+- Verbessert: Bei „Einträge zeigen der letzten … Tage" bedeutet jetzt **0 = alle
+  (unbegrenzt)** – wie bei der Aufbewahrung. Neuer **Standard ist 0 (alle)**,
+  damit lange Konversationen (z. B. viele SMS eines Kontakts) von vornherein
+  vollständig erscheinen. Ein leeres Feld übernahm zuvor unbemerkt den alten
+  Wert – für „alles" bitte 0 eintragen.
+
 ## 0.99
 - Verbessert: Die Relativ-Zeit-Schwelle ist jetzt in **Minuten, Stunden oder
   Tagen** einstellbar (Wert + Einheit-Umschalter), nicht mehr nur in Tagen – so

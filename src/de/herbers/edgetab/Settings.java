@@ -366,10 +366,17 @@ public final class Settings {
     }
 
     // ---- Listen-Alter (Posteingang/Anrufe/SMS): nur Eintraege der letzten N Tage ----
-    public static int listDays(Context c) { return clamp(p(c).getInt(K_LIST_DAYS, 30), 1, 999); }
-    public static void setListDays(Context c, int days) { p(c).edit().putInt(K_LIST_DAYS, clamp(days, 1, 999)).apply(); }
-    /** Zeitschranke (ms): Eintraege aelter als diese werden nicht mehr gezeigt. */
-    public static long listCutoff(Context c) { return System.currentTimeMillis() - listDays(c) * 86400000L; }
+    /** Anzuzeigendes Alter in Tagen; 0 = alle/unbegrenzt (wie bei der
+     *  Aufbewahrung). Standard 0, damit lange Konversationen vollstaendig
+     *  erscheinen. */
+    public static int listDays(Context c) { return clamp(p(c).getInt(K_LIST_DAYS, 0), 0, 999); }
+    public static void setListDays(Context c, int days) { p(c).edit().putInt(K_LIST_DAYS, clamp(days, 0, 999)).apply(); }
+    /** Zeitschranke (ms): Eintraege aelter als diese werden nicht mehr gezeigt.
+     *  Bei 0 (alle) ist die Schranke 0 -> es wird nichts nach Alter ausgefiltert. */
+    public static long listCutoff(Context c) {
+        int d = listDays(c);
+        return d <= 0 ? 0L : System.currentTimeMillis() - d * 86400000L;
+    }
 
     private static int clamp(int v, int lo, int hi) { return Math.max(lo, Math.min(hi, v)); }
 

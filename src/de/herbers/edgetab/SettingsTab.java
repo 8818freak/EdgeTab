@@ -409,11 +409,12 @@ public class SettingsTab {
         relHint.setTextColor(Color.GRAY); relHint.setTextSize(12 * fs);
         relHint.setPadding(0, 0, 0, 8 * d);
         root.addView(relHint);
-        dayInput(root, "Einträge zeigen der letzten … Tage (Posteingang, SMS, Anrufe)", Settings.listDays(ctx), fs, d,
+        dayInput(root, "Einträge zeigen der letzten … Tage (0 = alle)", Settings.listDays(ctx), fs, d,
                 days -> Settings.setListDays(ctx, days));
         TextView listHint = new TextView(ctx);
-        listHint.setText("Keine feste Anzahl-Grenze mehr – die Liste reicht so weit zurück, wie hier "
-                + "eingestellt (1–999 Tage). Bei Benachrichtigungen zusätzlich durch die Aufbewahrung unten begrenzt.");
+        listHint.setText("Gilt für Posteingang, SMS und Anrufe. 0 = alle (unbegrenzt), sonst 1–999 Tage. "
+                + "Ein leeres Feld ändert nichts – für „alles“ bitte 0 eintragen. Bei Benachrichtigungen "
+                + "zusätzlich durch die Aufbewahrung unten begrenzt.");
         listHint.setTextColor(Color.GRAY); listHint.setTextSize(12 * fs);
         listHint.setPadding(0, 0, 0, 8 * d);
         root.addView(listHint);
