@@ -4,6 +4,64 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 0.99
+- Verbessert: Die Relativ-Zeit-Schwelle ist jetzt in **Minuten, Stunden oder
+  Tagen** einstellbar (Wert + Einheit-Umschalter), nicht mehr nur in Tagen – so
+  lässt sich z. B. „relativ bis 2 Stunden, danach Datum + Uhrzeit" einstellen.
+  Standard ist jetzt **2 Stunden**.
+
+## 0.98
+- Neu: **Datum + Uhrzeit** in Posteingang, Anrufen und SMS. Junge Einträge
+  zeigen weiterhin die relative Angabe („vor 3 Min"), ältere das Datum
+  („09:15 Uhr, 28.09.2026").
+- Neu: In den Einstellungen (Posteingang → „Zeitanzeige & Umfang") einstellbar:
+  ob relative Zeit überhaupt gezeigt wird und **bis zu welchem Alter in Tagen**
+  (1–999) – darüber Datum + Uhrzeit.
+- Neu: **Die Listenlänge ist nicht mehr fest begrenzt**, sondern über das Alter
+  in Tagen einstellbar (1–999) – gilt für Posteingang, SMS und Anrufe.
+
+## 0.97
+- Verbessert: **Die Sicherung nimmt jetzt auch die Daten mit**, nicht nur die
+  Einstellungen – den kompletten Posteingang-Verlauf (erfasste
+  Benachrichtigungen samt Gelesen-Status, gesendeter Antworten und des
+  vollständigen Abzugs jeder Benachrichtigung). Gesichert wird als eine
+  Zip-Datei (`edgetab-sicherung.zip`); „Wiederherstellen" spielt Einstellungen
+  **und** Daten zurück. Ältere reine Text-Sicherungen (nur Einstellungen)
+  werden beim Wiederherstellen weiterhin erkannt und eingelesen.
+
+## 0.96
+- Neu: **Antworten, „als gelesen" und Löschen bleiben verfügbar, auch wenn die
+  Benachrichtigung schon aus der Statusleiste verschwunden ist** – EdgeTab hält
+  die „Drähte" (Aktions-Verknüpfungen) jeder Benachrichtigung fest, solange es
+  läuft. So kann man z. B. eine bereits weggewischte Mail noch löschen oder in
+  einer Konversation noch antworten. (Grenzen: überlebt keinen Geräte-Neustart
+  und kein Update/Beenden der Quell-App – dann ist der Draht ungültig; EdgeTab
+  versucht dann automatisch, den Antwortbildschirm der App zu öffnen.)
+- Verbessert: Der Schutz der gespeicherten Nachricht ist jetzt treffsicherer –
+  ein bloßer Bestätigungs-/Leer-Neupost („Geantwortet.") ersetzt eine echte
+  Nachricht nicht mehr, **echte neue Nachrichten derselben Konversation kommen
+  aber weiter durch** (löst die gröbere Antwort-Sperre aus 0.95 ab, die neue
+  Nachrichten hätte verschlucken können).
+- Intern: Inhaltsschutz und Draht-Ablage sitzen in der gemeinsamen Bibliothek
+  (`Notifications.isConversational`/`looksLikeReplyConfirmation`,
+  `NotificationActionCache`) – für alle vier Apps nutzbar.
+
+## 0.95
+- Neu: Jede erfasste Benachrichtigung wird jetzt **verlustfrei** gespeichert –
+  alle Felder, die sie mitbrachte (über die Bibliothek `Notifications.toJson`),
+  nicht mehr nur Titel und eine Textzeile. So geht nichts Auslesbares verloren
+  und alles bleibt später auswertbar.
+- Neu: Eine im Posteingang gesendete Antwort bleibt unter der Nachricht stehen
+  (baut einen kleinen Verlauf auf). Die Originalnachricht wird dabei nicht mehr
+  vom bloßen „Geantwortet."-Neupost mancher Apps (BlackBerry Hub/BBMe)
+  überschrieben.
+
+## 0.94
+- Neu: Der Berechtigungs-Abschnitt in den Einstellungen zeigt jetzt auch
+  **SMS senden** und **Anrufliste ändern** als eigene, erklärte Einträge (zuvor
+  nur SMS/Anrufliste lesen). Die Erinnerung bei Verlust eines einmal erteilten
+  Rechts greift damit auch für diese beiden.
+
 ## 0.93
 - Behoben: Beim Auf-/Zuklappen und Antworten sprang die Liste an den Anfang –
   die Scroll-Position bleibt jetzt erhalten (Posteingang und SMS-Karte).
@@ -72,6 +130,27 @@ Karten als Platzhalter).
   Einstellungen, zeigt die neuesten Einträge zuerst, und alle Schaltflächen
   (Anzeigen-Schalter, „Protokoll löschen“) stehen darüber. Neuer Schalter
   „Protokoll anzeigen“ blendet es bei Bedarf aus. (Einheitlich in allen Apps.)
+
+## 0.85
+- Intern: Das Absturz-/Diagnose-Protokoll kommt jetzt aus der gemeinsamen
+  Bibliothek herbers-android-common (de.herbers.common.DiagLog / Diagnostics)
+  statt aus eigenem Code – dieselbe Diagnose wie in Sucher und ActiveFrames.
+  Die automatische Dienst-Neustart-Logik nach einem Absturz bleibt unverändert.
+  Keine sichtbare Änderung.
+
+## 0.84
+- Intern: Die Aufzählung wählbarer Benachrichtigungsquellen (alle startbaren
+  Apps) kommt jetzt aus der gemeinsamen Bibliothek herbers-android-common
+  (de.herbers.common.Apps) statt aus eigenem Code – dieselbe Logik wie in
+  Sucher. Keine sichtbare Änderung.
+
+## 0.83
+- Intern: Der Kern des Benachrichtigungs-Mitschnitts (Titel/Text-Auslesen inkl.
+  BigText, Gruppen-/Leer-Filter, Inhalts-Signatur und die Aktions-Erkennung für
+  Antworten, Löschen und „als gelesen markieren") kommt jetzt aus der
+  gemeinsamen Bibliothek „herbers-android-common" (de.herbers.common.
+  Notifications) statt aus eigenen Kopien – dieselbe, gepflegte Logik wie künftig
+  in Sucher, ActiveFrames und BBMePing. Keine sichtbare Änderung.
 
 ## 0.82
 - Intern: Einstellungs-Sicherung und die Farbwahl je Quelle (colorFor) kommen

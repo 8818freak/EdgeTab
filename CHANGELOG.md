@@ -62,6 +62,75 @@ Karten als Platzhalter).
   nur SMS/Anrufliste lesen). Die Erinnerung bei Verlust eines einmal erteilten
   Rechts greift damit auch für diese beiden.
 
+## 0.93
+- Behoben: Beim Auf-/Zuklappen und Antworten sprang die Liste an den Anfang –
+  die Scroll-Position bleibt jetzt erhalten (Posteingang und SMS-Karte).
+- Verbessert: Die Aufklapp-Schaltflächen der Konversationen sind jetzt große,
+  leicht treffbare Flächen (volle Breite) statt winziger Pfeile.
+- Neu: Die SMS-Karte gruppiert jetzt ebenfalls zu aufklappbaren Konversationen
+  und hat eine Direktantwort (Schreibfeld, braucht SMS-Senden-Recht).
+- Verbessert: Anruf-Farben – grün = erfolgreich, rot = verpasst, blau =
+  vergeblich (abgehend, niemanden erreicht).
+- Verbessert: SMS werden in voller Länge angezeigt; Benachrichtigungen zeigen
+  jetzt den reicheren Inhalt (Chat-Zeilen, Mehrzeiler, Zusatzzeile), soweit die
+  Benachrichtigung noch aktiv ist.
+- Behoben: In Eingabefeldern war die Schrift auf dunklem Grund fast unsichtbar
+  (schwarz); jetzt hell. Häkchen-Kästchen sind jetzt sichtbar (blauer Rahmen).
+
+## 0.92
+- Neu: SMS und Anrufe können jetzt auch direkt im Posteingang erscheinen
+  (zwei Schalter in den Posteingang-Einstellungen) – zusätzlich zu den eigenen
+  SMS-/Anrufe-Karten.
+- Neu: Nachrichten werden zu aufklappbaren Konversationen gruppiert – SMS je
+  Kontakt, Benachrichtigungen je Absender/Betreff. Der neueste Eintrag steht
+  oben, „N weitere in dieser Konversation" klappt den Verlauf auf. Abschaltbar.
+- Neu: Direkt auf eine empfangene SMS antworten (↩ im Posteingang, braucht das
+  SMS-Senden-Recht) und verpasste Anrufe als gesehen markieren (✓, braucht das
+  Anrufliste-Schreiben-Recht).
+- Verbessert: Erfolglose ausgehende Anrufe (niemanden erreicht) werden als
+  „ausgehend · nicht erreicht" gekennzeichnet (Posteingang und Anrufe-Karte).
+- SMS löschen ist nicht möglich: Android erlaubt das nur der Standard-SMS-App.
+
+## 0.91
+- Neu: SMS- und Anrufe-Karten. Über die Einstellungen („+ Neue SMS-/Anrufe-
+  Registerkarte“) hinzufügbar – zeigen die letzten Kurznachrichten bzw. Anrufe
+  mit Name/Nummer, Richtung und Zeit; Tippen öffnet die SMS-App bzw. Wähl-App.
+  Braucht die Rechte SMS bzw. Anrufliste (erst bei Bedarf).
+- Neu: Suche im Posteingang. Über die Lupe öffnet sich ein Suchfeld: „Hier
+  suchen“ filtert den EdgeTab-Posteingang, „In Sucher suchen“ öffnet (falls
+  installiert) Sucher mit dem Begriff für die Volltextsuche über alles.
+
+## 0.90
+- Neu: In der Berechtigungen-Karte lässt sich der Posteingang gezielt leeren
+  („Erfasste Benachrichtigungen löschen“, mit Bestätigung durch nochmaliges
+  Tippen). Die erfassten Benachrichtigungen bleiben sonst auch nach Entzug des
+  Zugriffs erhalten – so kann man sie bewusst entfernen.
+
+## 0.89
+- Verbessert: Die Berechtigungen sind jetzt eine eigene Karte in den
+  Einstellungen (vorletzter Punkt) statt oben eingeklappt – übersichtlicher,
+  wo welche Einstellung zu finden ist.
+- Neu: Im Posteingang steht vor jedem Eintrag das Benachrichtigungs-Icon
+  (Statusleisten-Symbol der App, in der Akzentfarbe). Emoji im Text werden
+  ohnehin normal dargestellt.
+
+## 0.88
+- Neu: In der Posteingang-Karte werden große Bilder aus Benachrichtigungen
+  (BigPictureStyle, z. B. ein Foto in einer Chat-Nachricht) angezeigt, solange
+  die Benachrichtigung noch aktiv ist.
+- Neu: Erinnerung, wenn eine einmal erteilte Berechtigung fehlt (z. B. nach
+  einem System-Update) – Overlay, Benachrichtigungszugriff, Kalender, Kontakte.
+  Die Meldung führt direkt zum Erteilen und lässt sich „Ignorieren“.
+- Neu: Aufklappbarer Abschnitt „Berechtigungen“ in den Einstellungen (Dreieck
+  ▸/▾) – zeigt je Berechtigung Status und wofür sie gebraucht wird; ein Tipp
+  führt in die passende Systemeinstellung.
+
+## 0.86
+- Verbessert: Das Diagnose-/Fehlerprotokoll steht jetzt fest ganz unten in den
+  Einstellungen, zeigt die neuesten Einträge zuerst, und alle Schaltflächen
+  (Anzeigen-Schalter, „Protokoll löschen“) stehen darüber. Neuer Schalter
+  „Protokoll anzeigen“ blendet es bei Bedarf aus. (Einheitlich in allen Apps.)
+
 ## 0.85
 - Intern: Das Absturz-/Diagnose-Protokoll kommt jetzt aus der gemeinsamen
   Bibliothek herbers-android-common (de.herbers.common.DiagLog / Diagnostics)
