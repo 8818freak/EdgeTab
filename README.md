@@ -66,17 +66,57 @@ Android-Schnittstellen.*
 
 <table>
 <tr>
+<td><img src="screenshots/posteingang-1.png" width="220" alt="Posteingang mit Benachrichtigungen"><br>Posteingang</td>
+<td><img src="screenshots/posteingang-2.png" width="220" alt="Posteingang, weitere Ansicht"><br>Posteingang (Verlauf)</td>
+<td><img src="screenshots/posteingang-suche-1.png" width="220" alt="Posteingang-Suche"><br>Posteingang: Suche</td>
+</tr>
+<tr>
+<td><img src="screenshots/posteingang-suche-2.png" width="220" alt="Posteingang-Suche, Ergebnis"><br>Posteingang: Suchergebnis</td>
+<td><img src="screenshots/sms.png" width="220" alt="SMS-Karte mit Konversationen"><br>SMS</td>
+<td><img src="screenshots/sms-suche-1.png" width="220" alt="SMS-Suche"><br>SMS: Suche</td>
+</tr>
+<tr>
+<td><img src="screenshots/sms-suche-2.png" width="220" alt="SMS-Suche, Ergebnis"><br>SMS: Suchergebnis</td>
+<td><img src="screenshots/anrufe.png" width="220" alt="Anrufe-Karte (Anrufprotokoll)"><br>Anrufe</td>
 <td><img src="screenshots/kalender.png" width="220" alt="Kalender-Karte"><br>Kalender</td>
-<td><img src="screenshots/verknuepfungen.png" width="220" alt="Verknüpfungen-Karte"><br>Verknüpfungen (Shortcuts)</td>
-<td><img src="screenshots/kontakte.png" width="220" alt="Kontakte-Karte mit Sortieroptionen"><br>Kontakte (Sortierung/Anzeige)</td>
 </tr>
 <tr>
+<td><img src="screenshots/kontakte-1.png" width="220" alt="Kontakte-Karte"><br>Kontakte</td>
+<td><img src="screenshots/kontakte-2.png" width="220" alt="Kontakte, Auswahl"><br>Kontakte (Auswahl)</td>
+<td><img src="screenshots/kontakte-3.png" width="220" alt="Kontakte, Sortierung/Anzeige"><br>Kontakte (Optionen)</td>
+</tr>
+<tr>
+<td><img src="screenshots/kontakte-4.png" width="220" alt="Kontakte, Favoriten"><br>Kontakte (Favoriten)</td>
+<td><img src="screenshots/aufgaben.png" width="220" alt="Aufgaben-Karte (JTX Board)"><br>Aufgaben</td>
 <td><img src="screenshots/notizen.png" width="220" alt="Notizen-Karte"><br>Notizen</td>
-<td><img src="screenshots/einstellungen-posteingang.png" width="220" alt="Einstellungen: Posteingang-Kategorien"><br>Einstellungen: Posteingang</td>
-<td><img src="screenshots/ueber-edgetab.png" width="220" alt="Über EdgeTab: Version, Lizenz, Änderungsprotokoll"><br>Über EdgeTab</td>
 </tr>
 <tr>
-<td><img src="screenshots/posteingang-kategorien.png" width="220" alt="Posteingang mit Kategorie-Filterleiste"><br>Posteingang: Kategorie-Filter</td>
+<td><img src="screenshots/mediensteuerung.png" width="220" alt="Mediensteuerung"><br>Mediensteuerung</td>
+<td><img src="screenshots/schnellstart.png" width="220" alt="Verknüpfungen / Programmschnellstart"><br>Verknüpfungen</td>
+<td><img src="screenshots/aktive-kacheln-1.png" width="220" alt="Aktive-Kacheln-Karte"><br>Aktive Kacheln</td>
+</tr>
+<tr>
+<td><img src="screenshots/aktive-kacheln-2.png" width="220" alt="Aktive Kacheln, aufgeklappt"><br>Aktive Kacheln (mehr)</td>
+<td><img src="screenshots/berechtigungen.png" width="220" alt="Berechtigungen-Karte"><br>Berechtigungen</td>
+<td><img src="screenshots/datensicherung.png" width="220" alt="Sichern & Wiederherstellen"><br>Sicherung</td>
+</tr>
+<tr>
+<td><img src="screenshots/dienst.png" width="220" alt="Dienst / Diagnose-Protokoll"><br>Dienst / Diagnose</td>
+<td><img src="screenshots/ueber-edgetab.png" width="220" alt="Über EdgeTab: Version, Lizenz, Änderungsprotokoll"><br>Über EdgeTab</td>
+<td><img src="screenshots/querformat.png" width="220" alt="Querformat"><br>Querformat</td>
+</tr>
+<tr>
+<td><img src="screenshots/einst-position.png" width="220" alt="Einstellungen: Position & Aussehen"><br>Einstellungen: Position</td>
+<td><img src="screenshots/einst-kopfzeile.png" width="220" alt="Einstellungen: Kopfzeile"><br>Einstellungen: Kopfzeile</td>
+<td><img src="screenshots/einst-posteingang-1.png" width="220" alt="Einstellungen: Posteingang"><br>Einstellungen: Posteingang</td>
+</tr>
+<tr>
+<td><img src="screenshots/einst-posteingang-2.png" width="220" alt="Einstellungen: Posteingang, Zeitanzeige & Umfang"><br>Einstellungen: Zeitanzeige & Umfang</td>
+<td><img src="screenshots/registerkarten-1.png" width="220" alt="Registerkarten-Einstellungen"><br>Registerkarten</td>
+<td><img src="screenshots/registerkarten-2.png" width="220" alt="Registerkarten hinzufügen"><br>Registerkarten (hinzufügen)</td>
+</tr>
+<tr>
+<td><img src="screenshots/registerkarten-3.png" width="220" alt="Registerkarten anordnen"><br>Registerkarten (anordnen)</td>
 </tr>
 </table>
 
