@@ -44,29 +44,39 @@ final class CallActions {
     }
 
     /** Kurzer Tipp: direkt anrufen. Mit CALL_PHONE sofort (ACTION_CALL), sonst
-     *  Recht anfordern und auf die Waehl-App ausweichen, damit trotzdem etwas
-     *  passiert. */
+     *  Recht anfordern. WICHTIG: aus dem Overlay-Dienst heraus startet Android 14
+     *  eine Activity nur mit ausdruecklicher Erlaubnis zum Hintergrund-Start
+     *  (Launcher.bgAllowed) - ohne sie schlug ACTION_CALL fehl und landete in der
+     *  Waehl-App, statt zu waehlen. Die Nummer per Uri.fromParts, damit "+"/"*"/"#"
+     *  nicht ueberkodiert werden. */
     static void call(Context ctx, String num, Runnable close) {
         if (num == null || num.trim().isEmpty()) return;
-        String tel = "tel:" + Uri.encode(num);
         if (ctx.checkSelfPermission(android.Manifest.permission.CALL_PHONE)
                 == PackageManager.PERMISSION_GRANTED) {
             try {
-                ctx.startActivity(new Intent(Intent.ACTION_CALL, Uri.parse(tel))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                Intent i = new Intent(Intent.ACTION_CALL, Uri.fromParts("tel", num, null))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                android.os.Bundle opts = Launcher.bgAllowed();
+                if (opts != null) ctx.startActivity(i, opts); else ctx.startActivity(i);
                 if (close != null) close.run();
                 return;
-            } catch (Throwable ignored) {}
-        } else {
-            // Recht anfordern (wie beim SMS-Senden) und diesmal die Waehl-App
-            // oeffnen, damit der Anruf trotzdem moeglich ist.
-            try {
-                ctx.startActivity(new Intent(ctx, MainActivity.class)
-                        .putExtra("request_permission", android.Manifest.permission.CALL_PHONE)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+                // Nur wenn der Direktanruf wirklich scheitert: Wähl-App als Rueckfall.
+                dialer(ctx, num, close);
+                return;
+            }
         }
-        dialer(ctx, num, close);
+        // Recht fehlt: einmalig anfordern (wie beim SMS-Senden); nach dem Erteilen
+        // waehlt der naechste Tipp direkt. Kein stilles Oeffnen der Waehl-App, damit
+        // klar ist, was fehlt.
+        try {
+            ctx.startActivity(new Intent(ctx, MainActivity.class)
+                    .putExtra("request_permission", android.Manifest.permission.CALL_PHONE)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            Toast.makeText(ctx, "Recht „Anrufen“ nötig – bitte erteilen und erneut tippen",
+                    Toast.LENGTH_LONG).show();
+        } catch (Throwable ignored) {}
+        if (close != null) close.run();
     }
 
     /** Waehl-App mit vorausgefuellter Nummer oeffnen (ACTION_DIAL, kein Recht noetig). */

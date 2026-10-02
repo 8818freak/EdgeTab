@@ -49,6 +49,10 @@ public class InboxTab extends BaseTab {
     private static String inboxQuery = "";           // aktueller Filterbegriff
     private static int inboxScrollY = -1;            // Scroll-Position ueber Neuaufbau hinweg merken
 
+    // Einmaliger Schnappschuss aller aktiven Benachrichtigungen je buildContent-
+    // Lauf (Hauptthread, synchron) - statt je Zeile das System zu fragen.
+    private StatusBarNotification[] snap;
+
     public InboxTab(TabInstance inst) { super(inst, R.string.tab_inbox, R.drawable.ic_inbox); }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {
@@ -130,7 +134,8 @@ public class InboxTab extends BaseTab {
         }
 
         PackageManager pm = ctx.getPackageManager();
-        java.util.Set<String> live = NotificationCollector.liveIndex();
+        snap = NotificationCollector.activeSnapshot();
+        java.util.Set<String> live = NotificationCollector.liveIndexFrom(snap);
 
         // 1) Kandidaten sammeln: Benachrichtigungen + optional SMS/Anrufe.
         List<Entry> entries = new ArrayList<>();
@@ -208,13 +213,9 @@ public class InboxTab extends BaseTab {
             } catch (Exception ignored) {}
             close.run();
         });
-        // Zweiter schwebender Knopf unten links: springt an den Listenanfang -
-        // gleicher runder Designgedanke wie der Haupt-Knopf (Mathias' Wunsch).
-        View toTop = fabGlyph(ctx, "↑", "#5A5A5E", Gravity.BOTTOM | Gravity.START, v -> {
-            inboxScrollY = 0;
-            scroll.smoothScrollTo(0, 0);
-        });
-        return withFab(ctx, scroll, compose, toTop);
+        // "Nach oben"-Knopf (erscheint nur beim Scrollen, Seite folgt dem
+        // Andock-Rand) kommt aus dem gemeinsamen Helfer - siehe withScrollTop.
+        return withScrollTop(ctx, scroll, compose);
     }
 
     /** Wie im Kalender-Tab: Tageskennung fuer die Gruppierung. */
@@ -777,7 +778,7 @@ public class InboxTab extends BaseTab {
         // nur solange die Benachrichtigung lebt (steckt in ihr). Auswertung aus
         // der gemeinsamen Bibliothek (Notifications.smallIcon).
         if (live) {
-            StatusBarNotification sbnIcon = NotificationCollector.resolve(it);
+            StatusBarNotification sbnIcon = NotificationCollector.resolveFrom(snap, it);
             android.graphics.Bitmap ic = sbnIcon == null ? null
                     : de.herbers.common.Notifications.smallIcon(ctx, sbnIcon.getNotification());
             if (ic != null) {
@@ -889,7 +890,7 @@ public class InboxTab extends BaseTab {
 
         // Lebende Benachrichtigung einmal aufloesen - fuer reicheren Text
         // (InboxStyle/MessagingStyle/Zusatzzeile) UND das grosse Bild.
-        StatusBarNotification liveSbn = live ? NotificationCollector.resolve(it) : null;
+        StatusBarNotification liveSbn = live ? NotificationCollector.resolveFrom(snap, it) : null;
         String displayText = it.text == null ? "" : it.text;
         if (liveSbn != null) {
             String rich = de.herbers.common.Notifications.richText(liveSbn.getNotification());

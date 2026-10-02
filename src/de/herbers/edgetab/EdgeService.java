@@ -442,9 +442,22 @@ public class EdgeService extends Service {
         return iv;
     }
 
+    // Dekodierte eigene Tab-Icons zwischenspeichern (nach Pfad + Aenderungszeit):
+    // sonst las jeder Tab-Wechsel alle Icon-Bilder frisch von der Platte
+    // (synchron im Hauptthread) - ein Grund fuer das traege Umschalten.
+    private static final java.util.HashMap<String, android.graphics.Bitmap> ICON_CACHE = new java.util.HashMap<>();
+    private static final java.util.HashMap<String, Long> ICON_MTIME = new java.util.HashMap<>();
+
     private android.graphics.Bitmap loadIcon(String path) {
-        try { return android.graphics.BitmapFactory.decodeFile(path); }
-        catch (Throwable t) { return null; }
+        try {
+            long m = new java.io.File(path).lastModified();
+            android.graphics.Bitmap c = ICON_CACHE.get(path);
+            Long known = ICON_MTIME.get(path);
+            if (c != null && known != null && known == m) return c;
+            android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeFile(path);
+            if (bmp != null) { ICON_CACHE.put(path, bmp); ICON_MTIME.put(path, m); }
+            return bmp;
+        } catch (Throwable t) { return null; }
     }
 
     private void renderContent(FrameLayout content, List<Tab> tabs) {

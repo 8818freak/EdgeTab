@@ -157,6 +157,15 @@ public class SettingsTab {
         intro.setPadding(d * 4, 0, d * 4, d * 8);
         root.addView(intro);
 
+        TextView changeHint = new TextView(ctx);
+        changeHint.setText("Hinweis: Ändert sich eine Berechtigung (z. B. nach einem App-Update), "
+                + "muss man die bereits erteilte Berechtigung einmal entziehen und danach neu "
+                + "erteilen – sonst greift sie nicht.");
+        changeHint.setTextColor(Color.parseColor("#F5C06B"));
+        changeHint.setTextSize(12.5f * fs);
+        changeHint.setPadding(d * 4, 0, d * 4, d * 8);
+        root.addView(changeHint);
+
         for (de.herbers.common.PermReminder.Perm perm : Perms.list(ctx)) {
             TextView name = new TextView(ctx);
             name.setText((perm.granted ? "✓  " : "✗  ") + perm.label + (perm.granted ? "" : "  –  fehlt"));

@@ -130,6 +130,52 @@ public class NotificationCollector extends NotificationListenerService {
         return out;
     }
 
+    /** EINMAL alle aktiven Benachrichtigungen holen (ein Systemaufruf), um daraus
+     *  im Speicher aufzuloesen - statt beim Rendern je Zeile neu das System zu
+     *  fragen (das machte den Posteingang beim Tab-Wechsel spuerbar langsam). */
+    public static StatusBarNotification[] activeSnapshot() {
+        NotificationCollector inst = instance;
+        if (inst == null) return new StatusBarNotification[0];
+        try {
+            StatusBarNotification[] a = inst.getActiveNotifications();
+            return a == null ? new StatusBarNotification[0] : a;
+        } catch (Exception e) { Log.w(TAG, "activeSnapshot", e); return new StatusBarNotification[0]; }
+    }
+
+    /** Schluessel + Inhalts-Kennungen aus einem bereits geholten Schnappschuss
+     *  (siehe activeSnapshot) - ohne weiteren Systemaufruf. */
+    public static java.util.Set<String> liveIndexFrom(StatusBarNotification[] a) {
+        java.util.HashSet<String> out = new java.util.HashSet<>();
+        if (a != null) for (StatusBarNotification sbn : a) {
+            if (sbn == null) continue;
+            out.add(sbn.getKey());
+            String[] tt = extract(sbn.getNotification());
+            out.add(signature(sbn.getPackageName(), tt[0], tt[1]));
+        }
+        return out;
+    }
+
+    /** Wie resolve(), aber ueber einen bereits geholten Schnappschuss - kein
+     *  Systemaufruf je Zeile. Erst per Schluessel, sonst per Inhalts-Signatur
+     *  (neueste). */
+    static StatusBarNotification resolveFrom(StatusBarNotification[] a, NotificationStore.Item it) {
+        if (it == null || a == null) return null;
+        if (it.nkey != null) {
+            for (StatusBarNotification sbn : a) if (sbn != null && it.nkey.equals(sbn.getKey())) return sbn;
+        }
+        String want = signature(it.pkg, it.title, it.text);
+        StatusBarNotification best = null;
+        for (StatusBarNotification sbn : a) {
+            if (sbn == null || !it.pkg.equals(sbn.getPackageName())) continue;
+            Notification n = sbn.getNotification();
+            if (n == null || (n.flags & Notification.FLAG_GROUP_SUMMARY) != 0) continue;
+            String[] tt = extract(n);
+            if (!want.equals(signature(sbn.getPackageName(), tt[0], tt[1]))) continue;
+            if (best == null || sbn.getPostTime() > best.getPostTime()) best = sbn;
+        }
+        return best;
+    }
+
     /** Schluessel aller Benachrichtigungen, die gerade noch in der Statusleiste stehen. */
     public static java.util.Set<String> activeKeys() {
         java.util.HashSet<String> keys = new java.util.HashSet<>();

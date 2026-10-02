@@ -116,7 +116,7 @@ public class TasksTab extends BaseTab {
         // JTX Board hat (anders als Android bei Kalender/Kontakten) keine
         // universelle "neue Aufgabe"-Systemabsicht, darum oeffnet der Knopf
         // die App selbst statt eines konkreten leeren Formulars.
-        return withFab(ctx, scroll, fab(ctx, R.drawable.ic_fab_edit, "#3DA764", v -> {
+        return withScrollTop(ctx, scroll, fab(ctx, R.drawable.ic_fab_edit, "#3DA764", v -> {
             try {
                 Intent i = ctx.getPackageManager().getLaunchIntentForPackage(JTX_PACKAGE);
                 if (i != null) {

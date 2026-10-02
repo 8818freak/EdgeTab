@@ -89,7 +89,7 @@ public class CalendarTab extends BaseTab {
         if (shown == 0) {
             list.addView(note(ctx, ctx.getString(R.string.calendar_no_events_7d), "#9E9E9E", fs));
         }
-        return withFab(ctx, scroll, addEventFab(ctx, closePanel));
+        return withScrollTop(ctx, scroll, addEventFab(ctx, closePanel));
     }
 
     /** "Termin hinzufuegen" - startet den eigenen Termin-Editor der auf dem

@@ -101,7 +101,7 @@ public class SmsTab extends BaseTab {
         }
 
         if (scrollY > 0) { final int y = scrollY; scrollY = -1; scroll.post(() -> scroll.scrollTo(0, y)); }
-        return scroll;
+        return withScrollTop(ctx, scroll, null);
     }
 
     /** Suchleiste: Lupe -> Feld. "Hier suchen" filtert diese Liste, "In Sucher

@@ -79,7 +79,7 @@ public class CallsTab extends BaseTab {
                 root.addView(CallActions.menu(ctx, r.id, r.number, fs, d, close, refresh));
             }
         }
-        return scroll;
+        return withScrollTop(ctx, scroll, null);
     }
 
     /** Suchleiste: Lupe -> Feld. "Hier suchen" filtert diese Liste, "In Sucher

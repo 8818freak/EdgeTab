@@ -165,7 +165,7 @@ public class ContactsTab extends BaseTab {
         // hinter dem Zahnrad versteckt. Waehrend der Auswahl (picking)
         // ausgeblendet, um nicht zu verwirren.
         if (picking) return scroll;
-        return withFab(ctx, scroll, fab(ctx, R.drawable.ic_fab_person_add, "#2E9BE6", v -> {
+        return withScrollTop(ctx, scroll, fab(ctx, R.drawable.ic_fab_person_add, "#2E9BE6", v -> {
             try {
                 Intent i = new Intent(Intent.ACTION_INSERT)
                         .setData(ContactsContract.Contacts.CONTENT_URI)

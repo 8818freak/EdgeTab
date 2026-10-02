@@ -103,7 +103,7 @@ public class NotesTab extends BaseTab {
             t.setTextSize(14);
             root.addView(t);
         }
-        return withFab(ctx, scroll, fab(ctx, R.drawable.ic_fab_edit, "#3DA764", v -> {
+        return withScrollTop(ctx, scroll, fab(ctx, R.drawable.ic_fab_edit, "#3DA764", v -> {
             newNote(ctx);
             close.run();
         }));
@@ -133,7 +133,7 @@ public class NotesTab extends BaseTab {
     private View withNoteFab(Context ctx, Runnable close, View content) {
         ScrollView scroll = new ScrollView(ctx);
         scroll.addView(content);
-        return withFab(ctx, scroll, fab(ctx, R.drawable.ic_fab_edit, "#3DA764", v -> {
+        return withScrollTop(ctx, scroll, fab(ctx, R.drawable.ic_fab_edit, "#3DA764", v -> {
             newNote(ctx);
             close.run();
         }));

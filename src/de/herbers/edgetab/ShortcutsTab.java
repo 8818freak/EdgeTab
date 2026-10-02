@@ -162,7 +162,7 @@ public class ShortcutsTab extends BaseTab {
 
         Integer y = SAVED_SCROLL.remove(inst.id);
         if (y != null) { final int yy = y; scroll.post(() -> scroll.scrollTo(0, yy)); }
-        return scroll;
+        return withScrollTop(ctx, scroll, null);
     }
 
     // ---------- Gruppierung (je Gruppe eigene Ansicht: Raster/Liste + Spalten) ----------

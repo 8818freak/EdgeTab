@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 1.4
+- Neu: „Nach oben“-Knopf in allen Listen-Karten (Posteingang, Anrufe, SMS,
+  Kontakte, Termine, Aufgaben, Notizen, Verknüpfungen). Er erscheint nur, wenn
+  wirklich gescrollt wurde, sitzt auf der Seite, an der EdgeTab am Bildschirmrand
+  klebt, und rückt den Haupt-Knopf dann zur Gegenseite (gleichmäßig verteilt).
+- Verbessert: Der Direktanruf beim kurzen Tipp klappt jetzt zuverlässig aus der
+  Leiste heraus (Hintergrund-Start ausdrücklich erlaubt); fehlt das Recht
+  „Anrufen“, fordert EdgeTab es an, statt still in der Wähl-App zu landen.
+- Verbessert: Das Umschalten zwischen den Karten ist flüssiger – der Posteingang
+  fragt die aktiven Benachrichtigungen nur noch einmal pro Aufbau ab (vorher je
+  Zeile), und eigene Karten-Symbole werden zwischengespeichert statt bei jedem
+  Wechsel neu von der Platte gelesen.
+- Neu: Hinweis bei den Berechtigungen und in der Anleitung – ändert sich eine
+  Berechtigung (z. B. durch ein Update), muss man sie einmal entziehen und neu
+  erteilen, sonst greift sie nicht.
+
 ## 1.3
 - Neu: In der Anrufliste und im Posteingang zeigt eine Anruf-Zeile jetzt die
   Rufnummern-Kennung aus dem Telefonbuch (Mobil/Arbeit/Privat …) und bei
