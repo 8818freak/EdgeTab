@@ -4,6 +4,28 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 1.3
+- Neu: In der Anrufliste und im Posteingang zeigt eine Anruf-Zeile jetzt die
+  Rufnummern-Kennung aus dem Telefonbuch (Mobil/Arbeit/Privat …) und bei
+  bekannten Kontakten zusätzlich die Nummer. Kurzer Tipp ruft direkt an
+  (braucht das neue Recht „Anrufen"; sonst öffnet sich die Wähl-App), langer
+  Tipp öffnet ein Menü (Wählen, SMS, im Telefonbuch öffnen, Nummer kopieren,
+  aus der Anrufliste löschen).
+- Neu: Langer Druck auf ein Textfeld fügt den Text aus der Zwischenablage ein –
+  auch dort, wo die schwebende System-Auswahlleiste im Overlay nicht erscheint.
+- Neu: Je Quelle einstellbar, bereits aus der Statusleiste entfernte
+  Benachrichtigungen nicht erneut (in der Quell-App) zu löschen – schützt vor
+  komischem Verhalten/Abstürzen durch veraltete Lösch-Aktionen (für den
+  BlackBerry Hub ist das voreingestellt an).
+- Neu: Zweiter schwebender Knopf unten links im Posteingang springt an den
+  Listenanfang.
+- Verbessert: Die Scroll-Position im Posteingang bleibt erhalten, auch wenn die
+  Leiste zugeht oder man zwischendurch eine andere App benutzt.
+- Verbessert: Eingebettete fremde Widgets (z. B. Hub-Posteingang) werden nur
+  noch bedient, solange ihre Karte wirklich offen ist – ein deaktivierter Tab
+  oder eine geschlossene Leiste stößt die fremde App nicht mehr an (die sonst
+  abstürzen konnte). „Entfernen" hebt die Widget-Bindung jetzt vollständig auf.
+
 ## 1.2
 - Behoben: Im Posteingang wurde bei älteren Einträgen der App-Name senkrecht
   (Buchstabe für Buchstabe) umgebrochen – der lange Datum-/Uhrzeit-Stempel hatte

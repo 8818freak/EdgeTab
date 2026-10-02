@@ -54,7 +54,12 @@ public class EdgeService extends Service {
         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         startAsForeground();
         addHandle();
-        WidgetHostHolder.startListening(this);
+        // Kein startListening() mehr beim Dienststart: ein eingebettetes fremdes
+        // Widget (z.B. Hub-Posteingang) wird sonst dauerhaft im Hintergrund
+        // bedient und kann die Quell-App zum Absturz bringen - auch wenn sein Tab
+        // deaktiviert ist. Stattdessen lauscht EdgeTab nur, SOLANGE eine
+        // Widget-Karte wirklich offen ist: WidgetTab.buildContent startet das
+        // Lauschen, closePanel() stoppt es wieder.
     }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
@@ -523,6 +528,10 @@ public class EdgeService extends Service {
         panelOpen = false;
         try { wm.removeView(panelView); } catch (Exception ignored) {}
         panelView = null;
+        // Lauschen auf fremde Widgets beenden, sobald das Panel zu ist - so wird
+        // ein eingebettetes Widget (z.B. Hub-Posteingang) nicht im Hintergrund
+        // weiter bedient (siehe onCreate).
+        WidgetHostHolder.stopListening(this);
     }
 
     @Override public void onDestroy() {

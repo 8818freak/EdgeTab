@@ -61,6 +61,14 @@ public class InboxTab extends BaseTab {
         list.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(list);
 
+        // Scroll-Position dauerhaft merken - auch ueber das Schliessen des Panels
+        // und das Umschalten auf ein anderes Programm hinweg (Mathias' Wunsch).
+        // scrollReady[0] verhindert, dass die Scroll-Ereignisse waehrend des
+        // Neuaufbaus (Position noch 0) den gemerkten Wert ueberschreiben, bevor
+        // er wiederhergestellt ist.
+        final boolean[] scrollReady = {false};
+        scroll.setOnScrollChangeListener((v, sx, sy, ox, oy) -> { if (scrollReady[0]) inboxScrollY = sy; });
+
         // Beim Aufklappen/Antworten baut das Panel neu auf - dabei zuerst die
         // Scroll-Position merken, damit die Liste nicht an den Anfang springt.
         final Runnable refresh = () -> {
@@ -177,19 +185,21 @@ public class InboxTab extends BaseTab {
             list.addView(CalendarTab.note(ctx,
                     ctx.getString(R.string.inbox_nothing_yet), "#9E9E9E", fs));
         }
-        // Scroll-Position nach dem Neuaufbau wiederherstellen (siehe refresh).
-        if (inboxScrollY > 0) {
-            final int y = inboxScrollY;
-            inboxScrollY = -1;
-            scroll.post(() -> scroll.scrollTo(0, y));
-        }
+        // Scroll-Position nach dem Neuaufbau wiederherstellen; danach erst das
+        // Merken scharf schalten (siehe scrollReady), damit das Zuruecksetzen auf
+        // 0 beim Aufbau den gemerkten Wert nicht loescht.
+        final int targetY = inboxScrollY;
+        scroll.post(() -> {
+            if (targetY > 0) scroll.scrollTo(0, targetY);
+            scroll.post(() -> scrollReady[0] = true);
+        });
         // Schwebendes Stift-Symbol wie bei Kalender/Kontakte - startet die
         // "mailto:"-Absicht, die Android an die als E-Mail-App eingerichtete
         // App weiterreicht (bei Mathias der Hub). Kein generisches "neue
         // Nachricht" fuer ALLE Quell-Apps moeglich (jede Messaging-App
         // braucht ihre eigene Compose-Ansicht) - E-Mail ist der einzige Fall
         // mit einer wirklich universellen System-Absicht.
-        return withFab(ctx, scroll, fab(ctx, R.drawable.ic_fab_edit, "#F5A623", v -> {
+        View compose = fab(ctx, R.drawable.ic_fab_edit, "#F5A623", v -> {
             try {
                 Intent i = new Intent(Intent.ACTION_SENDTO)
                         .setData(Uri.parse("mailto:"))
@@ -197,7 +207,14 @@ public class InboxTab extends BaseTab {
                 ctx.startActivity(i);
             } catch (Exception ignored) {}
             close.run();
-        }));
+        });
+        // Zweiter schwebender Knopf unten links: springt an den Listenanfang -
+        // gleicher runder Designgedanke wie der Haupt-Knopf (Mathias' Wunsch).
+        View toTop = fabGlyph(ctx, "↑", "#5A5A5E", Gravity.BOTTOM | Gravity.START, v -> {
+            inboxScrollY = 0;
+            scroll.smoothScrollTo(0, 0);
+        });
+        return withFab(ctx, scroll, compose, toTop);
     }
 
     /** Wie im Kalender-Tab: Tageskennung fuer die Gruppierung. */
@@ -236,6 +253,7 @@ public class InboxTab extends BaseTab {
         long rowId;                          // kind 1/2 (sms _id / call _id)
         String addr, body; boolean incoming; // kind 1 (SMS)
         String callName, callNumber; int callType; boolean callNew; boolean callFailed; // kind 2
+        int callNumberType; String callNumberLabel; // Kennung (Mobil/Arbeit/…)
 
         static Entry notif(NotificationStore.Item it, String convKey) {
             Entry e = new Entry(); e.kind = 0; e.item = it; e.time = it.posted; e.convKey = convKey; return e;
@@ -275,7 +293,9 @@ public class InboxTab extends BaseTab {
                 new String[]{android.provider.CallLog.Calls._ID, android.provider.CallLog.Calls.NUMBER,
                         android.provider.CallLog.Calls.CACHED_NAME, android.provider.CallLog.Calls.TYPE,
                         android.provider.CallLog.Calls.DATE, android.provider.CallLog.Calls.NEW,
-                        android.provider.CallLog.Calls.DURATION},
+                        android.provider.CallLog.Calls.DURATION,
+                        android.provider.CallLog.Calls.CACHED_NUMBER_TYPE,
+                        android.provider.CallLog.Calls.CACHED_NUMBER_LABEL},
                 android.provider.CallLog.Calls.DATE + " >= ?",
                 new String[]{String.valueOf(Settings.listCutoff(ctx))},
                 android.provider.CallLog.Calls.DATE + " DESC")) {
@@ -292,6 +312,8 @@ public class InboxTab extends BaseTab {
                     e.callNew = c.getInt(5) == 1;
                     long dur = c.isNull(6) ? 0 : c.getLong(6);
                     e.callFailed = e.callType == android.provider.CallLog.Calls.OUTGOING_TYPE && dur == 0;
+                    e.callNumberType = c.isNull(7) ? 0 : c.getInt(7);
+                    e.callNumberLabel = c.getString(8);
                     e.convKey = "call|" + (num == null ? "?" : num);
                     out.add(e);
                 }
@@ -429,6 +451,7 @@ public class InboxTab extends BaseTab {
             input.setTextColor(Color.WHITE);
             input.setTextSize(13 * fs);
             input.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+            enableClipboardPaste(input);
             rr.addView(input);
             Button send = new Button(ctx);
             send.setText(R.string.send_action);
@@ -503,10 +526,29 @@ public class InboxTab extends BaseTab {
         col.setOrientation(LinearLayout.VERTICAL);
         col.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         TextView who = new TextView(ctx);
-        who.setText(e.callName != null && !e.callName.isEmpty() ? e.callName : (e.callNumber == null ? "?" : e.callNumber));
+        boolean haveName = e.callName != null && !e.callName.isEmpty();
+        who.setText(haveName ? e.callName : (e.callNumber == null ? "?" : e.callNumber));
         who.setTextColor(Color.WHITE);
         who.setTextSize(14 * fs);
         col.addView(who);
+
+        // Rufnummern-Kennung (Mobil/Arbeit/Privat …); bei bekannten Kontakten
+        // zusaetzlich die tatsaechliche Nummer.
+        String callKind = CallActions.typeLabel(ctx, e.callNumberType, e.callNumberLabel);
+        StringBuilder idLine = new StringBuilder();
+        if (!callKind.isEmpty()) idLine.append(callKind);
+        if (haveName && e.callNumber != null && !e.callNumber.isEmpty()) {
+            if (idLine.length() > 0) idLine.append(" · ");
+            idLine.append(e.callNumber);
+        }
+        if (idLine.length() > 0) {
+            TextView idv = new TextView(ctx);
+            idv.setText(idLine.toString());
+            idv.setTextColor(Color.parseColor("#8899AA"));
+            idv.setTextSize(11 * fs);
+            col.addView(idv);
+        }
+
         String dir = missed ? "verpasst"
                 : (e.callType == android.provider.CallLog.Calls.OUTGOING_TYPE
                     ? (e.callFailed ? "ausgehend · nicht erreicht" : "ausgehend") : "eingehend");
@@ -533,16 +575,25 @@ public class InboxTab extends BaseTab {
             box.addView(seen);
         }
 
+        // Kurzer Tipp: direkt anrufen. Langer Tipp: Menue (Wählen, SMS, Kontakt,
+        // kopieren, löschen) ein-/ausklappen - wie in der Anrufliste.
         final String num = e.callNumber;
+        final long rid = e.rowId;
         box.setClickable(true);
-        box.setOnClickListener(v -> {
-            try {
-                ctx.startActivity(new Intent(Intent.ACTION_DIAL, android.net.Uri.parse("tel:" + (num == null ? "" : num)))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            } catch (Exception ignored) {}
-            if (close != null) close.run();
+        box.setLongClickable(true);
+        box.setOnClickListener(v -> CallActions.call(ctx, num, close));
+        box.setOnLongClickListener(v -> {
+            if (CallActions.MENU_OPEN.contains(rid)) CallActions.MENU_OPEN.remove(rid);
+            else CallActions.MENU_OPEN.add(rid);
+            if (refreshContent != null) refreshContent.run();
+            return true;
         });
-        return box;
+        if (!CallActions.MENU_OPEN.contains(rid)) return box;
+        LinearLayout wrap = new LinearLayout(ctx);
+        wrap.setOrientation(LinearLayout.VERTICAL);
+        wrap.addView(box);
+        wrap.addView(CallActions.menu(ctx, rid, num, fs, d, close, refreshContent));
+        return wrap;
     }
 
     private void markCallSeen(Context ctx, long id) {
@@ -603,6 +654,7 @@ public class InboxTab extends BaseTab {
         input.setTextColor(Color.WHITE);
         input.setTextSize(14 * fs);
         input.setSingleLine(true);
+        enableClipboardPaste(input);
         box.addView(input);
 
         LinearLayout btns = new LinearLayout(ctx);
@@ -913,6 +965,7 @@ public class InboxTab extends BaseTab {
             input.setTextSize(13 * fs);
             input.setLayoutParams(new LinearLayout.LayoutParams(
                     0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+            enableClipboardPaste(input);
             replyRow.addView(input);
 
             Button send = new Button(ctx);

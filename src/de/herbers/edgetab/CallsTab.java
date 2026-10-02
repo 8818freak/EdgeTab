@@ -73,7 +73,12 @@ public class CallsTab extends BaseTab {
             root.addView(none);
             return scroll;
         }
-        for (Row r : rows) root.addView(row(ctx, r, close, d));
+        for (Row r : rows) {
+            root.addView(row(ctx, r, close, fs, d, refresh));
+            if (CallActions.MENU_OPEN.contains(r.id)) {
+                root.addView(CallActions.menu(ctx, r.id, r.number, fs, d, close, refresh));
+            }
+        }
         return scroll;
     }
 
@@ -104,6 +109,7 @@ public class CallsTab extends BaseTab {
         input.setSelection(query.length());
         input.setTextSize(14 * fs);
         input.setSingleLine(true);
+        enableClipboardPaste(input);
         box.addView(input);
 
         LinearLayout btns = new LinearLayout(ctx);
@@ -133,24 +139,31 @@ public class CallsTab extends BaseTab {
         return box;
     }
 
-    private static final class Row { String number, name; int type; long date; boolean failed; }
+    private static final class Row {
+        long id; String number, name; int type; long date; boolean failed;
+        int numberType; String numberLabel; // Kennung aus dem Telefonbuch (Mobil/Arbeit/…)
+    }
 
     private List<Row> query(Context ctx) {
         List<Row> out = new ArrayList<>();
         try (Cursor c = ctx.getContentResolver().query(CallLog.Calls.CONTENT_URI,
-                new String[]{CallLog.Calls.NUMBER, CallLog.Calls.CACHED_NAME, CallLog.Calls.TYPE,
-                        CallLog.Calls.DATE, CallLog.Calls.DURATION},
+                new String[]{CallLog.Calls._ID, CallLog.Calls.NUMBER, CallLog.Calls.CACHED_NAME,
+                        CallLog.Calls.TYPE, CallLog.Calls.DATE, CallLog.Calls.DURATION,
+                        CallLog.Calls.CACHED_NUMBER_TYPE, CallLog.Calls.CACHED_NUMBER_LABEL},
                 CallLog.Calls.DATE + " >= ?", new String[]{String.valueOf(Settings.listCutoff(ctx))},
                 CallLog.Calls.DATE + " DESC")) {
             if (c != null) {
                 while (c.moveToNext() && out.size() < 5000) {
                     Row r = new Row();
-                    r.number = c.getString(0);
-                    r.name = c.getString(1);
-                    r.type = c.getInt(2);
-                    r.date = c.isNull(3) ? 0 : c.getLong(3);
-                    long dur = c.isNull(4) ? 0 : c.getLong(4);
+                    r.id = c.getLong(0);
+                    r.number = c.getString(1);
+                    r.name = c.getString(2);
+                    r.type = c.getInt(3);
+                    r.date = c.isNull(4) ? 0 : c.getLong(4);
+                    long dur = c.isNull(5) ? 0 : c.getLong(5);
                     r.failed = r.type == CallLog.Calls.OUTGOING_TYPE && dur == 0;
+                    r.numberType = c.isNull(6) ? 0 : c.getInt(6);
+                    r.numberLabel = c.getString(7);
                     out.add(r);
                 }
             }
@@ -158,7 +171,7 @@ public class CallsTab extends BaseTab {
         return out;
     }
 
-    private View row(Context ctx, Row r, Runnable close, int d) {
+    private View row(Context ctx, Row r, Runnable close, float fs, int d, Runnable refresh) {
         LinearLayout box = new LinearLayout(ctx);
         box.setOrientation(LinearLayout.HORIZONTAL);
         box.setGravity(Gravity.CENTER_VERTICAL);
@@ -188,10 +201,29 @@ public class CallsTab extends BaseTab {
         col.setOrientation(LinearLayout.VERTICAL);
         TextView who = new TextView(ctx);
         String name = r.name != null && !r.name.isEmpty() ? r.name : TabPermHint.contactName(ctx, r.number);
-        who.setText(name != null ? name : (r.number == null ? "?" : r.number));
+        boolean haveName = name != null && !name.isEmpty();
+        who.setText(haveName ? name : (r.number == null ? "?" : r.number));
         who.setTextColor(Color.WHITE);
-        who.setTextSize(14);
+        who.setTextSize(14 * fs);
         col.addView(who);
+
+        // Rufnummern-Kennung wie im Telefonbuch (Mobil/Arbeit/Privat …); bei
+        // bekannten Kontakten zusaetzlich die tatsaechliche Nummer.
+        String kind = CallActions.typeLabel(ctx, r.numberType, r.numberLabel);
+        StringBuilder idLine = new StringBuilder();
+        if (!kind.isEmpty()) idLine.append(kind);
+        if (haveName && r.number != null && !r.number.isEmpty()) {
+            if (idLine.length() > 0) idLine.append(" · ");
+            idLine.append(r.number);
+        }
+        if (idLine.length() > 0) {
+            TextView idv = new TextView(ctx);
+            idv.setText(idLine.toString());
+            idv.setTextColor(Color.parseColor("#8899AA"));
+            idv.setTextSize(11 * fs);
+            col.addView(idv);
+        }
+
         String dir;
         switch (r.type) {
             case CallLog.Calls.INCOMING_TYPE: dir = "eingehend"; break;
@@ -203,18 +235,22 @@ public class CallsTab extends BaseTab {
         TextView sub = new TextView(ctx);
         sub.setText((dir.isEmpty() ? "" : dir + " · ") + when);
         sub.setTextColor(Color.parseColor(callColor));
-        sub.setTextSize(11);
+        sub.setTextSize(11 * fs);
         col.addView(sub);
         box.addView(col);
 
+        // Kurzer Tipp: direkt anrufen. Langer Tipp: Menue (Wählen, SMS, Kontakt,
+        // kopieren, löschen) ein-/ausklappen.
         final String num = r.number;
+        final long rid = r.id;
         box.setClickable(true);
-        box.setOnClickListener(v -> {
-            try {
-                ctx.startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + (num == null ? "" : num)))
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-            } catch (Exception ignored) {}
-            if (close != null) close.run();
+        box.setLongClickable(true);
+        box.setOnClickListener(v -> CallActions.call(ctx, num, close));
+        box.setOnLongClickListener(v -> {
+            if (CallActions.MENU_OPEN.contains(rid)) CallActions.MENU_OPEN.remove(rid);
+            else CallActions.MENU_OPEN.add(rid);
+            if (refresh != null) refresh.run();
+            return true;
         });
         return box;
     }

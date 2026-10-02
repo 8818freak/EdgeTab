@@ -124,6 +124,7 @@ public class SmsTab extends BaseTab {
         if (!searchOpen) return box;
 
         final EditText input = new EditText(ctx);
+        BaseTab.enableClipboardPaste(input);
         input.setHint("Suchbegriff…");
         input.setHintTextColor(Color.parseColor("#9AA6B2"));
         input.setTextColor(Color.WHITE);
@@ -245,6 +246,7 @@ public class SmsTab extends BaseTab {
             rr.setGravity(Gravity.CENTER_VERTICAL);
             rr.setPadding(0, 8 * d, 0, 4 * d);
             EditText input = new EditText(ctx);
+            BaseTab.enableClipboardPaste(input);
             input.setHint(R.string.reply_hint);
             input.setHintTextColor(Color.parseColor("#9AA6B2"));
             input.setTextColor(Color.WHITE);

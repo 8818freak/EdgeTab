@@ -509,6 +509,21 @@ public class SettingsTab {
                     root.addView(ccb);
                 }
             }
+
+            // Je Quelle: bereits aus der Statusleiste entfernte Benachrichtigungen
+            // nicht erneut (in der Quell-App) loeschen - schuetzt v.a. den Hub vor
+            // komischem Verhalten/Abstuerzen durch veraltete Lösch-Draehte. Nur
+            // fuer aktivierte Quellen zeigen, sonst waere die Liste ueberfrachtet.
+            if (Settings.isSourceEnabled(ctx, pkg)) {
+                CheckBox dropCb = new CheckBox(ctx);
+                dropCb.setButtonTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2E9BE6")));
+                dropCb.setText("     Bereits entfernte nicht erneut löschen");
+                dropCb.setTextColor(Color.parseColor("#B0B0B5"));
+                dropCb.setTextSize(12 * fs);
+                dropCb.setChecked(Settings.dropDeleteWhenGone(ctx, pkg));
+                dropCb.setOnCheckedChangeListener((v, on) -> Settings.setDropDeleteWhenGone(ctx, fp, on));
+                root.addView(dropCb);
+            }
         }
 
         section(root, ctx.getString(R.string.inbox_cleanup_section), fs);
@@ -869,6 +884,7 @@ public class SettingsTab {
         head.addView(icon);
 
         EditText name = new EditText(ctx);
+        BaseTab.enableClipboardPaste(name);
         name.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
         name.setText(t.name);
         name.setHint(live.title(ctx));

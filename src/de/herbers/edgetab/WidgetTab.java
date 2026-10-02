@@ -199,7 +199,13 @@ public class WidgetTab extends BaseTab {
         public void onClick(View v) {
             Tabs.update(ctx, tabId, t -> {
                 if (slot >= 0 && slot < t.widgets.size()) {
-                    WidgetHostHolder.forget(t.widgets.get(slot).id);
+                    int id = t.widgets.get(slot).id;
+                    WidgetHostHolder.forget(id);
+                    // Bindung wirklich aufheben - sonst bleibt das Widget an
+                    // EdgeTabs Host gebunden und das System kann es (bzw. die
+                    // Quell-App wie den Hub) weiter bedienen, obwohl es aus der
+                    // Karte entfernt wurde.
+                    try { WidgetHostHolder.host(ctx).deleteAppWidgetId(id); } catch (Throwable ignored) {}
                     t.widgets.remove(slot);
                 }
             });

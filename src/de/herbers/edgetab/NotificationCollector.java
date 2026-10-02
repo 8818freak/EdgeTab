@@ -305,6 +305,14 @@ public class NotificationCollector extends NotificationListenerService {
         if (it == null) return false;
         PendingIntent pi = null;
         StatusBarNotification sbn = resolve(it);
+        // Ist die Benachrichtigung schon aus der Statusleiste entfernt (nicht
+        // mehr aufloesbar) und die Quelle dafuer gesperrt, NICHT den veralteten
+        // Loesch-Draht ausloesen - das bringt z.B. den Hub zu komischem Verhalten
+        // bis zum Absturz. Der Aufrufer entfernt den Eintrag dann nur lokal.
+        if (sbn == null && Settings.dropDeleteWhenGone(ctx, it.pkg)) {
+            Log.d(TAG, "Loeschen uebersprungen (bereits entfernt, Quelle gesperrt): " + it.pkg);
+            return false;
+        }
         if (sbn != null) pi = findDeleteAction(sbn.getNotification());
         if (pi == null && it.nkey != null) pi = deletes.get(it.nkey);
         // Rueckfall auf den gemerkten Draht - so bleibt Loeschen (v.a. bei Mails)

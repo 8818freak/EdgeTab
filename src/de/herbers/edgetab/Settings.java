@@ -214,6 +214,23 @@ public final class Settings {
             default: return raw; // schon ein neuer Schluessel
         }
     }
+
+    // ---- Entfernte Benachrichtigungen nicht erneut zu loeschen versuchen (je
+    // Quell-App). Wird eine Systembenachrichtigung aus der Statusleiste
+    // entfernt, ist ihr gemerkter Loesch-Draht nur noch veraltet; ihn dann doch
+    // auszuloesen bringt manche Apps (v.a. den BlackBerry Hub) zu komischem
+    // Verhalten bis zum Absturz. Ist dieser Schalter an, loescht das X solche
+    // bereits entfernten Eintraege nur noch lokal in EdgeTab, ohne die Quell-App
+    // anzustossen. Default: fuer den Hub an, sonst aus (dort bleibt das bisherige
+    // Verhalten, auch nach dem Wegwischen noch in der App loeschen zu koennen).
+    public static boolean dropDeleteWhenGone(Context c, String pkg) {
+        String v = p(c).getString("dropdel_" + pkg, null);
+        if (v != null) return "1".equals(v);
+        return "com.blackberry.hub".equals(pkg);
+    }
+    public static void setDropDeleteWhenGone(Context c, String pkg, boolean on) {
+        p(c).edit().putString("dropdel_" + pkg, on ? "1" : "0").apply();
+    }
     public static String categoryLabel(Context c, String key) {
         if (key == null) return null;
         switch (key) {

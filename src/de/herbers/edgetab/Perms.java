@@ -59,6 +59,7 @@ final class Perms {
         boolean sendSms = ctx.checkSelfPermission(android.Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED;
         boolean calls = ctx.checkSelfPermission(android.Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED;
         boolean writeCalls = ctx.checkSelfPermission(android.Manifest.permission.WRITE_CALL_LOG) == PackageManager.PERMISSION_GRANTED;
+        boolean callPhone = ctx.checkSelfPermission(android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED;
         l.add(new PermReminder.Perm("sms", "SMS lesen",
                 sms, appDetails(ctx),
                 "Für die SMS-Karte und den Posteingang – zeigt die letzten Kurznachrichten."));
@@ -70,7 +71,10 @@ final class Perms {
                 "Für die Anrufe-Karte und den Posteingang – zeigt die letzten Anrufe."));
         l.add(new PermReminder.Perm("write_calls", "Anrufliste ändern",
                 writeCalls, appDetails(ctx),
-                "Um verpasste Anrufe als gesehen zu markieren."));
+                "Um verpasste Anrufe als gesehen zu markieren oder Einträge aus der Anrufliste zu löschen."));
+        l.add(new PermReminder.Perm("call_phone", "Anrufen",
+                callPhone, appDetails(ctx),
+                "Um aus der Anrufliste heraus mit kurzem Tipp direkt anzurufen. Ohne das Recht öffnet sich stattdessen die Wähl-App mit der Nummer."));
         return l;
     }
 

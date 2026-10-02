@@ -105,6 +105,31 @@ abstract class BaseTab implements Tab {
         return gear;
     }
 
+    /** Langer Druck auf ein Textfeld fuegt den Text aus der Zwischenablage an der
+     *  Einfuegemarke ein. Noetig, weil die schwebende System-Auswahlleiste
+     *  (Einfuegen/Kopieren) ueber EdgeTabs Overlay-Fenster meist nicht erscheint;
+     *  der Einfuegen-Befehl selbst funktioniert. Ist nichts in der Zwischenablage,
+     *  wird der lange Druck durchgereicht (dann versucht es das System selbst). */
+    static void enableClipboardPaste(final android.widget.EditText input) {
+        input.setOnLongClickListener(v -> {
+            try {
+                android.content.ClipboardManager cm = (android.content.ClipboardManager)
+                        input.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                if (cm != null && cm.hasPrimaryClip() && cm.getPrimaryClip() != null
+                        && cm.getPrimaryClip().getItemCount() > 0) {
+                    CharSequence paste = cm.getPrimaryClip().getItemAt(0).coerceToText(input.getContext());
+                    if (paste != null && paste.length() > 0) {
+                        int a = Math.max(0, input.getSelectionStart());
+                        int b = Math.max(0, input.getSelectionEnd());
+                        input.getText().replace(Math.min(a, b), Math.max(a, b), paste);
+                        return true; // verbraucht - wir haben eingefuegt
+                    }
+                }
+            } catch (Throwable ignored) {}
+            return false; // nichts zum Einfuegen -> System seinen Weg gehen lassen
+        });
+    }
+
     /** Stabile, unterscheidbare Farbe je Schluessel (z.B. Paketname) - fuer
      *  den farbigen Balken je Zeile, wenn es keine "echte" Farbe gibt (wie
      *  die Kalenderfarbe bei Terminen). Wie im Kalender-Tab, nur ohne
@@ -113,13 +138,48 @@ abstract class BaseTab implements Tab {
         return de.herbers.common.ColorUtil.colorFor(key);
     }
 
+    /** Wie fabGear(), aber mit frei waehlbarem Zeichen und Platzierung - fuer
+     *  z.B. den "nach oben"-Knopf (↑) unten links, neben dem mittigen Haupt-
+     *  Knopf. gravity bestimmt die Ecke; bei START/END wird automatisch ein
+     *  Seitenabstand gesetzt, damit er nicht am Rand klebt. */
+    static View fabGlyph(Context ctx, String glyph, String bgColorHex, int gravity, View.OnClickListener onClick) {
+        int d = Math.round(ctx.getResources().getDisplayMetrics().density);
+        android.widget.TextView t = new android.widget.TextView(ctx);
+        t.setText(glyph);
+        t.setTextColor(Color.WHITE);
+        t.setTextSize(22);
+        t.setGravity(Gravity.CENTER);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setColor(Color.parseColor(bgColorHex));
+        t.setBackground(bg);
+        t.setElevation(6 * d);
+        int s = 52 * d;
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(s, s);
+        lp.gravity = gravity;
+        lp.bottomMargin = 16 * d;
+        if ((gravity & Gravity.START) == Gravity.START) lp.leftMargin = 16 * d;
+        else if ((gravity & Gravity.END) == Gravity.END) lp.rightMargin = 16 * d;
+        t.setLayoutParams(lp);
+        t.setClickable(true);
+        t.setOnClickListener(onClick);
+        return t;
+    }
+
     /** Hebt eine ScrollView + schwebendes Symbol in einen gemeinsamen
      *  Container - das Symbol bleibt beim Scrollen an fester Stelle. */
     static View withFab(Context ctx, View scroll, View fab) {
+        return withFab(ctx, scroll, fab, null);
+    }
+
+    /** Wie withFab(), aber mit einem zweiten schwebenden Knopf (z.B. unten links
+     *  der "nach oben"-Knopf, mittig der Haupt-Knopf). extra darf null sein. */
+    static View withFab(Context ctx, View scroll, View fab, View extra) {
         FrameLayout frame = new FrameLayout(ctx);
         frame.addView(scroll, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        frame.addView(fab);
+        if (extra != null) frame.addView(extra);
+        if (fab != null) frame.addView(fab);
         return frame;
     }
 }

@@ -575,6 +575,7 @@ public class ShortcutsTab extends BaseTab {
         head.addView(icon);
 
         EditText name = new EditText(ctx);
+        BaseTab.enableClipboardPaste(name);
         name.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
         name.setText(r.label);
         name.setHint(appLabel(pm, r));
@@ -600,6 +601,7 @@ public class ShortcutsTab extends BaseTab {
         // des Feldes neu auf, damit der Eintrag sichtbar in seine neue
         // Gruppe wandert.
         EditText group = new EditText(ctx);
+        BaseTab.enableClipboardPaste(group);
         group.setHintTextColor(android.graphics.Color.parseColor("#9AA6B2"));
         group.setText(r.group);
         group.setHint(R.string.group_hint);
