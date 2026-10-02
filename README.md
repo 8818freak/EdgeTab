@@ -40,14 +40,26 @@ Android-Schnittstellen.*
   shared library's `Notifications.toJson`), not just its title and one line —
   so nothing extractable is thrown away. Shows the notification's icon and,
   for live notifications, the big picture (BigPictureStyle photo/album art).
+  Per source you can tell EdgeTab **not to re-fire a delete** on a notification
+  that is already gone from the status bar (on by default for the BlackBerry
+  Hub, which otherwise misbehaved on stale delete actions).
   A magnifier opens a search field: "search here" filters the inbox,
   "search in Sucher" opens the Sucher app with the term for a full-text
   search across everything.
-- **SMS & Calls**: cards showing your latest text messages / call log
-  (name or number, direction, time); tapping opens the SMS or dialer app.
-  Optional, permission requested on demand.
+- **SMS & Calls**: cards (and optionally inline in the inbox) showing your
+  latest text messages / call log. Calls show the **number type from your
+  address book** (mobile / work / home …), direction and time, colour-coded
+  (green = connected, red = missed, blue = outgoing-but-not-reached). A **short
+  tap places the call** (needs the "call" permission, otherwise the dialer
+  opens); a **long press opens a menu** (call, text, open in contacts, copy
+  number, delete from the call log). SMS group into expandable conversations
+  with inline reply. Both have their own search. Optional, permissions
+  requested on demand.
 - **App Widgets**: embed any installed home-screen widget (e.g. BlackBerry
-  Hub's own inbox widget) directly in the panel.
+  Hub's own inbox widget) directly in the panel. An embedded widget is only
+  driven **while its card is actually open**, so a disabled tab or a closed
+  panel can't make the source app misbehave; **"Remove" fully unbinds** the
+  widget.
 - **Shortcuts**: pure app-icon launcher, grouped, grid or list per group.
 - **Contacts**: all / a hand-picked subset / favourites only.
 - **Tasks**: reads (and can check off) tasks from
@@ -60,7 +72,16 @@ Android-Schnittstellen.*
   app uses, what it is for, and its status, with a jump to the matching
   system setting. If a once-granted permission goes missing (e.g. after an OS
   update), EdgeTab reminds you with a notification that offers to re-grant it
-  or to ignore it. The inbox can also be emptied here.
+  or to ignore it. The inbox can also be emptied here. Note: if a permission
+  *changes* (e.g. an update adds/widens one), you have to revoke and re-grant
+  it once in Android settings, otherwise it stays ineffective.
+- **Paste on long-press**: long-pressing any text field (reply, search …)
+  pastes the clipboard – the floating system selection toolbar often doesn't
+  appear over the overlay window.
+- **"To top" button**: long lists get a second floating round button that
+  jumps to the top; it appears only once you've scrolled, and both floating
+  buttons sit evenly left/right of centre, on whichever screen edge EdgeTab is
+  docked to.
 
 ## Screenshots
 
