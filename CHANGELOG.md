@@ -4,6 +4,17 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 1.5
+- Verbessert: Die beiden schwebenden Knöpfe (Haupt-Aktion + „nach oben“) sitzen
+  jetzt gleichmäßig links und rechts der Mitte; der Abstand richtet sich nach der
+  eingestellten Leistenbreite. Gibt es nur einen Knopf, sitzt er mittig. Der
+  „nach oben“-Knopf erscheint jetzt zuverlässig in allen Listen (auch
+  Verknüpfungen).
+- Verbessert: Das Umschalten zwischen den Karten ist spürbar schneller –
+  Kontaktnamen werden zwischengespeichert (Posteingang, SMS und Anrufe schlugen
+  sie vorher je Zeile einzeln nach, was mehrere Sekunden dauern konnte).
+- Handbücher: aktuelle Bildschirmfotos, persönliche Inhalte pro Wort geschwärzt.
+
 ## 1.4
 - Neu: „Nach oben“-Knopf in allen Listen-Karten (Posteingang, Anrufe, SMS,
   Kontakte, Termine, Aufgaben, Notizen, Verknüpfungen). Er erscheint nur, wenn

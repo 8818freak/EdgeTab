@@ -53,16 +53,28 @@ final class TabPermHint {
     }
 
     /** Kontaktname zu einer Telefonnummer (falls Kontakte-Zugriff besteht), sonst null. */
+    // Nummer -> Name zwischenspeichern (leerer String = "kein Kontakt"): die
+    // Kontakte-Abfrage lief vorher je SMS/Anruf-Zeile, bei vielen tausend
+    // Eintraegen der Hauptgrund fuer das zaehe Laden von Posteingang/SMS/Anrufen.
+    // Sitzungsweit; Kontakte aendern sich selten. Fehlendes Recht wird NICHT
+    // gecacht (damit es nach dem Erteilen sofort greift).
+    private static final java.util.Map<String, String> NAME_CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
     static String contactName(Context ctx, String number) {
         if (number == null || number.isEmpty()) return null;
+        String cached = NAME_CACHE.get(number);
+        if (cached != null) return cached.isEmpty() ? null : cached;
         if (ctx.checkSelfPermission(android.Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) return null;
+        String name = null;
         try {
             Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
             try (Cursor c = ctx.getContentResolver().query(uri,
                     new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null)) {
-                if (c != null && c.moveToFirst()) return c.getString(0);
+                if (c != null && c.moveToFirst()) name = c.getString(0);
             }
         } catch (Exception ignored) {}
-        return null;
+        NAME_CACHE.put(number, name == null ? "" : name);
+        return name;
     }
 }

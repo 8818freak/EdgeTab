@@ -70,8 +70,10 @@ public class InboxTab extends BaseTab {
         // scrollReady[0] verhindert, dass die Scroll-Ereignisse waehrend des
         // Neuaufbaus (Position noch 0) den gemerkten Wert ueberschreiben, bevor
         // er wiederhergestellt ist.
+        // Das Merken der Scroll-Position laeuft ueber den withScrollTop-Callback
+        // (ein einziger Scroll-Listener je ScrollView). scrollReady verhindert,
+        // dass das Zuruecksetzen auf 0 beim Aufbau den gemerkten Wert loescht.
         final boolean[] scrollReady = {false};
-        scroll.setOnScrollChangeListener((v, sx, sy, ox, oy) -> { if (scrollReady[0]) inboxScrollY = sy; });
 
         // Beim Aufklappen/Antworten baut das Panel neu auf - dabei zuerst die
         // Scroll-Position merken, damit die Liste nicht an den Anfang springt.
@@ -214,8 +216,9 @@ public class InboxTab extends BaseTab {
             close.run();
         });
         // "Nach oben"-Knopf (erscheint nur beim Scrollen, Seite folgt dem
-        // Andock-Rand) kommt aus dem gemeinsamen Helfer - siehe withScrollTop.
-        return withScrollTop(ctx, scroll, compose);
+        // Andock-Rand) kommt aus dem gemeinsamen Helfer; der Callback merkt
+        // zugleich die Scroll-Position (siehe scrollReady).
+        return withScrollTop(ctx, scroll, compose, y -> { if (scrollReady[0]) inboxScrollY = y; });
     }
 
     /** Wie im Kalender-Tab: Tageskennung fuer die Gruppierung. */
@@ -268,7 +271,7 @@ public class InboxTab extends BaseTab {
                 new String[]{"_id", "address", "body", "date", "type"},
                 "date >= ?", new String[]{String.valueOf(Settings.listCutoff(ctx))}, "date DESC")) {
             if (c != null) {
-                while (c.moveToNext() && out.size() < 5000) {
+                while (c.moveToNext() && out.size() < (inboxQuery.isEmpty() ? 400 : 3000)) {
                     String addr = c.getString(1), body = c.getString(2);
                     if (body == null) continue;
                     String name = TabPermHint.contactName(ctx, addr);
@@ -301,7 +304,7 @@ public class InboxTab extends BaseTab {
                 new String[]{String.valueOf(Settings.listCutoff(ctx))},
                 android.provider.CallLog.Calls.DATE + " DESC")) {
             if (c != null) {
-                while (c.moveToNext() && out.size() < 5000) {
+                while (c.moveToNext() && out.size() < (inboxQuery.isEmpty() ? 400 : 3000)) {
                     String num = c.getString(1), name = c.getString(2);
                     if (name == null || name.isEmpty()) name = TabPermHint.contactName(ctx, num);
                     if (!q.isEmpty() && (num == null || !num.toLowerCase().contains(q))
@@ -1001,8 +1004,21 @@ public class InboxTab extends BaseTab {
         return outer;
     }
 
+    // App-Namen je Aufbau cachen (appLabel wird je Zeile aufgerufen; ohne Cache
+    // ein PackageManager-Zugriff pro Zeile). Die Tab-Instanz ist je Panel-Aufbau
+    // frisch, daher kein Veralten.
+    private final java.util.HashMap<String, String> labelCache = new java.util.HashMap<>();
+
     /** Der im Gerät eingestellte, uebersetzte App-Name statt des Paketnamens. */
     private String appLabel(PackageManager pm, String pkg) {
+        String cached = labelCache.get(pkg);
+        if (cached != null) return cached;
+        String computed = appLabelUncached(pm, pkg);
+        labelCache.put(pkg, computed);
+        return computed;
+    }
+
+    private String appLabelUncached(PackageManager pm, String pkg) {
         try {
             ApplicationInfo ai = pm.getApplicationInfo(pkg, 0);
             CharSequence label = pm.getApplicationLabel(ai);

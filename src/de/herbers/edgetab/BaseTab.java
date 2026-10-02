@@ -183,49 +183,57 @@ abstract class BaseTab implements Tab {
         return frame;
     }
 
+    /** Rueckruf fuer die laufende Scroll-Position (fuer Karten, die sie merken). */
+    interface ScrollCb { void onScroll(int y); }
+
+    static View withScrollTop(Context ctx, android.widget.ScrollView scroll, View primaryFab) {
+        return withScrollTop(ctx, scroll, primaryFab, null);
+    }
+
     /** Haengt an eine Listen-ScrollView einen "nach oben"-Knopf, der NUR
-     *  erscheint, wenn wirklich gescrollt wurde, und beim Erscheinen den
-     *  Haupt-Knopf zur Gegenseite schiebt (so sind beide gleichmaessig verteilt).
-     *  Beide sitzen auf der Seite, an der EdgeTab am Bildschirmrand klebt
-     *  ({@link Settings#edgeRight}). primaryFab darf null sein (Listen ohne
-     *  eigenen Aktionsknopf). Fuer alle Listen-Karten, deren Inhalt laenger als
-     *  der Bildschirm werden kann. */
-    static View withScrollTop(Context ctx, final android.widget.ScrollView scroll, final View primaryFab) {
+     *  erscheint, wenn wirklich gescrollt wurde. Ist ein Haupt-Knopf da, sitzen
+     *  beide dicht nebeneinander auf der Seite, an der EdgeTab am Bildschirmrand
+     *  klebt ({@link Settings#edgeRight}); ist KEIN anderer Knopf da, sitzt der
+     *  "nach oben"-Knopf mittig am unteren Rand. primaryFab darf null sein.
+     *  onScrollY (optional) bekommt jede Scroll-Position gemeldet - so kann die
+     *  Karte sie merken, OHNE einen zweiten Listener zu brauchen (je ScrollView
+     *  gibt es setOnScrollChangeListener nur einmal). */
+    static View withScrollTop(Context ctx, final android.widget.ScrollView scroll,
+                              final View primaryFab, final ScrollCb onScrollY) {
         final int d = Math.round(ctx.getResources().getDisplayMetrics().density);
         final boolean right = Settings.edgeRight(ctx);
         FrameLayout frame = new FrameLayout(ctx);
         frame.addView(scroll, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
+        // Beide Knoepfe grundsaetzlich mittig am unteren Rand; die seitliche
+        // Verschiebung macht spaeter translationX (symmetrisch zur Mitte).
         final View up = fabGlyph(ctx, "↑", "#5A5A5E",
-                Gravity.BOTTOM | (right ? Gravity.END : Gravity.START),
-                v -> scroll.smoothScrollTo(0, 0));
+                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, v -> scroll.smoothScrollTo(0, 0));
         up.setVisibility(View.GONE);
         frame.addView(up);
         if (primaryFab != null) frame.addView(primaryFab);
 
         final int threshold = 160 * d;
-        // ViewTreeObserver statt setOnScrollChangeListener: letzteres gibt es je
-        // ScrollView nur EINMAL, und z.B. der Posteingang nutzt es bereits fuer
-        // das Merken der Scroll-Position. Der ViewTreeObserver erlaubt mehrere
-        // Beobachter, die friedlich nebeneinander laufen.
-        scroll.getViewTreeObserver().addOnScrollChangedListener(() -> {
-            int y = scroll.getScrollY();
+        // Abstand von der Mitte = ein Viertel der eingestellten Leistenbreite:
+        // so stehen beide Knoepfe gleichmaessig links/rechts der Mitte (auf
+        // Viertel- und Dreiviertel-Breite), und der Abstand waechst/schrumpft mit
+        // der Leistenbreite. Pfeil auf der Andock-Seite, Haupt-Knopf gegenueber.
+        final int offset = Math.round(Settings.panelWidth(ctx) / 4f) * d;
+        // View-eigener Listener (zuverlaessig, ueberlebt das Anhaengen ans
+        // Fenster). Macht beides in EINEM Listener: Position melden + Knopf steuern.
+        scroll.setOnScrollChangeListener((v, x, y, ox, oy) -> {
+            if (onScrollY != null) onScrollY.onScroll(y);
             boolean show = y > threshold;
             if (show == (up.getVisibility() == View.VISIBLE)) return; // nichts aendert sich
             up.setVisibility(show ? View.VISIBLE : View.GONE);
-            if (primaryFab != null) {
-                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) primaryFab.getLayoutParams();
-                if (show) {
-                    // Haupt-Knopf auf die Gegenseite des "nach oben"-Knopfes.
-                    lp.gravity = Gravity.BOTTOM | (right ? Gravity.START : Gravity.END);
-                    lp.leftMargin = right ? 16 * d : 0;
-                    lp.rightMargin = right ? 0 : 16 * d;
-                } else {
-                    lp.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-                    lp.leftMargin = 0; lp.rightMargin = 0;
-                }
-                primaryFab.setLayoutParams(lp);
+            if (primaryFab == null) {
+                up.setTranslationX(0); // allein -> mittig
+            } else if (show) {
+                up.setTranslationX(right ? offset : -offset);          // Pfeil auf Andock-Seite
+                primaryFab.setTranslationX(right ? -offset : offset);  // Haupt-Knopf gegenueber
+            } else {
+                primaryFab.setTranslationX(0); // ohne Pfeil wieder mittig
             }
         });
         return frame;
