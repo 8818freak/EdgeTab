@@ -26,6 +26,12 @@ import java.util.Calendar;
  */
 public class CalendarTab extends BaseTab {
 
+    // Mathias' Wunsch: die letzten Tage nur auf Knopfdruck (Dreieck) einblenden,
+    // standardmaessig also nur ab heute. Static, damit die Wahl einen Neuaufbau
+    // der Karte ueberlebt (wie CONV_OPEN im InboxTab).
+    private static boolean SHOW_PAST = false;
+    private static final int PAST_DAYS = 3;
+
     public CalendarTab(TabInstance inst) { super(inst, R.string.tab_calendar, R.drawable.ic_calendar); }
 
     public View buildContent(Context ctx, Runnable closePanel, Runnable refreshContent) {
@@ -42,8 +48,19 @@ public class CalendarTab extends BaseTab {
             return scroll;
         }
 
+        // Umschalter „Vergangene Tage" ganz oben (Dreieck). Blendet die letzten
+        // PAST_DAYS Tage vorübergehend ein/aus.
+        list.addView(pastToggle(ctx, fs, refreshContent));
+
         int shown = 0;
         long now = System.currentTimeMillis();
+        // Start = Mitternacht heute; auf Wunsch (SHOW_PAST) um einige Tage zurück,
+        // um kürzlich vergangene Termine mit einzublenden.
+        Calendar from0 = Calendar.getInstance();
+        from0.set(Calendar.HOUR_OF_DAY, 0); from0.set(Calendar.MINUTE, 0);
+        from0.set(Calendar.SECOND, 0); from0.set(Calendar.MILLISECOND, 0);
+        if (SHOW_PAST) from0.add(Calendar.DAY_OF_YEAR, -PAST_DAYS);
+        long from = from0.getTimeInMillis();
         long in7 = now + 7L * 24 * 60 * 60 * 1000;
         String[] proj = {
                 CalendarContract.Instances.EVENT_ID,
@@ -56,7 +73,7 @@ public class CalendarTab extends BaseTab {
         };
         try {
             Uri.Builder b = CalendarContract.Instances.CONTENT_URI.buildUpon();
-            ContentUris.appendId(b, now);
+            ContentUris.appendId(b, from);
             ContentUris.appendId(b, in7);
             Cursor c = ctx.getContentResolver().query(b.build(), proj, null, null,
                     CalendarContract.Instances.BEGIN + " ASC");
@@ -113,6 +130,32 @@ public class CalendarTab extends BaseTab {
         });
     }
 
+    /** Umschalter „Vergangene Tage einblenden/ausblenden" mit Dreieck (▸/▾) -
+     *  gleiche Optik wie der Konversations-Aufklapper im Posteingang: volle Breite,
+     *  gut treffbar. Ein Tipp kehrt SHOW_PAST um und baut die Karte neu auf. */
+    private View pastToggle(Context ctx, float fs, Runnable refreshContent) {
+        int d = Math.round(ctx.getResources().getDisplayMetrics().density);
+        TextView toggle = new TextView(ctx);
+        toggle.setText((SHOW_PAST ? "▾   " : "▸   ")
+                + ctx.getString(SHOW_PAST ? R.string.calendar_hide_past : R.string.calendar_show_past));
+        toggle.setTextColor(Color.parseColor("#2E9BE6"));
+        toggle.setTextSize(13 * fs);
+        GradientDrawable tbg = new GradientDrawable();
+        tbg.setColor(Color.parseColor("#22314A"));
+        tbg.setCornerRadius(8 * d);
+        toggle.setBackground(tbg);
+        toggle.setPadding(14 * d, 10 * d, 14 * d, 10 * d);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        tlp.bottomMargin = 4 * d;
+        toggle.setLayoutParams(tlp);
+        toggle.setOnClickListener(v -> {
+            SHOW_PAST = !SHOW_PAST;
+            if (refreshContent != null) refreshContent.run();
+        });
+        return toggle;
+    }
+
     private long dayIndex(long millis) {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(millis);
@@ -125,6 +168,8 @@ public class CalendarTab extends BaseTab {
         String label;
         if (DateUtils.isToday(begin)) label = ctx.getString(R.string.day_today).toUpperCase(java.util.Locale.getDefault());
         else if (DateUtils.isToday(begin - 86400000L)) label = ctx.getString(R.string.day_tomorrow).toUpperCase(java.util.Locale.getDefault());
+        else if (DateUtils.isToday(begin + 86400000L)) label = ctx.getString(R.string.day_yesterday).toUpperCase(java.util.Locale.getDefault());
+        else if (DateUtils.isToday(begin + 2 * 86400000L)) label = ctx.getString(R.string.day_before_yesterday).toUpperCase(java.util.Locale.getDefault());
         else label = DateUtils.formatDateTime(ctx, begin,
                 DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE
                 | DateUtils.FORMAT_ABBREV_MONTH).toUpperCase(java.util.Locale.getDefault());

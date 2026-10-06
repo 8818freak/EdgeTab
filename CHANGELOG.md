@@ -4,6 +4,11 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 1.6
+- Neu: Der Kalender kann jetzt auch Termine der letzten Tage anzeigen (mit
+  GESTERN/VORGESTERN). Standardmäßig ausgeblendet; ein Dreieck oben
+  („Vergangene Tage einblenden“) blendet sie bei Bedarf ein und wieder aus.
+
 ## 1.5.1
 - Verbessert: Die Benachrichtigung bei einer fehlenden Berechtigung ist jetzt
   zweisprachig (Deutsch/Englisch, folgt der Systemsprache).

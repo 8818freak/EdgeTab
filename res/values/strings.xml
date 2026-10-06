@@ -61,6 +61,8 @@
     <string name="calendar_permission_missing">Kalender-Berechtigung fehlt</string>
     <string name="calendar_unreadable">Kalender nicht lesbar</string>
     <string name="calendar_no_events_7d">Keine Termine in den nächsten 7 Tagen</string>
+    <string name="calendar_show_past">Vergangene Tage einblenden</string>
+    <string name="calendar_hide_past">Vergangene Tage ausblenden</string>
 
     <!-- Posteingang-Kategorien -->
     <string name="category_communication">Kommunikation</string>

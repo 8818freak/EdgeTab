@@ -61,6 +61,8 @@
     <string name="calendar_permission_missing">Calendar permission missing</string>
     <string name="calendar_unreadable">Calendar not readable</string>
     <string name="calendar_no_events_7d">No events in the next 7 days</string>
+    <string name="calendar_show_past">Show past days</string>
+    <string name="calendar_hide_past">Hide past days</string>
 
     <!-- Inbox categories -->
     <string name="category_communication">Communication</string>
