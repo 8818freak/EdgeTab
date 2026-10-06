@@ -279,4 +279,10 @@
     <string name="icon_builtin_label">\nOr a built-in icon:</string>
     <string name="no_image_picker_toast">No image picker available</string>
     <string name="image_read_failed_toast">Image could not be read</string>
+    <string name="perm_reminder_channel">"Permission notices"</string>
+    <string name="perm_reminder_channel_desc">"A notice when a once-granted permission is missing."</string>
+    <string name="perm_reminder_title">"%1$s: permission missing"</string>
+    <string name="perm_reminder_text">"%1$s is no longer granted – tap to grant."</string>
+    <string name="perm_reminder_bigtext">"%1$s was set up but is no longer granted (e.g. after a system update). Tap to grant it again – or “Ignore” if that is intended."</string>
+    <string name="perm_reminder_ignore">"Ignore"</string>
 </resources>

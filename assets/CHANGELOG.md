@@ -4,6 +4,10 @@ Alle nennenswerten Änderungen, neueste zuerst. Vor 0.14 nicht im Detail
 dokumentiert (allerfrüheste Aufbauphase: Grundgerüst, Rand-Griff, erste
 Karten als Platzhalter).
 
+## 1.5.1
+- Verbessert: Die Benachrichtigung bei einer fehlenden Berechtigung ist jetzt
+  zweisprachig (Deutsch/Englisch, folgt der Systemsprache).
+
 ## 1.5
 - Verbessert: Die beiden schwebenden Knöpfe (Haupt-Aktion + „nach oben“) sitzen
   jetzt gleichmäßig links und rechts der Mitte; der Abstand richtet sich nach der

@@ -1,3 +1,5 @@
+> 🇬🇧 **English:** README.md *(this page)* · 🇩🇪 **Deutsch:** [README.de.md](README.de.md)
+
 # EdgeTab
 
 A from-scratch Android recreation of BlackBerry's "Productivity Edge" —

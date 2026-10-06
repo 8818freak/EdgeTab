@@ -279,4 +279,10 @@
     <string name="icon_builtin_label">\nOder ein mitgeliefertes Symbol:</string>
     <string name="no_image_picker_toast">Keine Bildauswahl verfügbar</string>
     <string name="image_read_failed_toast">Bild konnte nicht gelesen werden</string>
+    <string name="perm_reminder_channel">"Berechtigungs-Hinweise"</string>
+    <string name="perm_reminder_channel_desc">"Hinweis, wenn eine einmal erteilte Berechtigung fehlt."</string>
+    <string name="perm_reminder_title">"%1$s: Berechtigung fehlt"</string>
+    <string name="perm_reminder_text">"%1$s ist nicht mehr erteilt – tippen zum Erteilen."</string>
+    <string name="perm_reminder_bigtext">"%1$s war eingerichtet, ist aber nicht mehr erteilt (z. B. durch ein System-Update). Tippen, um sie wieder zu erteilen – oder „Ignorieren“, falls das gewollt ist."</string>
+    <string name="perm_reminder_ignore">"Ignorieren"</string>
 </resources>
